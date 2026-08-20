@@ -1,0 +1,151 @@
+/* ============================================================
+   Cartes des matières — page d'accueil
+   Design "smart" : accent coloré par carte, relief au survol,
+   badges pour le volume horaire, bouton d'accès mis en valeur.
+   ============================================================ */
+
+.md-typeset .grid.cards > ul {
+  gap: 1rem;
+}
+
+.md-typeset .grid.cards > ul > li {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 14px;
+  padding: 1.4rem 1.4rem 1.6rem;
+  background: var(--md-default-bg-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 0.22s ease;
+}
+
+/* Liseré coloré en tête de carte — une teinte différente par matière */
+.md-typeset .grid.cards > ul > li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--card-accent-a), var(--card-accent-b));
+  opacity: 0.95;
+}
+
+.md-typeset .grid.cards > ul > li:nth-child(1) { --card-accent-a:#5b6bf5; --card-accent-b:#8f6cf5; }
+.md-typeset .grid.cards > ul > li:nth-child(2) { --card-accent-a:#0ea5a4; --card-accent-b:#37c9c0; }
+.md-typeset .grid.cards > ul > li:nth-child(3) { --card-accent-a:#e0527a; --card-accent-b:#f08a5d; }
+.md-typeset .grid.cards > ul > li:nth-child(4) { --card-accent-a:#c99a2e; --card-accent-b:#e8c257; }
+.md-typeset .grid.cards > ul > li:nth-child(5) { --card-accent-a:#6c63ff; --card-accent-b:#3ab0ff; }
+.md-typeset .grid.cards > ul > li:nth-child(6) { --card-accent-a:#2e9e6c; --card-accent-b:#7bd389; }
+.md-typeset .grid.cards > ul > li:nth-child(7) { --card-accent-a:#d1495b; --card-accent-b:#ff7b54; }
+.md-typeset .grid.cards > ul > li:nth-child(8) { --card-accent-a:#3d63dd; --card-accent-b:#3fa9f5; }
+.md-typeset .grid.cards > ul > li:nth-child(9) { --card-accent-a:#8e44ad; --card-accent-b:#c2439c; }
+
+.md-typeset .grid.cards > ul > li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.14);
+  border-color: transparent;
+}
+
+/* Icône de la matière : pastille circulaire teintée */
+.md-typeset .grid.cards > ul > li > p:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.md-typeset .grid.cards > ul > li > p:first-child > .twemoji {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--card-accent-a), var(--card-accent-b));
+  box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.25);
+}
+
+.md-typeset .grid.cards > ul > li > p:first-child > .twemoji svg {
+  fill: #fff;
+}
+
+/* Badges volume horaire (CM / TP) */
+.md-typeset .badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0.7rem;
+}
+
+.md-typeset .badge-hours {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  background: var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color--light);
+}
+
+.md-typeset .badge-hours svg {
+  width: 0.85em;
+  height: 0.85em;
+}
+
+/* Bouton d'accès en bas de carte */
+.md-typeset .grid.cards > ul > li .md-button {
+  margin-top: 0.9rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  padding: 0.45rem 1rem;
+  border-width: 1px;
+}
+
+.md-typeset .grid.cards > ul > li .md-button--primary {
+  background: linear-gradient(90deg, var(--card-accent-a), var(--card-accent-b));
+  border: none;
+  color: #fff;
+}
+
+.md-typeset .grid.cards > ul > li .md-button--primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* Volume horaire total — bandeau de synthèse */
+.md-typeset .stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: 1.2rem 0 1.6rem;
+}
+
+.md-typeset .stats-row .stat {
+  flex: 1 1 140px;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  background: var(--md-code-bg-color);
+  text-align: center;
+}
+
+.md-typeset .stats-row .stat .stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--md-primary-fg-color);
+}
+
+.md-typeset .stats-row .stat .stat-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.15rem;
+}

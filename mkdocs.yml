@@ -29,6 +29,8 @@ theme:
         icon: material/weather-sunny
         name: "Passer en mode clair"
   features:
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.instant
     - navigation.tracking
     - navigation.sections
@@ -40,6 +42,9 @@ theme:
     - search.highlight
     - content.code.copy
     - content.tabs.link
+
+extra_css:
+  - assets/extra.css
 
 extra:
   social:
