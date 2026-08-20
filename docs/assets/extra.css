@@ -97,6 +97,136 @@
 }
 
 /* ============================================================
+   Page "Téléchargements" — accès protégé par email + code
+   ============================================================ */
+.md-typeset .gate-note {
+  font-size: 0.82rem;
+  color: var(--md-default-fg-color--light);
+  background: var(--md-code-bg-color);
+  border-left: 3px solid var(--brand-c);
+  border-radius: 4px;
+  padding: 0.7rem 1rem;
+  margin: 1rem 0 1.6rem;
+}
+
+.md-typeset #gate-form {
+  max-width: 420px;
+  padding: 1.4rem;
+  border-radius: 14px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  background: var(--md-default-bg-color);
+}
+
+.md-typeset .gate-field {
+  margin-bottom: 0.9rem;
+}
+
+.md-typeset .gate-field label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 0.3rem;
+}
+
+.md-typeset .gate-field input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font-size: 0.85rem;
+}
+
+.md-typeset .gate-field input:focus {
+  outline: none;
+  border-color: var(--brand-a);
+}
+
+.md-typeset #gate-form .md-button {
+  border-radius: 999px;
+  width: 100%;
+}
+
+.md-typeset .gate-error {
+  color: #d1495b;
+  font-size: 0.78rem;
+  margin: 0.6rem 0 0;
+  min-height: 1em;
+}
+
+.md-typeset .download-group {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin: 0 0 0.9rem;
+}
+
+.md-typeset .download-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+}
+
+.md-typeset .download-group .dl-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-a), var(--brand-c));
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.md-typeset .download-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.md-typeset .pdf-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: #d1495b;
+  color: #fff;
+}
+
+.md-typeset .download-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: var(--md-code-bg-color);
+  text-decoration: none;
+  color: var(--md-default-fg-color);
+}
+
+.md-typeset .download-links a:hover {
+  background: var(--brand-a);
+  color: #fff;
+}
+
+.md-typeset .download-links .dl-size {
+  opacity: 0.65;
+  font-size: 0.75em;
+}
+
+/* ============================================================
    Cartes des matières — page d'accueil
    Design "smart" : accent coloré par carte, relief au survol,
    badges pour le volume horaire, bouton d'accès mis en valeur.

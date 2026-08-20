@@ -6,6 +6,7 @@ Support de cours, présentations (diapositives) et travaux pratiques des 9 mati�
 
 <span class="hero-actions">
 [:material-view-grid-outline: Parcourir les matières](#les-matieres){ .md-button .md-button--primary }
+[:material-download-outline: Téléchargements PDF](telechargements.md){ .md-button }
 [:fontawesome-brands-github: Voir le dépôt](https://github.com/zakaria-sawadogo/cours-securite-informatique){ .md-button }
 </span>
 

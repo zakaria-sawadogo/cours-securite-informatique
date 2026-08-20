@@ -82,6 +82,7 @@ nav:
   - Accueil: index.md
   - Cours:
       - Vue d'ensemble: cours/index.md
+      - Téléchargements: cours/telechargements.md
       - "1. Algorithmique et Programmation en C":
           - Syllabus: 01-algorithmique-programmation-c/index.md
           - Cours:
