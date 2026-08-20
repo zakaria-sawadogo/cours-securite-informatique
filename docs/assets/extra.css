@@ -261,6 +261,98 @@
   font-size: 0.75em;
 }
 
+.md-typeset .module-picker {
+  max-width: 480px;
+  padding: 1.4rem 1.4rem 1.6rem;
+  border-radius: 14px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  background: var(--md-default-bg-color);
+}
+
+.md-typeset .picker-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--md-default-fg-color--light);
+  margin: 0 0 0.4rem;
+}
+
+.md-typeset #module-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font-size: 0.85rem;
+}
+
+.md-typeset #module-select:focus {
+  outline: none;
+  border-color: var(--brand-a);
+}
+
+.md-typeset .module-panel {
+  margin-top: 1.3rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .module-panel h3 {
+  margin: 0 0 0.7rem;
+  font-size: 0.95rem;
+}
+
+/* ============================================================
+   Cartes des cycles ingénieur — page d'accueil (Présentation)
+   Réutilise le composant .grid.cards (mêmes accents colorés),
+   mais le contenu est une liste de matières plutôt qu'un bouton.
+   ============================================================ */
+.md-typeset .grid.cards > ul > li ul {
+  margin: 0.5rem 0 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.md-typeset .grid.cards > ul > li ul li {
+  position: relative;
+  padding-left: 1rem;
+  margin: 0.4rem 0;
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.md-typeset .grid.cards > ul > li ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--card-accent-a), var(--card-accent-b));
+}
+
+.md-typeset .grid.cards > ul > li ul li a {
+  font-weight: 600;
+}
+
+.md-typeset .tronc-commun {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color--light);
+  margin-left: 0.35rem;
+  vertical-align: middle;
+}
+
 /* ============================================================
    Cartes des matières — page d'accueil
    Design "smart" : accent coloré par carte, relief au survol,

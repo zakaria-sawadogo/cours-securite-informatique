@@ -18,41 +18,55 @@ Dr. Zakaria Sawadogo enseigne la sécurité informatique à l'École Polytechniq
 
 ## Organisation de mes enseignements
 
-### Cycle ingénieur Télécommunications
+<div class="grid cards" markdown>
 
-- [Gouvernance et gestion des risques de la sécurité de l'information](04-gouvernance-gestion-risques-si/index.md)
-- [Ingénierie de la cryptographie](06-cryptographie/index.md) *(tronc commun)*
-- [Sécurité des applications](09-securite-des-applications/index.md) *(tronc commun)*
-- [Service web](10-service-web/index.md) *(tronc commun)*
+-   :material-access-point-network:{ .lg .middle } **Cycle ingénieur Télécommunications**
 
-### Cycle ingénieur Cybersécurité
+    ---
 
-- [Audit organisation et technique](02-audit-organisation-technique/index.md)
-- [Cryptanalyse](03-cryptanalyse/index.md)
-- [IA appliquée à la sécurité informatique](05-ia-appliquee-securite-informatique/index.md)
-- [Technologie Blockchain](07-technologie-blockchain/index.md)
-- [Analyse de malwares et sécurisation des données](11-analyse-malwares-securisation-donnees/index.md)
-- [Sécurité des applications](09-securite-des-applications/index.md) *(tronc commun)*
-- [Service web](10-service-web/index.md) *(tronc commun)*
+    - [Gouvernance et gestion des risques de la sécurité de l'information](04-gouvernance-gestion-risques-si/index.md)
+    - [Ingénierie de la cryptographie](06-cryptographie/index.md) <span class="tronc-commun">tronc commun</span>
+    - [Sécurité des applications](09-securite-des-applications/index.md) <span class="tronc-commun">tronc commun</span>
+    - [Service web](10-service-web/index.md) <span class="tronc-commun">tronc commun</span>
 
-### Cycle ingénieur Logiciel
+-   :material-shield-lock-outline:{ .lg .middle } **Cycle ingénieur Cybersécurité**
 
-- [Ingénierie de la cryptographie](06-cryptographie/index.md) *(tronc commun)*
-- [Sécurité des applications](09-securite-des-applications/index.md) *(tronc commun)*
-- [Security by design](08-security-by-design/index.md)
-- [Service web](10-service-web/index.md) *(tronc commun)*
+    ---
 
-### Cycle ingénieur Data science
+    - [Audit organisation et technique](02-audit-organisation-technique/index.md)
+    - [Cryptanalyse](03-cryptanalyse/index.md)
+    - [IA appliquée à la sécurité informatique](05-ia-appliquee-securite-informatique/index.md)
+    - [Technologie Blockchain](07-technologie-blockchain/index.md)
+    - [Analyse de malwares et sécurisation des données](11-analyse-malwares-securisation-donnees/index.md)
+    - [Sécurité des applications](09-securite-des-applications/index.md) <span class="tronc-commun">tronc commun</span>
+    - [Service web](10-service-web/index.md) <span class="tronc-commun">tronc commun</span>
 
-- [Ingénierie de la cryptographie](06-cryptographie/index.md) *(tronc commun)*
-- [Sécurité des applications](09-securite-des-applications/index.md) *(tronc commun)*
-- [Service web](10-service-web/index.md) *(tronc commun)*
+-   :material-code-tags:{ .lg .middle } **Cycle ingénieur Logiciel**
 
-### Cycle ingénieur Textiles
+    ---
 
-- [Algorithmique et Programmation en C](01-algorithmique-programmation-c/index.md)
+    - [Ingénierie de la cryptographie](06-cryptographie/index.md) <span class="tronc-commun">tronc commun</span>
+    - [Sécurité des applications](09-securite-des-applications/index.md) <span class="tronc-commun">tronc commun</span>
+    - [Security by design](08-security-by-design/index.md)
+    - [Service web](10-service-web/index.md) <span class="tronc-commun">tronc commun</span>
 
-Toutes les matières listées ci-dessus ont désormais leur support de cours complet (chapitres, présentations, travaux pratiques) publié sur ce site.
+-   :material-chart-bar:{ .lg .middle } **Cycle ingénieur Data science**
+
+    ---
+
+    - [Ingénierie de la cryptographie](06-cryptographie/index.md) <span class="tronc-commun">tronc commun</span>
+    - [Sécurité des applications](09-securite-des-applications/index.md) <span class="tronc-commun">tronc commun</span>
+    - [Service web](10-service-web/index.md) <span class="tronc-commun">tronc commun</span>
+
+-   :material-tshirt-crew-outline:{ .lg .middle } **Cycle ingénieur Textiles**
+
+    ---
+
+    - [Algorithmique et Programmation en C](01-algorithmique-programmation-c/index.md)
+
+</div>
+
+Toutes les matières listées ci-dessus ont leur support de cours complet (chapitres, présentations, travaux pratiques) publié sur ce site.
 
 ---
 

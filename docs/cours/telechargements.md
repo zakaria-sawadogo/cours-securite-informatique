@@ -6,7 +6,16 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
 Cette protection repose sur un code d'accès par matière, vérifié dans votre navigateur. Ce n'est pas un vrai contrôle d'identité côté serveur (le site est statique, sans base de données) : elle suffit à éviter qu'un lien traîne en accès libre, mais un utilisateur déterminé pourrait la contourner. Ne partagez pas les codes en dehors du cours.
 </div>
 
-<div id="modules"></div>
+<div class="module-picker" markdown>
+
+<label for="module-select" class="picker-label">1. Choisissez votre matière</label>
+<select id="module-select">
+  <option value="" selected disabled>— Sélectionner une matière —</option>
+</select>
+
+<div id="module-panel" class="module-panel" style="display:none;"></div>
+
+</div>
 
 <script>
 (function() {
@@ -121,16 +130,37 @@ Cette protection repose sur un code d'accès par matière, vérifié dans votre 
     });
   }
 
-  var container = document.getElementById('modules');
+  var select = document.getElementById('module-select');
+  var panel = document.getElementById('module-panel');
 
   MODULES.forEach(function(mod) {
-    var group = document.createElement('div');
-    group.className = 'download-group module-gate';
-    group.setAttribute('data-slug', mod.slug);
+    var opt = document.createElement('option');
+    opt.value = mod.slug;
+    opt.textContent = mod.title;
+    select.appendChild(opt);
+  });
+
+  function isUnlocked(slug) {
+    try { return sessionStorage.getItem('msi-unlocked-' + slug) === '1'; } catch (e) { return false; }
+  }
+
+  function renderPanel(mod) {
+    panel.innerHTML = '';
+    panel.style.display = 'block';
 
     var h3 = document.createElement('h3');
     h3.textContent = mod.title;
-    group.appendChild(h3);
+    panel.appendChild(h3);
+
+    if (isUnlocked(mod.slug)) {
+      renderLinks(mod);
+      return;
+    }
+
+    var step2 = document.createElement('p');
+    step2.className = 'picker-label';
+    step2.textContent = '2. Saisissez votre email et le code d’accès de cette matière';
+    panel.appendChild(step2);
 
     var form = document.createElement('form');
     form.className = 'gate-form-inline';
@@ -160,34 +190,7 @@ Cette protection repose sur un code d'accès par matière, vérifié dans votre 
     form.appendChild(codeInput);
     form.appendChild(submitBtn);
     form.appendChild(errorEl);
-
-    var linksEl = document.createElement('div');
-    linksEl.className = 'download-links';
-    linksEl.style.display = 'none';
-    mod.files.forEach(function(f) {
-      var a = document.createElement('a');
-      a.href = '../downloads/' + f[1];
-      a.setAttribute('download', '');
-      var tag = document.createElement('span');
-      tag.className = 'pdf-tag';
-      tag.textContent = 'PDF';
-      a.appendChild(tag);
-      a.appendChild(document.createTextNode(' ' + f[0] + ' '));
-      var size = document.createElement('span');
-      size.className = 'dl-size';
-      size.textContent = '(' + f[2] + ')';
-      a.appendChild(size);
-      linksEl.appendChild(a);
-    });
-
-    group.appendChild(form);
-    group.appendChild(linksEl);
-    container.appendChild(group);
-
-    function unlock() {
-      form.style.display = 'none';
-      linksEl.style.display = 'flex';
-    }
+    panel.appendChild(form);
 
     [emailInput, codeInput].forEach(function(el) {
       el.addEventListener('input', function() { errorEl.textContent = ''; });
@@ -204,20 +207,41 @@ Cette protection repose sur un code d'accès par matière, vérifié dans votre 
       }
       sha256(code).then(function(hash) {
         if (hash === mod.hash) {
-          errorEl.textContent = "";
           try { sessionStorage.setItem('msi-unlocked-' + mod.slug, '1'); } catch (e) {}
-          unlock();
+          renderPanel(mod);
         } else {
           errorEl.textContent = "Code d'accès incorrect pour cette matière.";
         }
       });
     });
 
-    try {
-      if (sessionStorage.getItem('msi-unlocked-' + mod.slug) === '1') {
-        unlock();
-      }
-    } catch (e) {}
+    emailInput.focus();
+  }
+
+  function renderLinks(mod) {
+    var linksEl = document.createElement('div');
+    linksEl.className = 'download-links';
+    mod.files.forEach(function(f) {
+      var a = document.createElement('a');
+      a.href = '../downloads/' + f[1];
+      a.setAttribute('download', '');
+      var tag = document.createElement('span');
+      tag.className = 'pdf-tag';
+      tag.textContent = 'PDF';
+      a.appendChild(tag);
+      a.appendChild(document.createTextNode(' ' + f[0] + ' '));
+      var size = document.createElement('span');
+      size.className = 'dl-size';
+      size.textContent = '(' + f[2] + ')';
+      a.appendChild(size);
+      linksEl.appendChild(a);
+    });
+    panel.appendChild(linksEl);
+  }
+
+  select.addEventListener('change', function() {
+    var mod = MODULES.filter(function(m) { return m.slug === select.value; })[0];
+    if (mod) renderPanel(mod);
   });
 })();
 </script>
