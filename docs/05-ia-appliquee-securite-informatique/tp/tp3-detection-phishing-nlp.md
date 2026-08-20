@@ -31,3 +31,7 @@ Ajouter au moins une caractéristique non textuelle simple (ex. présence d'une 
 ## À rendre
 
 Le notebook/script complet et les réponses écrites aux exercices 3 et 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

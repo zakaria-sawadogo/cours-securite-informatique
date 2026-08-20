@@ -85,3 +85,7 @@ Chaque appel récursif consomme de la pile ; une récursion non bornée ou trop 
 - Le passage par adresse est le mécanisme C pour qu'une fonction modifie les données de l'appelant.
 - La portée `static` locale crée un état persistant discret : à utiliser avec parcimonie.
 - La récursivité est élégante mais bornée par la taille de la pile.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

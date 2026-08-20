@@ -51,3 +51,7 @@ Machine virtuelle Kali Linux ou équivalent, cible d'entraînement légale (Meta
 - ANSSI, *Guide d'hygiène informatique*.
 - PTES (Penetration Testing Execution Standard) — [pentest-standard.org](http://www.pentest-standard.org).
 - OWASP Testing Guide.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

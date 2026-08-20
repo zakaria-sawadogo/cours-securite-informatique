@@ -36,3 +36,7 @@ Ce module synthétise et opérationnalise des notions vues ailleurs dans le prog
 - *Security by design* intègre la sécurité dès la conception, réduisant fortement le coût de correction par rapport à une approche corrective a posteriori.
 - Le modèle de sécurité périmétrique seul est insuffisant face à des attaquants capables de franchir la frontière ; une conception résiliente à la compromission partielle est nécessaire.
 - Une mesure de sécurité qui dégrade excessivement l'usage est souvent contournée : la sécurité par défaut et simple d'usage est un objectif de conception, pas un vœu pieux.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

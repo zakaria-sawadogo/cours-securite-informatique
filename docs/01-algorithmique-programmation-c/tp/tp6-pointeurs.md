@@ -42,3 +42,7 @@ gcc -Wall -Wextra -g -fsanitize=address,leak -o programme programme.c
 ## À rendre
 
 Fichiers `tp6_ex2.c` à `tp6_ex4.c`, plus un fichier `tp6_ex5_analyse.md` documentant les bugs trouvés et leur correction.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

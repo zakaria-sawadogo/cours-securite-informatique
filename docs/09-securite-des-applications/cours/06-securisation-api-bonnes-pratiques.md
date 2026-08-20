@@ -57,3 +57,7 @@ Journaliser les tentatives d'accès refusées, les erreurs d'authentification r�
 - L'OWASP API Security Top 10 recense des risques spécifiques aux API (BOLA, BFLA, exposition excessive de données, absence de rate limiting), complémentaires du Top 10 applicatif général.
 - Aucune validation ni autorisation effectuée uniquement côté client ne doit être considérée comme un contrôle de sécurité : tout doit être revérifié côté serveur.
 - La sécurisation d'une API repose sur la combinaison systématique de plusieurs contrôles (authentification, autorisation, validation, limitation de débit, configuration, journalisation), en cohérence directe avec la défense en profondeur vue au module *Security by design*.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

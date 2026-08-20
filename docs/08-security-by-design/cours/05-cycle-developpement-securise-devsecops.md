@@ -53,3 +53,7 @@ DevSecOps est autant une question de culture que d'outillage : formation des dé
 - Le Secure SDLC intègre des activités de sécurité à chaque phase du développement, pas uniquement en validation finale.
 - DevSecOps automatise ces contrôles directement dans le pipeline CI/CD (SAST, SCA, DAST, scan de secrets, scan d'infrastructure as code).
 - La gestion des secrets et des dépendances tierces vulnérables sont deux enjeux opérationnels majeurs et récurrents du développement logiciel moderne.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

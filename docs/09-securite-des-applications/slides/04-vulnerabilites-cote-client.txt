@@ -2,6 +2,8 @@
 
 ### Sécurité des applications
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. Cross-Site Scripting (XSS)

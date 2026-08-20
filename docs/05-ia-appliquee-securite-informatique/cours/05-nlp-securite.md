@@ -52,3 +52,7 @@ Les journaux systèmes et applicatifs peuvent être traités comme du texte semi
 - Le NLP transforme du texte en représentation numérique exploitable par un modèle (TF-IDF, embeddings, Transformers), avec un compromis performance/coût de calcul.
 - La détection de phishing combine efficacement analyse du contenu textuel et caractéristiques techniques (URL, en-têtes, authentification du domaine).
 - L'essor des modèles de langage génératifs facilite la production de contenus de phishing convaincants, ce qui affaiblit les indicateurs textuels traditionnels et pousse vers des défenses combinant plusieurs signaux.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

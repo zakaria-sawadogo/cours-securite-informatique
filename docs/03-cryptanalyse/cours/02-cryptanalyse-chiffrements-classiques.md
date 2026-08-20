@@ -50,3 +50,7 @@ Une fois *L* connue, chaque sous-suite est un simple chiffre de César indépend
 - L'analyse fréquentielle casse toute substitution mono-alphabétique.
 - Le chiffre de Vigenère se casse en deux temps : détermination de la longueur de clé (Kasiski, indice de coïncidence), puis cryptanalyse fréquentielle de chaque sous-alphabet.
 - Ces méthodes historiques posent les bases conceptuelles (confusion, diffusion, exploitation de redondance) de la cryptanalyse moderne.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

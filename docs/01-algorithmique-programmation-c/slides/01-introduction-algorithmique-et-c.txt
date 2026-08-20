@@ -2,6 +2,8 @@
 
 ### Algorithmique et Programmation en C
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. Qu'est-ce qu'un algorithme ?

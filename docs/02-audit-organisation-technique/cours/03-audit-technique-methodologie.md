@@ -62,3 +62,7 @@ Un test d'intrusion technique donne une photographie à un instant *t* d'un pér
 - Le PTES structure la démarche en sept phases, de la reconnaissance au rapport.
 - L'automatisation (scanners) accélère l'analyse mais ne remplace pas le jugement de l'auditeur.
 - Le score CVSS objective la priorisation des vulnérabilités identifiées.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

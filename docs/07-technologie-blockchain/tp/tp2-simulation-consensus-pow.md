@@ -23,3 +23,7 @@ Sans implémentation complète, répondre par écrit (15 lignes) : en supposant 
 ## À rendre
 
 Le script Python complet, le graphique de l'exercice 2, et la réponse écrite de l'exercice 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

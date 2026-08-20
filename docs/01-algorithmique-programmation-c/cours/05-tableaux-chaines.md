@@ -70,3 +70,7 @@ printf("%s\n", jours[1]); // Mardi
 - Un tableau C ne connaît pas sa propre taille à l'exécution : il faut la transmettre séparément.
 - Aucune vérification de borne : la responsabilité de la validité des indices incombe entièrement au programmeur.
 - Une chaîne C est un tableau de `char` + `'\0'` ; toute fonction qui manipule des chaînes sans vérifier les tailles est un point d'attention sécurité.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

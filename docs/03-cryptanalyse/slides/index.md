@@ -8,3 +8,7 @@ Diapositives (reveal.js) associées à chaque chapitre de cours. S'ouvrent dans 
 - [🖥 4. Attaques sur les fonctions de hachage](../../presentation.html?deck=03-cryptanalyse/slides/04-attaques-fonctions-hachage.txt){ target=_blank }
 - [🖥 5. Cryptanalyse des systèmes asymétriques](../../presentation.html?deck=03-cryptanalyse/slides/05-cryptanalyse-asymetrique.txt){ target=_blank }
 - [🖥 6. Attaques par canaux auxiliaires et attaques pratiques](../../presentation.html?deck=03-cryptanalyse/slides/06-attaques-canaux-auxiliaires.txt){ target=_blank }
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

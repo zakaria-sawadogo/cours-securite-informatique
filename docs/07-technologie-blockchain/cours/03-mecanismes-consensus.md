@@ -43,3 +43,7 @@ Lorsque deux blocs valides sont proposés presque simultanément (situation norm
 - Le mécanisme de consensus répond à un problème classique d'informatique distribuée (accord dans un réseau potentiellement malveillant, sans autorité centrale).
 - PoW sécurise par le coût calculatoire mais consomme beaucoup d'énergie ; PoS sécurise par un risque économique direct (slashing) avec une empreinte énergétique bien moindre.
 - Le choix du mécanisme de consensus détermine directement les propriétés de sécurité, de décentralisation réelle et de coût du réseau — un compromis, pas une hiérarchie absolue de qualité.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -32,3 +32,7 @@ Afficher les nombres de 1 à 100 ; remplacer les multiples de 3 par `Fizz`, les 
 ## À rendre
 
 Fichier `tp2.c`, testé avec plusieurs jeux de valeurs (y compris valeurs limites : 0, négatifs, très grands nombres).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

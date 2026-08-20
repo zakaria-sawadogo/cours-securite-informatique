@@ -44,3 +44,7 @@ Un système livré ou installé doit être sécurisé « dès la sortie de la bo
 - Ces principes (Saltzer et Schroeder, et compléments ultérieurs) forment un socle de conception réutilisable indépendamment de la technologie employée.
 - Ils se combinent : la défense en profondeur suppose l'application cohérente du moindre privilège à chaque couche ; l'échec sécurisé suppose une médiation complète.
 - Aucun principe pris isolément ne suffit ; c'est leur application systématique et cohérente à l'échelle d'un système qui constitue une véritable démarche *security by design*.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

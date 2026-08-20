@@ -51,3 +51,7 @@ Complément du chapitre 2 : LINDDUN structure l'identification de menaces spéci
 - Le privacy by design intègre la protection des données personnelles comme caractéristique par défaut d'un système, formalisé juridiquement par l'article 25 du RGPD et des dispositions équivalentes ailleurs.
 - La minimisation (collecte, conservation, accès, identifiabilité) est le principe opérationnel le plus directement actionnable en conception.
 - LINDDUN transpose la logique de threat modeling (STRIDE) spécifiquement aux risques pour la vie privée, complétant l'analyse de sécurité classique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

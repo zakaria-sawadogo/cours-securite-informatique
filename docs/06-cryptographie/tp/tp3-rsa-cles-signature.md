@@ -42,3 +42,7 @@ Générer une paire de clés Ed25519 (`openssl genpkey -algorithm ed25519`) et c
 ## À rendre
 
 Les commandes utilisées, les fichiers de clés/signatures générés, et les réponses écrites aux exercices 4 et 5.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

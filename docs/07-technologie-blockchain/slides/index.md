@@ -8,3 +8,7 @@ Diapositives (reveal.js) associées à chaque chapitre de cours. S'ouvrent dans 
 - [🖥 4. Smart contracts et Ethereum](../../presentation.html?deck=07-technologie-blockchain/slides/04-smart-contracts-ethereum.txt){ target=_blank }
 - [🖥 5. Sécurité et vulnérabilités des smart contracts](../../presentation.html?deck=07-technologie-blockchain/slides/05-securite-smart-contracts.txt){ target=_blank }
 - [🖥 6. Applications, enjeux et limites](../../presentation.html?deck=07-technologie-blockchain/slides/06-applications-enjeux-limites.txt){ target=_blank }
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

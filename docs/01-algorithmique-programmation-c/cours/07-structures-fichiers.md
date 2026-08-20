@@ -97,3 +97,7 @@ Utile pour sérialiser des structures de données, mais sensible aux différence
 - `struct` modélise des données composites ; combinée à des pointeurs, elle permet de construire des structures de données dynamiques (listes, arbres).
 - La gestion de fichiers en C impose une vérification systématique des erreurs (`fopen`, `fread`, `fwrite`) et une fermeture explicite (`fclose`).
 - Ce chapitre clôt le socle du langage : les TP suivants consolident ces notions sur des cas pratiques complets.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

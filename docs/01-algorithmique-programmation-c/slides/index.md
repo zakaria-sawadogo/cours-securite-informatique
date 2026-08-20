@@ -9,3 +9,7 @@ Diapositives (reveal.js) associées à chaque chapitre de cours. S'ouvrent dans 
 - [🖥 5. Tableaux et chaînes de caractères](../../presentation.html?deck=01-algorithmique-programmation-c/slides/05-tableaux-chaines.txt){ target=_blank }
 - [🖥 6. Pointeurs et gestion mémoire](../../presentation.html?deck=01-algorithmique-programmation-c/slides/06-pointeurs-memoire.txt){ target=_blank }
 - [🖥 7. Structures (`struct`) et fichiers](../../presentation.html?deck=01-algorithmique-programmation-c/slides/07-structures-fichiers.txt){ target=_blank }
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

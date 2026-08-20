@@ -32,3 +32,7 @@ Documenter comment un jeton anti-CSRF aurait empêché l'exercice 4 de réussir.
 ## À rendre
 
 Les preuves de concept (URL, captures, code de la page piégée) des exercices 1, 2 et 4, le code corrigé des exercices 3 et 5, et une explication écrite (10 lignes) de la différence de nature entre XSS et CSRF.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

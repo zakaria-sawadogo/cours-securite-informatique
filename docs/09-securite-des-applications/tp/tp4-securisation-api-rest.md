@@ -40,3 +40,7 @@ Le code source corrigé de l'API, les preuves de l'exercice 1 (avant correction)
 ## Conclusion du module
 
 Ce TP4 clôt le module *Sécurité des applications* et, avec lui, l'ensemble du programme : il mobilise des notions vues dans la quasi-totalité des matières précédentes (programmation en C, audit, gouvernance, IA, cryptographie, blockchain, security by design), illustrant la nature transversale de la sécurité informatique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -47,3 +47,7 @@ Chaque bloc contient typiquement : un en-tête (empreinte du bloc précédent, h
 - La blockchain combine des primitives cryptographiques connues avec un mécanisme de consensus décentralisé pour résoudre le problème de la double dépense sans autorité centrale.
 - Les propriétés de décentralisation, immutabilité et résistance à la censure sont des objectifs de conception dont le degré réel dépend de l'architecture choisie.
 - Une blockchain n'est pas une solution universelle : son usage doit être justifié par un besoin réel de décentralisation, pas adopté par principe.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

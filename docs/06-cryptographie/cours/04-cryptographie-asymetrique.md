@@ -56,3 +56,7 @@ En pratique, la cryptographie asymétrique n'est presque jamais utilisée pour c
 - RSA repose sur la difficulté de factorisation ; Diffie-Hellman et ECC reposent sur la difficulté du logarithme discret (classique ou sur courbe elliptique).
 - Le padding (OAEP/PSS) n'est pas optionnel : RSA brut est vulnérable à des attaques structurelles connues.
 - Diffie-Hellman pur n'authentifie pas les parties ; il doit être combiné à un mécanisme d'authentification pour résister à une attaque de l'homme du milieu.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

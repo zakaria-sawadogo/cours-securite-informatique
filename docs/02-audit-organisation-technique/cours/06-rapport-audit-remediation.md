@@ -50,3 +50,7 @@ Un audit de suivi (souvent partiel, ciblé sur les constats précédents) permet
 - Un rapport d'audit efficace sépare clairement synthèse décisionnelle et détails techniques.
 - Chaque constat doit être actionnable : criticité, preuve, impact, recommandation.
 - Le plan de remédiation et le contre-audit transforment l'audit en amélioration continue plutôt qu'en photographie isolée.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

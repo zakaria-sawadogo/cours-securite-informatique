@@ -39,3 +39,7 @@ Rédiger une fiche de synthèse (1 page) listant les hôtes découverts, les ser
 ## À rendre
 
 Le tableau de résultats du scan et la fiche de synthèse.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

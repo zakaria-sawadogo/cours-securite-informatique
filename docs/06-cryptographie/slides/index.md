@@ -8,3 +8,7 @@ Diapositives (reveal.js) associées à chaque chapitre de cours. S'ouvrent dans 
 - [🖥 4. Cryptographie asymétrique : RSA, Diffie-Hellman, ECC](../../presentation.html?deck=06-cryptographie/slides/04-cryptographie-asymetrique.txt){ target=_blank }
 - [🖥 5. Signatures numériques et infrastructures à clés publiques (PKI)](../../presentation.html?deck=06-cryptographie/slides/05-signatures-pki.txt){ target=_blank }
 - [🖥 6. Protocoles appliqués : TLS et cryptographie post-quantique](../../presentation.html?deck=06-cryptographie/slides/06-protocoles-appliques-tls-pqc.txt){ target=_blank }
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -33,3 +33,7 @@ Sous supervision, chiffrer deux messages différents avec ChaCha20 (ou AES-CTR) 
 ## À rendre
 
 Les commandes/scripts utilisés pour chaque exercice, les fichiers de résultat, et les réponses écrites aux exercices 2 et 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

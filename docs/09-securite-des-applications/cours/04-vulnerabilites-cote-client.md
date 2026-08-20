@@ -72,3 +72,7 @@ Les applications à page unique (SPA) manipulant intensivement le DOM côté cli
 - XSS exploite une insertion non sécurisée de données dans une page ; CSRF exploite la confiance automatique du navigateur envers des cookies de session lors de requêtes intersites — deux mécanismes distincts nécessitant des contre-mesures distinctes.
 - L'encodage contextuel systématique et une CSP bien configurée sont les défenses de référence contre XSS ; le jeton anti-CSRF et l'attribut `SameSite` sont les défenses de référence contre CSRF.
 - Le clickjacking se prévient simplement par les en-têtes HTTP appropriés (`X-Frame-Options`, `frame-ancestors`), souvent négligés en pratique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

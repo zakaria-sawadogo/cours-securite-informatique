@@ -47,3 +47,7 @@ Les **tables arc-en-ciel (rainbow tables)** illustrent un compromis entre temps 
 - La taille de clé fixe la borne théorique de résistance à la force brute ; DES est aujourd'hui cassable, AES ne l'est pas avec la technologie actuelle.
 - Cryptanalyse différentielle et linéaire exploitent des biais statistiques internes à la structure de l'algorithme et ont directement influencé la conception d'AES.
 - La grande majorité des compromissions pratiques de chiffrements symétriques modernes viennent d'un mauvais mode opératoire ou d'une mauvaise gestion des nonces/IV, pas d'une faille dans l'algorithme de bloc lui-même.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

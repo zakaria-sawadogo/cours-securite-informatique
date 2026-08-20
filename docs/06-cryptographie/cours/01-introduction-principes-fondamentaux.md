@@ -55,3 +55,7 @@ La sécurité d'un système cryptographique moderne repose généralement sur un
 - Confidentialité, intégrité, authenticité, non-répudiation : quatre objectifs distincts, pas toujours tous nécessaires simultanément selon le contexte.
 - Le principe de Kerckhoffs interdit de fonder la sécurité sur le secret de l'algorithme.
 - La cryptographie moderne combine en pratique symétrique (rapide, volume) et asymétrique (échange de clé, authentification) dans des schémas hybrides.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

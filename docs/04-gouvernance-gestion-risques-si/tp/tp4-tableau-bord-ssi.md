@@ -27,3 +27,7 @@ La maquette de tableau de bord (fichier tableur ou document) avec les deux vues,
 ## Clôture du cas d'étude
 
 Ce TP conclut le dossier filé « Faso Digital Services » commencé au TP1 : cartographie des actifs → analyse de risque → PSSI et mesures → pilotage. L'ensemble des livrables des 4 séances constitue un exemple complet, à échelle réduite, d'une démarche de gouvernance et de gestion des risques SSI.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

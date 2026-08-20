@@ -1,17 +1,86 @@
-# Programme — Master Sécurité Informatique
+# Les Cours du Dr. Zakaria Sawadogo
 
-Dépôt pédagogique regroupant les supports de cours (CM), les présentations (diapositives), les travaux pratiques (TP) et les syllabus des 9 matières du programme.
+**Dr Zakaria Sawadogo** — École Polytechnique de Ouagadougou
 
-## 🌐 Accès en ligne (site du cours)
+Support de cours, présentations (diapositives) et travaux pratiques des 9 matières enseignées, réunis sur un seul site.
 
-Ce dépôt est publié comme site de cours via **GitHub Pages**. Une fois activé (voir instructions du dépôt), il est accessible à l'adresse `https://<votre-compte>.github.io/<nom-du-depot>/` et offre :
+## Les matières
 
-- un **sommaire par matière** dans le panneau latéral (cliquable, avec recherche) ;
-- le **support de cours** de chaque chapitre, à lire directement dans le navigateur ;
-- les **présentations** (diapositives) associées à chaque chapitre, pour un enseignement en amphi ou en visioconférence ;
-- les **énoncés de TP**, qui font également office de travaux dirigés (aucune distinction TD/TP séparée dans ce programme : chaque séance de TP combine exercices dirigés et manipulation pratique).
+<div class="grid cards" markdown>
 
-Sans passer par le site, chaque ressource reste consultable directement dans ce dépôt (voir structure ci-dessous).
+-   :material-code-braces:{ .lg .middle } **Algorithmique et Programmation en C**
+
+    ---
+
+    15h CM · 15h TP — Bases du C, structures de contrôle, tableaux et chaînes, pointeurs, gestion mémoire, fichiers.
+
+    [:octicons-arrow-right-24: Accéder au cours](01-algorithmique-programmation-c/index.md)
+
+-   :material-clipboard-search-outline:{ .lg .middle } **Audit organisation et technique**
+
+    ---
+
+    16h CM · 8h TP — Méthodologie d'audit, référentiels (ISO 27001/27002), tests d'intrusion, rapport d'audit.
+
+    [:octicons-arrow-right-24: Accéder au cours](02-audit-organisation-technique/index.md)
+
+-   :material-lock-search:{ .lg .middle } **Cryptanalyse**
+
+    ---
+
+    16h CM · 8h TP — Attaques sur les chiffrements classiques et modernes, fonctions de hachage, RSA, canaux auxiliaires.
+
+    [:octicons-arrow-right-24: Accéder au cours](03-cryptanalyse/index.md)
+
+-   :material-shield-account-outline:{ .lg .middle } **Gouvernance et gestion des risques SI**
+
+    ---
+
+    10h CM · 8h TP — Gouvernance SSI, méthodes d'analyse de risques (EBIOS RM), PSSI, pilotage.
+
+    [:octicons-arrow-right-24: Accéder au cours](04-gouvernance-gestion-risques-si/index.md)
+
+-   :material-robot-outline:{ .lg .middle } **IA appliquée à la sécurité informatique**
+
+    ---
+
+    16h CM · 8h TP — Détection d'intrusions et de malwares par ML, NLP pour le phishing, sécurité de l'IA.
+
+    [:octicons-arrow-right-24: Accéder au cours](05-ia-appliquee-securite-informatique/index.md)
+
+-   :material-key-variant:{ .lg .middle } **Cryptographie**
+
+    ---
+
+    16h CM · 8h TP — Chiffrement symétrique/asymétrique, hachage, signatures numériques, PKI, TLS.
+
+    [:octicons-arrow-right-24: Accéder au cours](06-cryptographie/index.md)
+
+-   :material-link-variant:{ .lg .middle } **Technologie Blockchain**
+
+    ---
+
+    16h CM · 8h TP — Structures de données, mécanismes de consensus, smart contracts, sécurité et limites.
+
+    [:octicons-arrow-right-24: Accéder au cours](07-technologie-blockchain/index.md)
+
+-   :material-shield-check-outline:{ .lg .middle } **Security by design**
+
+    ---
+
+    16h CM · 8h TP — Threat modeling, principes de conception sécurisée, zero trust, DevSecOps, privacy by design.
+
+    [:octicons-arrow-right-24: Accéder au cours](08-security-by-design/index.md)
+
+-   :material-application-cog-outline:{ .lg .middle } **Sécurité des applications**
+
+    ---
+
+    16h CM · 8h TP — OWASP Top 10, injections, authentification, XSS/CSRF, vulnérabilités mémoire, API.
+
+    [:octicons-arrow-right-24: Accéder au cours](09-securite-des-applications/index.md)
+
+</div>
 
 ## Volume horaire
 
@@ -28,50 +97,28 @@ Sans passer par le site, chaque ressource reste consultable directement dans ce 
 | 9 | Sécurité des applications | 16 | 8 | 24 |
 | | **Total** | **137** | **79** | **216** |
 
-## Structure du dépôt
+## Comment naviguer
 
-Chaque matière dispose de son propre dossier, avec le même schéma :
+- Le **panneau latéral** (cliquable, avec recherche) liste, pour chaque matière : le syllabus, les chapitres de cours, les présentations et les TP.
+- Chaque **chapitre de cours** comporte un encart en tête de page pour ouvrir directement la présentation associée.
+- Les **énoncés de TP** font également office de travaux dirigés (aucune distinction TD/TP séparée dans ce programme : chaque séance combine exercices dirigés et manipulation pratique).
+
+Pour projeter une présentation en cours, ouvrez le lien de diapositives correspondant et utilisez les flèches du clavier ou la touche `F` pour le plein écran.
+
+## Structure du dépôt
 
 ```
 NN-nom-de-la-matiere/
-├── README.md          # syllabus : objectifs, prérequis, plan de séances, évaluation, bibliographie
-├── cours/              # support de cours magistral (un fichier Markdown par chapitre)
-├── slides/             # diapositives associées à chaque chapitre (Markdown reveal.js)
-└── tp/                 # énoncés de travaux pratiques / dirigés (un fichier par séance)
+├── index.md            # syllabus : objectifs, prérequis, plan de séances, évaluation, bibliographie
+├── cours/                # support de cours magistral (un fichier Markdown par chapitre)
+├── slides/                # sources des diapositives (.txt, Markdown reveal.js) + page d'index
+└── tp/                     # énoncés de travaux pratiques / dirigés (un fichier par séance)
 ```
 
-Deux fichiers à la racine du dépôt font fonctionner le site :
+`presentation.html`, à la racine du site, est le visualiseur de diapositives (reveal.js) commun à toutes les matières.
 
-- `index.html` + `_sidebar.md` : page d'accueil et sommaire du site (docsify).
-- `presentation.html` : visualiseur de diapositives (reveal.js). Chaque lien de présentation prend la forme `presentation.html?deck=<matiere>/slides/<chapitre>.md`.
+Pour les modalités de développement local, de mise à jour du contenu et de publication du site, voir le [README](https://github.com/zakaria-sawadogo/cours-securite-informatique#readme) du dépôt.
 
-## Liste des matières
+---
 
-1. [Algorithmique et Programmation en C](01-algorithmique-programmation-c/index.md)
-2. [Audit organisation et technique](02-audit-organisation-technique/index.md)
-3. [Cryptanalyse](03-cryptanalyse/index.md)
-4. [Gouvernance et gestion des risques de la sécurité de l'information](04-gouvernance-gestion-risques-si/index.md)
-5. [IA appliquée à la sécurité informatique](05-ia-appliquee-securite-informatique/index.md)
-6. [Cryptographie](06-cryptographie/index.md)
-7. [Technologie Blockchain](07-technologie-blockchain/index.md)
-8. [Security by design](08-security-by-design/index.md)
-9. [Sécurité des applications](09-securite-des-applications/index.md)
-
-## Utiliser ce dépôt
-
-```bash
-git clone <url-de-votre-depot>
-cd programme-cybersecurite
-```
-
-Chaque dossier de matière est autonome : le `README.md` sert de plan de cours, les fichiers de `cours/` peuvent être ouverts directement en Markdown, les fichiers de `slides/` sont les mêmes chapitres découpés pour la présentation en diapositives, et les fichiers de `tp/` contiennent les énoncés ainsi que, quand c'est pertinent, du code de démarrage ou des corrigés indicatifs.
-
-## Activer l'accès étudiant via GitHub Pages
-
-1. Poussez ce dépôt sur GitHub (voir instructions dans le message d'accompagnement).
-2. Sur GitHub : **Settings → Pages**.
-3. Sous « Build and deployment », choisissez **Source : Deploy from a branch**.
-4. Sélectionnez la branche `main` et le dossier **`/ (root)`**, puis **Save**.
-5. Après quelques minutes, le site est disponible à `https://<votre-compte>.github.io/<nom-du-depot>/`. Partagez ce lien avec les étudiants — aucune installation n'est nécessaire de leur côté, tout fonctionne dans le navigateur (le site n'a pas d'étape de compilation : docsify et reveal.js sont chargés directement).
-
-Pour projeter une présentation en cours, ouvrez le lien de diapositives correspondant depuis le sommaire et utilisez les flèches du clavier ou la touche `F` pour le plein écran.
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

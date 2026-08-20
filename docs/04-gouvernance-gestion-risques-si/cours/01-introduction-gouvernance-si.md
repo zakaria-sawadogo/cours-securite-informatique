@@ -48,3 +48,7 @@ La gouvernance SSI n'est pas un état figé : elle progresse par cycles (souvent
 - La gouvernance SSI relève de la direction, pas uniquement des équipes techniques : elle arbitre l'appétence au risque et les moyens alloués.
 - Un RSSI efficace a besoin d'un positionnement organisationnel qui préserve son indépendance vis-à-vis de la DSI.
 - La gouvernance s'appuie sur un cycle continu : politique, gestion des risques, conformité, pilotage, amélioration.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

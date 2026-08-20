@@ -95,3 +95,7 @@ Le nombre d'itérations d'une boucle détermine la complexité temporelle d'un a
 - Choisir la structure adaptée : `for` pour un nombre d'itérations connu, `while`/`do while` pour une condition dynamique.
 - Toujours s'assurer qu'une boucle progresse vers sa condition d'arrêt.
 - `switch` sans `break` = piège classique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

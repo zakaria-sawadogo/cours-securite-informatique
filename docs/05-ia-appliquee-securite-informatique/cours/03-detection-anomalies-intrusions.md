@@ -53,3 +53,7 @@ Lorsque des données étiquetées (trafic normal vs attaques connues, ex. jeux N
 - Les systèmes de détection combinent en général signatures (précis mais limités aux menaces connues) et ML par anomalies (couvre potentiellement les menaces nouvelles, au prix de plus de faux positifs).
 - La qualité des caractéristiques extraites du trafic brut conditionne fortement la performance du modèle.
 - Le déséquilibre des classes et la dérive conceptuelle sont deux défis pratiques majeurs, souvent sous-estimés lors du passage du prototype à la production.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

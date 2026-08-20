@@ -2,6 +2,8 @@
 
 ### Cryptanalyse
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. Principe des attaques par canaux auxiliaires (side-channel)

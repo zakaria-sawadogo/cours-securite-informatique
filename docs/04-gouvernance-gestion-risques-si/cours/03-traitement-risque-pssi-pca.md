@@ -67,3 +67,7 @@ Distincte mais complémentaire du PCA/PRA : une cellule de crise dédiée (souve
 - Quatre stratégies de traitement du risque : éviter, réduire, transférer, accepter — le choix relève d'un arbitrage validé par la gouvernance.
 - La PSSI se décline en plusieurs niveaux, de la politique générale aux procédures opérationnelles, et doit être vivante (diffusée, appliquée, révisée).
 - RTO et RPO traduisent en exigences concrètes la criticité des processus métier et dimensionnent le PCA/PRA ; un plan non testé reste théorique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

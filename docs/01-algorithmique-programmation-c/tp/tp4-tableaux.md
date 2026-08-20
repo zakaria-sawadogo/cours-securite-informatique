@@ -36,3 +36,7 @@ gcc -Wall -Wextra -fsanitize=address -g -o demo demo.c
 ## À rendre
 
 Fichier `tp4.c` et une courte note (5 lignes) expliquant la différence de complexité entre recherche séquentielle et dichotomique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

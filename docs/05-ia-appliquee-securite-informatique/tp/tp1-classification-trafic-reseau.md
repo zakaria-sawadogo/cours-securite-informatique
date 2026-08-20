@@ -35,3 +35,7 @@ Afficher les 10 variables les plus importantes selon le modèle Random Forest (`
 ## À rendre
 
 Un notebook ou script Python contenant l'ensemble des étapes, les métriques obtenues pour les deux modèles, et les réponses écrites aux questions de discussion.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

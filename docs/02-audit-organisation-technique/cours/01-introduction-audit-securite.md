@@ -58,3 +58,7 @@ Tout audit technique — en particulier un test d'intrusion — implique des act
 - Un audit combine une dimension organisationnelle et une dimension technique.
 - Le mandat écrit est un prérequis non négociable à toute activité d'audit technique.
 - Le mode d'accès (black/grey/white box) détermine la couverture et le réalisme de l'audit.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

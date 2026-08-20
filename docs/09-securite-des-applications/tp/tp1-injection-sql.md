@@ -31,3 +31,7 @@ Rédiger un constat au format vu en *Audit organisation et technique* (observati
 ## À rendre
 
 Les preuves de concept des exercices 1 à 3 (captures/logs), le code corrigé de l'exercice 4, et le constat d'audit de l'exercice 5.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

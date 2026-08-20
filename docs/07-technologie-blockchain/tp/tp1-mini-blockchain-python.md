@@ -40,3 +40,7 @@ Implémenter une fonction `racine_merkle(transactions)` qui, à partir d'une lis
 ## À rendre
 
 Le script Python complet, avec une démonstration : création d'une chaîne de 5 blocs, vérification de validité, altération d'un bloc et nouvelle vérification montrant la détection de l'altération.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

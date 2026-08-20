@@ -2,6 +2,8 @@
 
 ### Technologie Blockchain
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. Pourquoi la sécurité des smart contracts est particulièrement critique

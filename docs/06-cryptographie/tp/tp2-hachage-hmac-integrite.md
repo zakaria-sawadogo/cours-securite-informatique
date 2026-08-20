@@ -34,3 +34,7 @@ Mesurer le temps de calcul de 10 000 hachages SHA-256 puis de 10 (!) hachages Ar
 ## À rendre
 
 Les scripts/commandes de chaque exercice et les réponses écrites aux exercices 2 et 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

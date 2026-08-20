@@ -42,3 +42,7 @@ Une grille de questions utile avant d'adopter une solution blockchain pour un pr
 - Les applications de la blockchain dépassent les cryptomonnaies mais restent souvent confrontées au problème de l'oracle et au trilemme scalabilité/sécurité/décentralisation.
 - Le cadre réglementaire des cryptoactifs est encore en construction et varie fortement selon les juridictions.
 - La pertinence d'une solution blockchain doit être évaluée par rapport à un besoin réel de décentralisation, pas adoptée par principe.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

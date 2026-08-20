@@ -50,3 +50,7 @@ Comme pour le module *Audit organisation et technique*, toute manipulation d'exp
 - OWASP Top 10, OWASP Application Security Verification Standard (ASVS), OWASP Cheat Sheet Series.
 - E. Foster et al., *Buffer Overflow Attacks*.
 - Documentation OWASP API Security Top 10.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

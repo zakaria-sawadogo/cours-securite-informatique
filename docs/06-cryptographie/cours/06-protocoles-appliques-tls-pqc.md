@@ -48,3 +48,7 @@ Le NIST a standardisé en 2024 des algorithmes post-quantiques (**ML-KEM**, anci
 - TLS combine, de façon opérationnelle, échange de clé asymétrique, authentification par certificat et chiffrement symétrique authentifié — la synthèse pratique de tout ce module.
 - La confidentialité persistante (clés éphémères) protège les échanges passés même en cas de compromission future d'une clé long terme.
 - La transition post-quantique est engagée par anticipation, notamment face au risque « harvest now, decrypt later » sur des données sensibles à long terme.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

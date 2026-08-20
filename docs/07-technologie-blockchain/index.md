@@ -51,3 +51,7 @@ Python pour le TP1/TP2 ; Remix IDE (en ligne, environnement de test local) et So
 - A. Antonopoulos, G. Wood, *Mastering Ethereum*.
 - S. Nakamoto, *Bitcoin: A Peer-to-Peer Electronic Cash System* (2008).
 - ConsenSys, *Smart Contract Best Practices*.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

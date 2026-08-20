@@ -23,3 +23,7 @@ Classer l'ensemble des risques identifiés (TP1 + TP2) du plus critique au moins
 ## À rendre
 
 La matrice de criticité complétée et le tableau de priorisation avec stratégie de traitement. Ce livrable alimente le TP3.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

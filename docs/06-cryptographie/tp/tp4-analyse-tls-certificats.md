@@ -32,3 +32,7 @@ Rédiger une synthèse (15 lignes) reliant explicitement les éléments observé
 ## À rendre
 
 Le certificat analysé, la capture Wireshark (ou une capture d'écran annotée), le constat d'audit de l'exercice 4, et la synthèse de l'exercice 5.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

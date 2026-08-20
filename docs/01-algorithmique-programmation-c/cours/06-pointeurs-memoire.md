@@ -88,3 +88,7 @@ Utilisés pour construire des callbacks et des tables de dispatch — mécanisme
 - Toujours vérifier le retour de `malloc`/`calloc`/`realloc`.
 - Toute allocation dynamique doit avoir une libération correspondante, une seule fois.
 - Mettre un pointeur à `NULL` après `free` limite les risques de use-after-free.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

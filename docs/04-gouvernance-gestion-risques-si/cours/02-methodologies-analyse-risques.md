@@ -73,3 +73,7 @@ La combinaison probabilité × impact positionne chaque risque sur une **matrice
 - Risque = fonction de la probabilité d'occurrence et de l'impact, jamais l'un sans l'autre.
 - EBIOS RM structure l'analyse « par la menace » en cinq ateliers ; ISO 27005 structure l'analyse « par le contexte et les actifs » en six étapes.
 - Le choix de la méthode dépend souvent du contexte réglementaire et sectoriel de l'organisation.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

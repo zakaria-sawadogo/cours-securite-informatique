@@ -61,3 +61,7 @@ Un audit applicatif ponctuel ne couvre que l'état du code à un instant donné 
 - L'OWASP Top 10 est la référence minimale pour structurer un audit applicatif.
 - SAST, DAST et SCA sont complémentaires, pas substituables l'un à l'autre.
 - L'audit de code bas niveau (C/C++) cible spécifiquement les erreurs de gestion mémoire et de validation des entrées.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

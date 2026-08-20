@@ -70,3 +70,7 @@ Quelle que soit la variante, la défense structurelle privilégiée est la **sé
 - L'injection résulte du mélange entre code et donnée non fiable dans un même flux interprété.
 - Les requêtes préparées constituent la défense de référence contre l'injection SQL, structurellement plus robuste qu'un simple échappement.
 - Le principe de moindre privilège du compte applicatif limite l'impact même en cas de contournement des autres défenses.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

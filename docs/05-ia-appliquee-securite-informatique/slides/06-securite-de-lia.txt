@@ -2,6 +2,8 @@
 
 ### IA appliquée à la sécurité informatique
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. L'IA comme nouvelle surface d'attaque

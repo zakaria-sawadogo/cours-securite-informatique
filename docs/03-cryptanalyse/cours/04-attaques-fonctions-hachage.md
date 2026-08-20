@@ -44,3 +44,7 @@ Conséquence pratique : construire une authentification de message par simple co
 - Le paradoxe des anniversaires divise par deux, en bits, la sécurité effective d'une fonction de hachage contre les collisions.
 - MD5 et SHA-1 sont cassés en pratique pour les collisions et ne doivent plus être utilisés pour un usage sécuritaire.
 - Le hachage de mots de passe exige des fonctions dédiées (bcrypt, scrypt, Argon2), volontairement lentes et salées — jamais une fonction générique seule (SHA-256 brut).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

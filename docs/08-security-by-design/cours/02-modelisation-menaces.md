@@ -56,3 +56,7 @@ D'autres méthodologies existent, orientées différemment : **PASTA** (Process 
 - Le threat modeling identifie systématiquement les menaces à partir d'une représentation du système et de ses frontières de confiance, avant l'implémentation.
 - STRIDE structure l'identification des menaces par catégorie, en miroir des propriétés de sécurité visées.
 - Les arbres d'attaque et les méthodologies alternatives (PASTA, LINDDUN) offrent des perspectives complémentaires selon le contexte (risque métier, vie privée).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

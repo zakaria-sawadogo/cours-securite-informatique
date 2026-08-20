@@ -43,3 +43,7 @@ Cette architecture illustre directement l'usage des fonctions de hachage (module
 - Le chaînage cryptographique entre blocs et l'arbre de Merkle au sein d'un bloc sont deux mécanismes complémentaires garantissant respectivement l'intégrité de l'historique global et celle du contenu de chaque bloc.
 - Une preuve de Merkle permet de vérifier l'inclusion d'une transaction sans télécharger l'intégralité de la blockchain, fondement des clients légers.
 - Toute cette architecture repose directement sur les fonctions de hachage et les signatures numériques étudiées dans le module *Cryptographie*.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

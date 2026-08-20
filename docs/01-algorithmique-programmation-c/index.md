@@ -58,3 +58,7 @@ Aucun prérequis en programmation n'est exigé ; des bases de logique mathémati
 - B. W. Kernighan, D. M. Ritchie, *The C Programming Language*, 2nd ed.
 - C. Delannoy, *Programmer en langage C*, Eyrolles.
 - Documentation : [cppreference.com/w/c](https://en.cppreference.com/w/c)
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

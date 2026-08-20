@@ -50,3 +50,7 @@ Un système est dit sûr non pas parce qu'il est mathématiquement incassable da
 - La cryptanalyse et la cryptographie évoluent en miroir : un algorithme n'est validé que par une résistance prouvée à la cryptanalyse publique.
 - Le modèle d'attaque (ciphertext-only à chosen-ciphertext) détermine la puissance réaliste de l'attaquant.
 - En pratique, la majorité des compromissions viennent d'erreurs d'implémentation, pas de failles mathématiques dans l'algorithme lui-même.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

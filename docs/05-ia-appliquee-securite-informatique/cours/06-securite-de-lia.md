@@ -52,3 +52,7 @@ Attaque visant la **phase d'entraînement** plutôt que l'inférence : un attaqu
 - Les systèmes d'IA sont vulnérables à des classes d'attaques spécifiques (adversariales, empoisonnement, extraction) distinctes des vulnérabilités logicielles classiques.
 - Les modèles de connaissance de l'attaquant (boîte blanche/noire) déterminent la faisabilité pratique de ces attaques.
 - L'IA offensive (contenus de phishing, deepfakes) accroît la sophistication des attaques d'ingénierie sociale et impose des contre-mesures organisationnelles autant que techniques.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -66,3 +66,7 @@ La validation croisée (cross-validation) et un ensemble de test totalement ind�
 - Le choix entre supervisé/non supervisé dépend de la disponibilité de données étiquetées, souvent rare en sécurité pour les attaques nouvelles.
 - Précision, rappel et F1-score, pas la seule exactitude, sont les métriques pertinentes pour évaluer un modèle de détection en contexte déséquilibré.
 - Le cycle de vie complet (données → features → entraînement → évaluation → supervision continue) doit être maîtrisé, pas seulement l'entraînement du modèle.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

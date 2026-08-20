@@ -30,3 +30,7 @@ Rédiger une fiche de synthèse (15 lignes) reliant ce TP au chapitre 5 du cours
 ## À rendre
 
 Le fichier de configuration du pipeline CI, une capture d'écran d'une exécution réussie du pipeline (après corrections), et la fiche de synthèse.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

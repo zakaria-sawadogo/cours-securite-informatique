@@ -27,3 +27,7 @@ Rédiger une fiche de synthèse (1 page) reliant chaque correction proposée dan
 ## À rendre
 
 Les réponses aux exercices 1 à 4 et la fiche de synthèse.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

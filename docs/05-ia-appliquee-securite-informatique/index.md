@@ -50,3 +50,7 @@ Python 3, `scikit-learn`, `pandas`, `numpy`, `matplotlib` ; `PyTorch` ou `Tensor
 - I. Goodfellow, Y. Bengio, A. Courville, *Deep Learning*.
 - OWASP Machine Learning Security Top 10.
 - MITRE ATLAS (Adversarial Threat Landscape for Artificial-Intelligence Systems).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

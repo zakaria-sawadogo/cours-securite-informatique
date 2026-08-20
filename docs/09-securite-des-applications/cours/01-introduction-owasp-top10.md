@@ -45,3 +45,7 @@ Chaque chapitre suivant traite une famille de vulnérabilités selon la même st
 - L'OWASP Top 10 structure ce module ; chaque chapitre suivant approfondit une ou plusieurs de ses catégories.
 - Le principe unificateur des vulnérabilités applicatives est le traitement d'une entrée non fiable comme si elle était fiable.
 - Validation par liste blanche, encodage contextuel et paramétrage sont trois mécanismes de défense distincts, souvent combinés.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

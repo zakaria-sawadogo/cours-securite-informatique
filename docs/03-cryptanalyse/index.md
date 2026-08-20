@@ -50,3 +50,7 @@ Les techniques enseignées dans ce module s'exercent exclusivement sur des exemp
 - D. Kahn, *The Codebreakers*.
 - A. Menezes, P. van Oorschot, S. Vanstone, *Handbook of Applied Cryptography* (disponible librement en ligne).
 - J. Katz, Y. Lindell, *Introduction to Modern Cryptography*.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

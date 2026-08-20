@@ -27,3 +27,7 @@ Pour chacune des 6 menaces priorisées, proposer une contre-mesure concrète, en
 ## À rendre
 
 Le DFD annoté, le tableau STRIDE complété, et le tableau de contre-mesures priorisées.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

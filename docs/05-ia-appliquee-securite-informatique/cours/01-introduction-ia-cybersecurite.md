@@ -41,3 +41,7 @@ Ce module s'appuie sur les notions de trafic réseau et de vulnérabilités vues
 - L'IA en cybersécurité recouvre trois dimensions : défense, sécurité de l'IA elle-même, et usage offensif par les attaquants.
 - Le ML complète mais ne remplace pas l'expertise humaine et les approches par signatures/règles.
 - La qualité et la représentativité des données d'entraînement sont le facteur déterminant de la performance réelle d'un système de détection basé ML.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

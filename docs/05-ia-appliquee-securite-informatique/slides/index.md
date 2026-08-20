@@ -8,3 +8,7 @@ Diapositives (reveal.js) associées à chaque chapitre de cours. S'ouvrent dans 
 - [🖥 4. Détection de malwares par machine learning](../../presentation.html?deck=05-ia-appliquee-securite-informatique/slides/04-detection-malwares-ml.txt){ target=_blank }
 - [🖥 5. NLP appliqué à la sécurité (phishing, analyse de logs)](../../presentation.html?deck=05-ia-appliquee-securite-informatique/slides/05-nlp-securite.txt){ target=_blank }
 - [🖥 6. Sécurité de l'IA : attaques adversariales et IA offensive](../../presentation.html?deck=05-ia-appliquee-securite-informatique/slides/06-securite-de-lia.txt){ target=_blank }
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

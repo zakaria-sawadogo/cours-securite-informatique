@@ -23,3 +23,7 @@ Pour chacun des 3 risques traités, estimer qualitativement le risque résiduel 
 ## À rendre
 
 La politique générale, la politique thématique, et le tableau des mesures avec risque résiduel estimé.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

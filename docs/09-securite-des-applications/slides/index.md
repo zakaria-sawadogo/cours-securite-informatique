@@ -8,3 +8,7 @@ Diapositives (reveal.js) associées à chaque chapitre de cours. S'ouvrent dans 
 - [🖥 4. Vulnérabilités côté client : XSS, CSRF, clickjacking](../../presentation.html?deck=09-securite-des-applications/slides/04-vulnerabilites-cote-client.txt){ target=_blank }
 - [🖥 5. Vulnérabilités mémoire bas niveau et exploitation](../../presentation.html?deck=09-securite-des-applications/slides/05-vulnerabilites-memoire-exploitation.txt){ target=_blank }
 - [🖥 6. Sécurisation des API et bonnes pratiques](../../presentation.html?deck=09-securite-des-applications/slides/06-securisation-api-bonnes-pratiques.txt){ target=_blank }
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

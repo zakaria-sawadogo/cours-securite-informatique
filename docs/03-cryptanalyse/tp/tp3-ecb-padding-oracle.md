@@ -28,3 +28,7 @@ Rédiger une fiche de synthèse (15 lignes) expliquant comment ces deux attaques
 ## À rendre
 
 Les deux images chiffrées (ECB et CBC) de l'exercice 1, le script de l'exercice 3, et la fiche de synthèse de l'exercice 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -23,3 +23,7 @@ Rédiger une réponse courte (10 lignes) : dans un contexte réel où l'on ne di
 ## À rendre
 
 Le notebook/script avec les deux approches, le graphique de l'exercice 2, et la réponse de l'exercice 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

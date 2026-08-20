@@ -27,3 +27,7 @@ Rédiger un plan de migration en 3 étapes priorisées (partant de l'actif le pl
 ## À rendre
 
 Le schéma d'architecture zero trust cible, les politiques d'accès des 3 scénarios, le schéma de micro-segmentation, et le plan de migration.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

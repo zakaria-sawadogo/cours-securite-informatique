@@ -48,3 +48,7 @@ Des notions d'arithmétique modulaire facilitent la compréhension du chapitre 4
 - A. Menezes, P. van Oorschot, S. Vanstone, *Handbook of Applied Cryptography*.
 - Documentation OpenSSL — [openssl.org/docs](https://www.openssl.org/docs/).
 - NIST — publications FIPS 197 (AES), FIPS 180-4 (SHA-2), FIPS 186-5 (signatures numériques).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

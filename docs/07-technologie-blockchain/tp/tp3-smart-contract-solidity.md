@@ -31,3 +31,7 @@ Ajouter un événement Solidity (`event Depot(address indexed compte, uint256 mo
 ## À rendre
 
 Le fichier `.sol` complet, les captures d'écran de déploiement/interaction, et les tests unitaires.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

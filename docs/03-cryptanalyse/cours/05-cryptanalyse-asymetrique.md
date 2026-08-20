@@ -47,3 +47,7 @@ Le problème du logarithme discret sur courbe elliptique (ECDLP) est considéré
 - La sécurité de RSA et Diffie-Hellman repose sur des hypothèses calculatoires (factorisation, logarithme discret), pas sur une preuve d'impossibilité absolue.
 - Les attaques réellement exploitées en pratique ciblent presque toujours une mauvaise implémentation (aléa faible, paramètres partagés, padding absent) plutôt que l'algorithme mathématique lui-même.
 - La menace de l'informatique quantique (algorithme de Shor) motive la transition en cours vers la cryptographie post-quantique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

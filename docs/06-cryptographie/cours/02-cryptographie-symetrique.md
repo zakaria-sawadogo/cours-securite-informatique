@@ -57,3 +57,7 @@ Un mot de passe humain n'a pas l'entropie suffisante pour servir directement de 
 - AES est le standard de chiffrement par bloc de référence ; sa sécurité dépend fortement du mode opératoire choisi.
 - ECB est à proscrire ; les modes AEAD (GCM) sont recommandés par défaut car ils apportent confidentialité et intégrité simultanément.
 - La réutilisation d'un nonce/IV avec la même clé est l'une des erreurs d'implémentation les plus graves en cryptographie symétrique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

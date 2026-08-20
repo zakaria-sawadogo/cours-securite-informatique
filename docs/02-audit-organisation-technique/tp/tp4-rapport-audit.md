@@ -33,3 +33,7 @@ En vous appuyant sur vos livrables des TP1 à TP3, rédigez un rapport d'audit c
 ## À rendre
 
 Le rapport d'audit complet, en PDF ou Markdown, nommé `rapport-audit-techsa.pdf` (ou `.md`).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

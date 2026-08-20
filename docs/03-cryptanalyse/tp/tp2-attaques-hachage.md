@@ -26,3 +26,7 @@ Sous supervision de l'enseignant, observer sur un exemple simplifié comment, co
 ## À rendre
 
 Les scripts des exercices 1 à 3, et une réponse écrite (10 lignes maximum) à la question de l'exercice 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -44,3 +44,7 @@ Une migration complète vers zero trust est rarement un projet « big bang » : 
 - Le modèle périmétrique traditionnel suppose une confiance implicite au réseau interne, une hypothèse de moins en moins tenable (télétravail, Cloud, menaces internes).
 - Le zero trust remplace cette confiance implicite par une vérification systématique et continue de chaque accès, quelle que soit sa provenance.
 - La mise en œuvre combine des briques technologiques existantes (IAM, micro-segmentation, chiffrement, supervision) et se conduit généralement de façon progressive et priorisée.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

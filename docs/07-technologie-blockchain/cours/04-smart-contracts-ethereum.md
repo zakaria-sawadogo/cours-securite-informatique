@@ -60,3 +60,7 @@ Un smart contract, par conception, ne peut accéder qu'aux données déjà prés
 - Un smart contract est un programme auto-exécutable, pas nécessairement un contrat juridique au sens classique.
 - Le mécanisme de gas rémunère l'exécution et empêche les boucles infinies, brique essentielle de la sécurité opérationnelle d'Ethereum.
 - Le problème de l'oracle rappelle qu'un smart contract ne résout la confiance que pour les données déjà présentes sur la chaîne, pas pour les données du monde réel qui y sont importées.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

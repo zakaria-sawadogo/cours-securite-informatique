@@ -53,3 +53,7 @@ Chaque constat technique doit être formulé selon la structure : **observation*
 - L'audit d'infrastructure combine architecture réseau, configuration système et, de plus en plus, environnements Cloud/AD.
 - Les référentiels de durcissement (CIS Benchmarks) fournissent des points de contrôle réutilisables et mesurables.
 - Chaque constat doit relier un fait technique à un risque métier compréhensible par la direction.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

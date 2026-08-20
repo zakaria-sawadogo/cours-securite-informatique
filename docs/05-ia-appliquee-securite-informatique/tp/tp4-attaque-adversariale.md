@@ -36,3 +36,7 @@ Rédiger une synthèse (15 lignes) reliant cette expérimentation au chapitre 6 
 ## À rendre
 
 Le notebook/script complet, les visualisations de l'exercice 3, et la synthèse de l'exercice 5.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

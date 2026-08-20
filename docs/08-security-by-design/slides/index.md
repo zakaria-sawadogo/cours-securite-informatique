@@ -8,3 +8,7 @@ Diapositives (reveal.js) associées à chaque chapitre de cours. S'ouvrent dans 
 - [🖥 4. Architecture sécurisée : segmentation et zero trust](../../presentation.html?deck=08-security-by-design/slides/04-architecture-securisee-zero-trust.txt){ target=_blank }
 - [🖥 5. Cycle de développement sécurisé (DevSecOps)](../../presentation.html?deck=08-security-by-design/slides/05-cycle-developpement-securise-devsecops.txt){ target=_blank }
 - [🖥 6. Privacy by design](../../presentation.html?deck=08-security-by-design/slides/06-privacy-by-design.txt){ target=_blank }
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

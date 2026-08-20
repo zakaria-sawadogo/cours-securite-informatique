@@ -26,3 +26,7 @@ Implémenter une fonction `indice_coincidence(texte)` calculant l'IC d'un texte.
 ## À rendre
 
 Les scripts Python des exercices 1, 3 et 4, ainsi que le texte clair et la clé retrouvés à l'exercice 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

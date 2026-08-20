@@ -23,3 +23,7 @@ Rédiger un tableau comparatif (fourni en gabarit) listant, pour chacune des tro
 ## À rendre
 
 Les trois scripts (exercices 1 à 3) et le tableau de synthèse (exercice 4).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

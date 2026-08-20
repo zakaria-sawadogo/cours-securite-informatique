@@ -2,6 +2,8 @@
 
 ### Security by design
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. Définition

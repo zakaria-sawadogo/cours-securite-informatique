@@ -51,3 +51,7 @@ L'ISO 27001 impose une revue de direction périodique du SMSI, qui doit examiner
 - Un indicateur SSI doit être actionnable, pas seulement descriptif.
 - Le tableau de bord se décline selon le public (direction vs opérationnel) pour rester pertinent à chaque niveau.
 - La conformité réglementaire est une composante de la gestion des risques, pas un objectif indépendant ; elle se pilote au même titre que les autres indicateurs.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

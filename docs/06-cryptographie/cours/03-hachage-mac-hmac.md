@@ -58,3 +58,7 @@ Lorsqu'un schéma AEAD intégré n'est pas utilisé et qu'il faut composer soi-m
 - Un MAC garantit intégrité et authenticité pour des parties partageant une clé secrète, sans non-répudiation.
 - HMAC neutralise spécifiquement l'attaque par extension de longueur inhérente aux fonctions de hachage basées sur Merkle-Damgård.
 - Privilégier un mode AEAD intégré (GCM, Poly1305) plutôt que de composer manuellement chiffrement et MAC ; si nécessaire, appliquer le principe Encrypt-then-MAC.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

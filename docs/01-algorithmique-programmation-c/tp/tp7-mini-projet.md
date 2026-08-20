@@ -38,3 +38,7 @@ Développer en C un gestionnaire de contacts en ligne de commande, avec :
 ## À rendre
 
 Le code source complet (`.c`/`.h`), un `README.md` court expliquant comment compiler et utiliser le programme, et la sortie de `valgrind` (ou d'AddressSanitizer) montrant l'absence de fuite.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -29,3 +29,7 @@ Comparer dans `main` les deux versions de factorielle pour n = 15 et n = 25 (obs
 ## À rendre
 
 Fichier `tp3.c` avec toutes les fonctions prototypées en haut de fichier, définies après `main`.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

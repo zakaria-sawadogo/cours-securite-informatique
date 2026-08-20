@@ -27,3 +27,7 @@ Identifier, pour ce contexte, au moins 3 sources de risque plausibles (ex. attaq
 ## À rendre
 
 Le tableau de cartographie des actifs et la liste des événements redoutés avec leurs sources de risque associées. Ce livrable sert de base au TP2.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -27,3 +27,7 @@
 ## À rendre
 
 Un fichier `tp1.c` par exercice (ou un seul fichier avec un `main` qui appelle chaque exercice), compilable sans avertissement.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

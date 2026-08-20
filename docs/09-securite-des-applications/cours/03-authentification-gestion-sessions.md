@@ -53,3 +53,7 @@ De nombreuses applications modernes délèguent l'authentification à un fournis
 - Une politique de mot de passe moderne privilégie la longueur et la vérification contre des mots de passe déjà compromis plutôt que des règles de composition contraignantes et peu efficaces.
 - La gestion de session exige régénération après authentification, expiration maîtrisée, et attributs de cookie sécurisés (Secure, HttpOnly, SameSite).
 - L'authentification fédérée (OAuth/OIDC/JWT) déplace le risque vers une bonne compréhension du protocole et une vérification rigoureuse des jetons, plutôt que de l'éliminer.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

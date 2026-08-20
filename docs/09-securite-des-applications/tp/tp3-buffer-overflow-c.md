@@ -31,3 +31,7 @@ Réécrire le code source original en remplaçant `strcpy` par une fonction born
 ## À rendre
 
 Le code source original et corrigé, les sorties `gdb` documentant chaque étape (exercices 1 à 4), et une synthèse écrite (15 lignes) reliant cette expérience aux chapitres 5 et 6 du module *Algorithmique et Programmation en C* et au chapitre 5 de ce module.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

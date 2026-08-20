@@ -31,3 +31,7 @@ Si l'environnement le permet, exécuter un outil d'analyse statique (ex. Slither
 ## À rendre
 
 Les deux contrats (`.sol`), le contrat attaquant, le constat rédigé (exercice 3), et une capture montrant l'échec de l'attaque après correction.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

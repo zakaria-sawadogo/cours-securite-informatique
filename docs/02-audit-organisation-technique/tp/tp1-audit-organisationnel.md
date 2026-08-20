@@ -27,3 +27,7 @@ Pour les 5 écarts identifiés à l'exercice 2, rédiger une recommandation conc
 ## À rendre
 
 La grille d'évaluation complétée et la liste priorisée des écarts avec recommandations (1 page de synthèse).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

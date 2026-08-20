@@ -2,6 +2,8 @@
 
 ### Sécurité des applications
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. Spécificités de la sécurité des API

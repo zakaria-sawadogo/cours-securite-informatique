@@ -44,3 +44,7 @@ Compiler la première version avec `-fsanitize=address` pour observer la détect
 ## À rendre
 
 Fichier `tp5.c` avec toutes les fonctions, plus la note explicative de l'exercice 4.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

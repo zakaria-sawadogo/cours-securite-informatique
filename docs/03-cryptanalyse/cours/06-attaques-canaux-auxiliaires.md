@@ -44,3 +44,7 @@ Un générateur de nombres pseudo-aléatoires (PRNG) de mauvaise qualité ou mal
 - Les attaques par canaux auxiliaires exploitent l'implémentation, pas l'algorithme : elles rappellent qu'une preuve mathématique de sécurité ne suffit pas.
 - Le padding oracle est une attaque pratique majeure contre les usages naïfs de CBC, à l'origine de plusieurs failles réelles dans TLS/SSL.
 - Un générateur aléatoire de mauvaise qualité peut annuler la sécurité de tout système cryptographique qui en dépend, quelle que soit la robustesse théorique de l'algorithme utilisé.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

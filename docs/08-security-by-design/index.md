@@ -48,3 +48,7 @@ Ce module s'appuie sur les notions vues en *Audit organisation et technique* (OW
 - OWASP Top 10, OWASP Application Security Verification Standard (ASVS).
 - NIST SP 800-207 — Zero Trust Architecture.
 - CNIL / autorités de protection des données — guides *Privacy by Design*.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

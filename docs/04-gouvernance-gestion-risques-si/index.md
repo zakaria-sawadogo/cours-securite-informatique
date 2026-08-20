@@ -44,3 +44,7 @@ Aucun prérequis technique strict ; ce module se combine naturellement avec *Aud
 - ISO/IEC 27005:2022 — Gestion des risques liés à la sécurité de l'information.
 - ISO 22301 — Management de la continuité d'activité.
 - NIST SP 800-30 — Guide for Conducting Risk Assessments.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -59,3 +59,7 @@ Un audit organisationnel vérifie, pour chaque clause, l'existence de **preuves 
 - L'audit organisationnel évalue des processus et de la documentation, pas uniquement des configurations techniques.
 - ISO 27001/27002 est le référentiel le plus largement utilisé ; il se combine souvent avec des référentiels sectoriels (PCI-DSS) ou nationaux (ANSSI).
 - Une non-conformité doit toujours être qualifiée par un niveau de criticité et une recommandation actionnable.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

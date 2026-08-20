@@ -51,3 +51,7 @@ Une fonction itérant sur une structure de données dont la taille peut être ma
 - La réentrance, le contrôle d'accès défaillant et la manipulation d'oracle sont des classes de vulnérabilités récurrentes, à l'origine de pertes financières réelles considérables.
 - L'immutabilité des smart contracts déployés rend la prévention (audit avant déploiement) bien plus critique que pour une application web classique corrigible a posteriori.
 - Le patron checks-effects-interactions est la contre-mesure de référence contre la réentrance, illustrant l'importance de l'ordre des opérations dans le code.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

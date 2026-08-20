@@ -76,3 +76,7 @@ définitions des autres fonctions
 - Un algorithme se conçoit avant de se coder.
 - Le C est un langage compilé, statiquement typé, proche de la machine.
 - Toujours compiler avec les avertissements activés (`-Wall -Wextra`) : la majorité des bugs de sécurité en C sont détectables dès la compilation ou l'analyse statique.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

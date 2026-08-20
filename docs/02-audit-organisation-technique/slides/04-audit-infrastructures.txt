@@ -2,6 +2,8 @@
 
 ### Audit organisation et technique
 
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
 ---
 
 ## 1. Audit de l'architecture réseau

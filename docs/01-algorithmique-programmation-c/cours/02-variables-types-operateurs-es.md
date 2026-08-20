@@ -77,3 +77,7 @@ Spécificateurs de format courants : `%d` (int), `%f` (float/double), `%c` (char
 - Toujours initialiser ses variables.
 - Connaître la taille et les limites de chaque type (`limits.h`, `stdint.h`).
 - Se méfier des conversions implicites et des chaînes de format non maîtrisées.
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*

@@ -64,3 +64,7 @@ Une faille dans n'importe laquelle de ces vérifications (ex. accepter un certif
 - La signature numérique apporte la non-répudiation, absente d'un simple MAC (chapitre 3).
 - ECDSA exige un nonce aléatoire de haute qualité à chaque signature ; Ed25519 élimine ce risque par construction déterministe.
 - Une PKI repose sur une chaîne de confiance hiérarchique ; sa robustesse dépend entièrement de la rigueur de vérification à chaque maillon (identité, validité, révocation).
+
+---
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
