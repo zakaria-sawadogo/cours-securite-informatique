@@ -15,19 +15,19 @@ Support de cours, présentations (diapositives) et travaux pratiques des matièr
 
 <div class="stats-row" markdown>
 <div class="stat" markdown>
-<span class="stat-value">9</span>
+<span class="stat-value">11</span>
 <span class="stat-label">Matières</span>
 </div>
 <div class="stat" markdown>
-<span class="stat-value">137h</span>
+<span class="stat-value">169h</span>
 <span class="stat-label">Cours magistral</span>
 </div>
 <div class="stat" markdown>
-<span class="stat-value">79h</span>
+<span class="stat-value">95h</span>
 <span class="stat-label">Travaux pratiques</span>
 </div>
 <div class="stat" markdown>
-<span class="stat-value">216h</span>
+<span class="stat-value">264h</span>
 <span class="stat-label">Volume total</span>
 </div>
 </div>
@@ -153,6 +153,32 @@ Support de cours, présentations (diapositives) et travaux pratiques des matièr
 
     [:octicons-arrow-right-24: Accéder au cours](../09-securite-des-applications/index.md){ .md-button .md-button--primary }
 
+-   :material-web:{ .lg .middle } **Service web**
+
+    ---
+
+    <span class="badge-row">
+    <span class="badge-hours">:material-clock-outline: 16h CM</span>
+    <span class="badge-hours">:material-flask-outline: 8h TP</span>
+    </span>
+
+    HTTP, architecture REST, formats JSON/XML/SOAP, authentification (JWT, OAuth), documentation d'API, microservices.
+
+    [:octicons-arrow-right-24: Accéder au cours](../10-service-web/index.md){ .md-button .md-button--primary }
+
+-   :material-bug-outline:{ .lg .middle } **Analyse de malwares et sécurisation des données**
+
+    ---
+
+    <span class="badge-row">
+    <span class="badge-hours">:material-clock-outline: 16h CM</span>
+    <span class="badge-hours">:material-flask-outline: 8h TP</span>
+    </span>
+
+    Taxonomie des malwares, analyse statique et dynamique, rétro-ingénierie de base, détection/réponse, chiffrement et classification des données.
+
+    [:octicons-arrow-right-24: Accéder au cours](../11-analyse-malwares-securisation-donnees/index.md){ .md-button .md-button--primary }
+
 </div>
 
 ## Volume horaire
@@ -168,11 +194,13 @@ Support de cours, présentations (diapositives) et travaux pratiques des matièr
 | 7 | Technologie Blockchain | 16 | 8 | 24 |
 | 8 | Security by design | 16 | 8 | 24 |
 | 9 | Sécurité des applications | 16 | 8 | 24 |
-| | **Total** | **137** | **79** | **216** |
+| 10 | Service web | 16 | 8 | 24 |
+| 11 | Analyse de malwares et sécurisation des données | 16 | 8 | 24 |
+| | **Total** | **169** | **95** | **264** |
 
 ## Comment naviguer
 
-- Le **panneau latéral** (avec recherche) liste ici les 9 matières. Seule celle que vous consultez déploie son détail — syllabus, chapitres de cours, présentations, TP — les autres restent repliées en une seule ligne, pour garder la navigation lisible.
+- Le **panneau latéral** (avec recherche) liste ici les 11 matières. Seule celle que vous consultez déploie son détail — syllabus, chapitres de cours, présentations, TP — les autres restent repliées en une seule ligne, pour garder la navigation lisible.
 - Cliquer sur le nom d'une matière ouvre directement son **syllabus**.
 - Chaque **chapitre de cours** comporte un encart en tête de page pour ouvrir directement la présentation associée.
 - Les **énoncés de TP** font également office de travaux dirigés (aucune distinction TD/TP séparée dans ce programme : chaque séance combine exercices dirigés et manipulation pratique).

@@ -1,0 +1,185 @@
+# Chapitre 1 — Introduction aux services web et au protocole HTTP
+
+### Service web
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Qu'est-ce qu'un service web ?
+
+Un **service web** est un mécanisme permettant à deux applications, potentiellement écrites dans des langages différents et exécutées sur des machines différentes, d'échanger des données et de déclencher des traitements à distance, à travers un réseau, en s'appuyant sur des protocoles et des formats standardisés plutôt que sur des mécanismes propriétaires. Ce module étudie principalement les services web construits au-dessus du protocole **HTTP** (*HyperText Transfer Protocol*), aujourd'hui de très loin le mode d'exposition dominant, mais le principe général — exposer une fonctionnalité de façon interopérable, indépendamment de la technologie du consommateur — est antérieur au Web lui-même.
+
+### Bref historique
+
+Avant la généralisation des services web tels qu'on les connaît aujourd'hui, l'interopérabilité entre applications distantes reposait sur des technologies plus lourdes et souvent propriétaires ou fortement couplées à une plateforme particulière : appels de procédure à distance (RPC), CORBA, DCOM. Ces approches imposaient généralement que les deux parties partagent des bibliothèques, des définitions d'interface binaires ou, à tout le moins, une pile technologique compatible.
+
+Le tournant est venu de deux évolutions convergentes au début des années 2000 : d'une part la normalisation de **SOAP** (*Simple Object Access Protocol*), qui proposait d'encapsuler des appels de méthode dans des messages XML transportés sur HTTP — approfondi au chapitre 3 — et d'autre part la formalisation, par Roy Fielding dans sa thèse de doctorat en 2000, du style architectural **REST** (*REpresentational State Transfer*), qui ne cherche pas à imiter un appel de procédure à distance mais à exploiter directement les propriétés du Web (ressources adressables par URI, verbes HTTP uniformes, absence d'état côté serveur). À partir du milieu des années 2000, avec la multiplication des API publiques (réseaux sociaux, plateformes de cartographie, services de paiement) puis l'essor des applications mobiles consommant des API distantes, REST s'est progressivement imposé comme l'approche dominante pour la majorité des nouveaux services web, sans toutefois faire disparaître SOAP de certains contextes historiques ou réglementés (chapitre 3).
+
+---
+
+## 2. Architecture client-serveur
+
+Un service web s'inscrit dans une architecture **client-serveur** : le **client** (navigateur, application mobile, autre service, script) initie une requête vers le **serveur**, qui la traite et retourne une réponse. Cette séparation des responsabilités présente plusieurs avantages structurants, déjà rencontrés en filigrane dans d'autres modules de ce programme :
+
+- **Indépendance d'évolution** : client et serveur peuvent évoluer séparément, tant que le contrat d'interface (le format des requêtes et réponses) reste stable ou correctement versionné (chapitre 2).
+- **Réutilisabilité** : un même service peut être consommé par plusieurs clients hétérogènes (application web, application mobile, autre service back-end) sans duplication de logique métier.
+- **Centralisation du traitement et des données sensibles** : la logique métier et l'accès aux données restent côté serveur, sous le contrôle de l'organisation qui les expose, plutôt que dupliqués et potentiellement exposés côté client.
+
+```
+┌────────────┐        requête HTTP        ┌────────────┐
+│   Client   │  ───────────────────────►  │   Serveur  │
+│ (navigateur,│                            │  (service   │
+│  app, script)│ ◄─────────────────────── │   web)     │
+└────────────┘        réponse HTTP        └────────────┘
+```
+
+---
+
+## 3. Anatomie d'une requête et d'une réponse HTTP
+
+HTTP est un protocole de la couche application, textuel dans ses versions historiques (HTTP/1.0, HTTP/1.1), fonctionnant selon un modèle **requête-réponse** : le client émet une requête, le serveur retourne exactement une réponse. Une requête HTTP comporte trois parties :
+
+```http
+GET /api/utilisateurs/42 HTTP/1.1
+Host: exemple.edu
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+```
+
+- une **ligne de requête** : méthode, chemin de la ressource, version du protocole ;
+- des **en-têtes** (*headers*) : métadonnées clé-valeur (format attendu, authentification, etc.) ;
+- éventuellement un **corps** (*body*), absent ici pour une requête `GET`.
+
+La réponse correspondante suit une structure symétrique :
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 58
+
+{"id": 42, "nom": "Awa Traoré", "role": "etudiant"}
+```
+
+- une **ligne de statut** : version du protocole, code de statut, texte explicatif ;
+- des **en-têtes** de réponse ;
+- un **corps** de réponse, ici au format JSON (chapitre 3).
+
+---
+
+## 4. Méthodes HTTP
+
+Chaque requête HTTP porte une **méthode** (aussi appelée verbe), qui indique l'action attendue sur la ressource ciblée. Le tableau suivant présente les méthodes les plus utilisées par les services web, avec deux propriétés essentielles pour la conception d'API (approfondies au chapitre 2) :
+
+- **sûre** (*safe*) : ne doit produire aucun effet de bord sur le serveur (lecture seule) ;
+- **idempotente** : exécuter la même requête plusieurs fois de suite produit le même effet que l'exécuter une seule fois.
+
+| Méthode | Usage typique | Sûre | Idempotente |
+|---|---|:---:|:---:|
+| `GET` | Récupérer une ressource | Oui | Oui |
+| `POST` | Créer une ressource, ou déclencher un traitement non idempotent | Non | Non |
+| `PUT` | Remplacer intégralement une ressource existante (ou la créer à une adresse connue) | Non | Oui |
+| `PATCH` | Modifier partiellement une ressource | Non | Non (en général) |
+| `DELETE` | Supprimer une ressource | Non | Oui |
+| `HEAD` | Comme `GET`, mais sans corps de réponse (vérifier l'existence, les en-têtes) | Oui | Oui |
+| `OPTIONS` | Découvrir les méthodes et options supportées par une ressource | Oui | Oui |
+
+L'idempotence de `PUT` et `DELETE` mérite d'être précisée : rejouer plusieurs fois `DELETE /api/commandes/17` laisse le système dans le même état final (la ressource n'existe plus), même si la deuxième requête renvoie un code d'erreur (ressource déjà absente) plutôt qu'un succès. `POST`, en revanche, n'est en général pas idempotent : rejouer une requête de création de commande sans précaution crée typiquement une nouvelle commande à chaque appel.
+
+---
+
+## 5. Codes de statut HTTP
+
+Le code de statut, sur trois chiffres, indique le résultat du traitement de la requête. Le premier chiffre définit une classe :
+
+| Classe | Signification | Exemples courants |
+|---|---|---|
+| 1xx | Information | `100 Continue` |
+| 2xx | Succès | `200 OK`, `201 Created`, `204 No Content` |
+| 3xx | Redirection | `301 Moved Permanently`, `304 Not Modified` |
+| 4xx | Erreur côté client | `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `409 Conflict`, `429 Too Many Requests` |
+| 5xx | Erreur côté serveur | `500 Internal Server Error`, `502 Bad Gateway`, `503 Service Unavailable` |
+
+Une confusion fréquente concerne `401 Unauthorized` et `403 Forbidden` : le premier signifie que le client n'est pas authentifié (ou l'est de façon invalide), le second qu'il est authentifié mais n'a pas les droits nécessaires pour l'action demandée. Le choix précis du code de statut fait partie intégrante de la conception d'une bonne API (chapitre 2) : un client (humain ou logiciel) doit pouvoir réagir correctement sans avoir à analyser le corps de la réponse.
+
+---
+
+## 6. En-têtes HTTP courants
+
+| En-tête | Rôle |
+|---|---|
+| `Content-Type` | Indique le format du corps envoyé (ex. `application/json`, `application/xml`) |
+| `Accept` | Indique au serveur les formats de réponse acceptés par le client |
+| `Authorization` | Transporte les informations d'authentification (chapitre 4) |
+| `Cache-Control` | Contrôle la mise en cache de la réponse par des intermédiaires ou le client |
+| `Location` | Indique, en réponse à une création (`201 Created`), l'URI de la ressource créée |
+| `ETag` | Identifiant de version d'une ressource, utilisé pour la mise en cache conditionnelle |
+
+---
+
+## 7. Statelessness : l'absence d'état côté serveur
+
+L'une des contraintes architecturales fondamentales de HTTP, et plus largement de REST (chapitre 2), est le caractère **sans état** (*stateless*) de chaque requête : le serveur ne conserve aucune information de contexte entre deux requêtes successives d'un même client. Chaque requête doit se suffire à elle-même et contenir toutes les informations nécessaires à son traitement (notamment les informations d'authentification, chapitre 4).
+
+Ce principe a des conséquences pratiques importantes :
+
+- **Scalabilité horizontale simplifiée** : n'importe quel serveur d'un pool peut traiter n'importe quelle requête d'un client, sans avoir besoin d'accéder à un état de session conservé en mémoire sur un serveur précédent.
+- **Résilience** : la panne d'un serveur ne fait pas perdre le contexte applicatif du client, puisqu'aucun état n'y était stocké.
+- **Report de la charge d'état sur le client** : lorsqu'un contexte doit malgré tout persister (ex. un utilisateur authentifié), il est porté par le client à chaque requête (cookie, jeton — chapitre 4), et non maintenu en mémoire côté serveur entre deux requêtes.
+
+Il convient de distinguer l'absence d'état *de la requête* de l'absence d'état *des données* : un service web sans état côté requête interagit très couramment avec une base de données persistante (état applicatif durable), ce qui n'est pas contradictoire avec le principe de statelessness au sens HTTP/REST.
+
+---
+
+## 8. Exemples concrets
+
+### Requête en ligne de commande avec `curl`
+
+```bash
+# Requête GET simple
+curl https://api.exemple.edu/utilisateurs/42
+
+# Requête POST avec un corps JSON
+curl -X POST https://api.exemple.edu/utilisateurs \
+     -H "Content-Type: application/json" \
+     -d '{"nom": "Awa Traoré", "role": "etudiant"}'
+
+# Affichage des en-têtes de réponse uniquement
+curl -I https://api.exemple.edu/utilisateurs/42
+```
+
+### Client Python avec la bibliothèque `requests`
+
+```python
+import requests
+
+reponse = requests.get("https://api.exemple.edu/utilisateurs/42")
+print(reponse.status_code)   # 200
+print(reponse.json())        # {'id': 42, 'nom': 'Awa Traoré', ...}
+```
+
+### Serveur minimal avec Flask
+
+```python
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route("/api/utilisateurs/<int:id_utilisateur>", methods=["GET"])
+def obtenir_utilisateur(id_utilisateur):
+    # Dans une vraie application, la donnée proviendrait d'une base de données.
+    return jsonify({"id": id_utilisateur, "nom": "Awa Traoré", "role": "etudiant"}), 200
+
+if __name__ == "__main__":
+    app.run(debug=True)
+```
+
+---
+
+## À retenir
+
+- Un service web permet l'interopérabilité entre applications hétérogènes ; REST, apparu au début des années 2000, s'est imposé comme l'approche dominante face à SOAP dans la majorité des nouveaux usages.
+- HTTP fonctionne selon un modèle requête-réponse strict, chaque échange comportant une ligne de requête/statut, des en-têtes, et un corps optionnel.
+- Les méthodes HTTP portent une sémantique précise (sûreté, idempotence) que la conception d'API doit respecter scrupuleusement (approfondi au chapitre 2).
+- Les codes de statut doivent être choisis avec soin ; `401` et `403` en particulier ne sont pas interchangeables.
+- Le caractère sans état de HTTP est une contrainte architecturale fondamentale de REST, avec des conséquences directes sur la scalabilité et sur la gestion de l'authentification.

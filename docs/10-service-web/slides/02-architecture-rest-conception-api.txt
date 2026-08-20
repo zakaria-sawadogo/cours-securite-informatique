@@ -1,0 +1,169 @@
+# Chapitre 2 — Architecture REST et conception d'API
+
+### Service web
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. REST : un style architectural, pas un protocole
+
+**REST** (*REpresentational State Transfer*) n'est pas un protocole ni une norme au sens strict, mais un **style architectural** défini par Roy Fielding, décrivant un ensemble de contraintes qu'une architecture doit respecter pour être qualifiée de « RESTful ». Une API qui s'appuie sur HTTP sans respecter ces contraintes n'est pas nécessairement « REST » au sens plein du terme, même si l'usage courant du secteur a largement élargi le sens du mot pour désigner, de façon plus lâche, toute API HTTP orientée ressources.
+
+Les contraintes principales du style REST sont :
+
+- **Client-serveur** : séparation des responsabilités (chapitre 1).
+- **Sans état** (*stateless*) : chaque requête se suffit à elle-même (chapitre 1).
+- **Cache** : les réponses doivent indiquer explicitement si elles sont cacheables, pour permettre au client ou à un intermédiaire d'éviter des requêtes redondantes.
+- **Interface uniforme** : un ensemble réduit et cohérent de conventions (identification des ressources par URI, manipulation via des représentations, messages auto-descriptifs, HATEOAS — détaillés ci-dessous) appliqué uniformément à toutes les ressources.
+- **Système en couches** : le client ne doit pas savoir s'il communique directement avec le serveur final ou avec un intermédiaire (proxy, passerelle, répartiteur de charge — cf. chapitre 6 sur l'API Gateway).
+- **Code à la demande** (optionnel) : le serveur peut, de façon facultative, transmettre du code exécutable par le client (rarement utilisé pour des API de données).
+
+---
+
+## 2. Le modèle de maturité de Richardson
+
+Le **Richardson Maturity Model**, popularisé par Leonard Richardson, offre une grille de lecture pédagogique pour évaluer à quel point une API HTTP se rapproche des principes REST, en quatre niveaux :
+
+| Niveau | Caractéristique | Exemple |
+|---|---|---|
+| 0 | Un point d'entrée unique, un seul verbe HTTP (souvent `POST`), le reste de la logique encodé dans le corps de la requête (proche d'un appel RPC déguisé en HTTP) | `POST /api` avec `{"action": "obtenir_utilisateur", "id": 42}` |
+| 1 | Introduction de **ressources** distinctes, identifiées par des URI différentes, mais toujours avec un seul verbe HTTP | `POST /api/utilisateurs/42` |
+| 2 | Utilisation correcte des **verbes HTTP** (`GET`, `POST`, `PUT`, `DELETE`...) et des **codes de statut** pour chaque ressource | `GET /api/utilisateurs/42` → `200 OK` |
+| 3 | Ajout de **HATEOAS** : les réponses contiennent des liens hypermédia permettant au client de découvrir dynamiquement les actions disponibles | Réponse incluant un lien vers l'action d'annulation d'une commande |
+
+La grande majorité des API REST rencontrées en pratique se situent au niveau 2 : ressources bien identifiées, verbes et codes de statut correctement utilisés, mais sans hypermédia. Le niveau 3 reste rare en dehors de contextes spécifiques, la valeur ajoutée de HATEOAS étant souvent jugée disproportionnée par rapport à sa complexité de mise en œuvre.
+
+---
+
+## 3. Ressources et URI
+
+Le concept central de REST est la **ressource** : toute entité manipulable (un utilisateur, une commande, une collection de commandes) identifiée de façon unique par un **URI** (*Uniform Resource Identifier*). La conception d'une bonne API repose largement sur le choix de nommage des URI :
+
+- Utiliser des **noms**, pas des verbes, dans les chemins (l'action est portée par la méthode HTTP) : `GET /commandes/17`, et non `GET /obtenirCommande?id=17`.
+- Utiliser le **pluriel** pour les collections : `/utilisateurs` (collection), `/utilisateurs/42` (élément).
+- Représenter les relations par imbrication lorsqu'elle a un sens métier clair : `/utilisateurs/42/commandes` (commandes de l'utilisateur 42).
+- Éviter les chemins profondément imbriqués (plus de deux ou trois niveaux), qui rigidifient inutilement l'API et couplent fortement le client à une structure de données particulière.
+
+| Bonne pratique | À éviter |
+|---|---|
+| `GET /commandes/17` | `GET /getCommande/17` |
+| `POST /commandes` | `POST /commandes/creer` |
+| `DELETE /commandes/17` | `POST /commandes/17/supprimer` |
+| `GET /utilisateurs/42/commandes` | `GET /commandes?utilisateur=42&action=liste` |
+
+---
+
+## 4. HATEOAS
+
+**HATEOAS** (*Hypermedia As The Engine Of Application State*) est la contrainte selon laquelle un client ne devrait pas avoir besoin de connaître à l'avance la structure complète de l'API : chaque réponse contient les liens vers les actions ou ressources pertinentes disponibles depuis l'état courant, de façon analogue à la navigation par hyperliens d'une page web.
+
+```json
+{
+  "id": 17,
+  "statut": "en_preparation",
+  "montant": 45000,
+  "_liens": {
+    "self": {"href": "/commandes/17"},
+    "annuler": {"href": "/commandes/17/annulation", "methode": "POST"},
+    "utilisateur": {"href": "/utilisateurs/42"}
+  }
+}
+```
+
+En pratique, la plupart des API REST industrielles n'implémentent pas HATEOAS de façon stricte, pour des raisons de complexité de mise en œuvre et parce que les clients modernes (SDK générés, documentation OpenAPI — chapitre 5) découvrent le contrat d'API par d'autres moyens que la navigation hypermédia à l'exécution. Sa connaissance reste néanmoins utile pour comprendre pleinement le style REST originel et évaluer les compromis effectués par une API donnée.
+
+---
+
+## 5. Versionnement d'une API
+
+Une API évolue dans le temps ; le versionnement permet de faire évoluer son contrat sans casser brutalement les clients existants. Plusieurs approches coexistent, chacune avec ses compromis :
+
+| Approche | Exemple | Avantage | Inconvénient |
+|---|---|---|---|
+| Dans l'URI | `/api/v2/commandes` | Simple, visible, facile à router | « Pollue » l'URI d'une information qui n'est pas, au sens strict, une propriété de la ressource |
+| En-tête personnalisé | `X-API-Version: 2` | URI stable | Moins visible, nécessite une documentation explicite |
+| Négociation de contenu | `Accept: application/vnd.exemple.v2+json` | Conforme à l'esprit HTTP (négociation de représentation) | Plus complexe à mettre en œuvre et à documenter côté client |
+
+Le versionnement par l'URI reste le plus répandu en pratique pour sa simplicité opérationnelle, malgré son entorse à la pureté du style REST (une ressource devrait, en théorie, garder la même identité indépendamment de sa représentation).
+
+---
+
+## 6. Pagination, filtrage et tri
+
+Une collection potentiellement volumineuse (ex. des milliers de commandes) ne doit jamais être renvoyée intégralement en une seule réponse. La **pagination** est indispensable dès la conception :
+
+```
+GET /commandes?page=2&taille_page=20
+GET /commandes?curseur=eyJpZCI6MTAwfQ&limite=20
+```
+
+- La **pagination par numéro de page** (*offset-based*) est simple à implémenter mais peut produire des incohérences si des éléments sont ajoutés ou supprimés entre deux appels.
+- La **pagination par curseur** (*cursor-based*) référence un point précis dans l'ensemble ordonné des résultats et reste stable même en cas de modifications concurrentes, au prix d'une implémentation plus complexe.
+
+Une réponse paginée gagne à inclure des métadonnées explicites :
+
+```json
+{
+  "donnees": ["..."],
+  "pagination": {
+    "page": 2,
+    "taille_page": 20,
+    "total": 187,
+    "pages_totales": 10
+  }
+}
+```
+
+Le filtrage (`GET /commandes?statut=en_preparation`) et le tri (`GET /commandes?tri=-date_creation`) suivent la même logique : exprimés via des paramètres de requête, jamais via de nouveaux verbes ou de nouvelles routes dédiées.
+
+---
+
+## 7. Exemple de conception d'API
+
+Pour une ressource « commande », une API REST bien conçue au niveau 2 du modèle de Richardson pourrait exposer :
+
+| Méthode | URI | Action |
+|---|---|---|
+| `GET` | `/commandes` | Lister les commandes (paginé) |
+| `POST` | `/commandes` | Créer une commande |
+| `GET` | `/commandes/{id}` | Obtenir une commande précise |
+| `PUT` | `/commandes/{id}` | Remplacer intégralement une commande |
+| `PATCH` | `/commandes/{id}` | Modifier partiellement une commande (ex. changer son statut) |
+| `DELETE` | `/commandes/{id}` | Supprimer une commande |
+| `GET` | `/utilisateurs/{id}/commandes` | Lister les commandes d'un utilisateur donné |
+
+```python
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+commandes = {}
+
+@app.route("/commandes", methods=["GET"])
+def lister_commandes():
+    page = int(request.args.get("page", 1))
+    taille_page = int(request.args.get("taille_page", 20))
+    valeurs = list(commandes.values())
+    debut = (page - 1) * taille_page
+    return jsonify({
+        "donnees": valeurs[debut:debut + taille_page],
+        "pagination": {"page": page, "taille_page": taille_page, "total": len(valeurs)}
+    })
+
+@app.route("/commandes/<int:id_commande>", methods=["PATCH"])
+def modifier_commande(id_commande):
+    if id_commande not in commandes:
+        return jsonify({"erreur": "Commande introuvable"}), 404
+    commandes[id_commande].update(request.get_json())
+    return jsonify(commandes[id_commande]), 200
+```
+
+---
+
+## À retenir
+
+- REST est un style architectural défini par un ensemble de contraintes (client-serveur, sans état, cache, interface uniforme, système en couches), pas un simple synonyme d'« API HTTP ».
+- Le modèle de maturité de Richardson distingue quatre niveaux ; la grande majorité des API industrielles se situent au niveau 2 (ressources, verbes, codes de statut corrects).
+- Les URI doivent identifier des ressources par des noms, jamais des actions par des verbes ; l'action est portée par la méthode HTTP.
+- HATEOAS reste peu répandu en pratique malgré son rôle central dans la définition originelle de REST.
+- Versionnement, pagination, filtrage et tri sont des préoccupations de conception à anticiper dès la définition du contrat d'API, et non à ajouter a posteriori.

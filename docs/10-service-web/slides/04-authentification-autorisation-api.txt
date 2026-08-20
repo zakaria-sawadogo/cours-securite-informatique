@@ -1,0 +1,148 @@
+# Chapitre 4 — Authentification et autorisation des services web
+
+### Service web
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Authentification et autorisation : deux notions distinctes
+
+- **Authentification** : vérifier *qui* émet une requête (un utilisateur, une application tierce).
+- **Autorisation** : vérifier *ce que* cet émetteur, une fois identifié, a le droit de faire.
+
+Cette distinction, déjà rencontrée dans le module *Sécurité des applications* (catégorie « défaillances d'identification et d'authentification » de l'OWASP Top 10), est particulièrement structurante pour les services web : une API peut authentifier correctement un client tout en échouant à vérifier son autorisation sur une ressource précise (vulnérabilité de type contrôle d'accès défaillant au niveau des objets, ou BOLA), ce qui reste l'une des causes les plus fréquentes de compromission d'API en pratique.
+
+---
+
+## 2. Clés d'API
+
+Une **clé d'API** (*API key*) est un identifiant statique, généralement long et aléatoire, transmis par le client à chaque requête pour s'identifier auprès du service.
+
+```bash
+curl https://api.exemple.edu/donnees \
+     -H "X-API-Key: 7f3a9c1e-4b2d-4e8a-9c31-5d6f7a8b9c0d"
+```
+
+Les clés d'API sont simples à mettre en œuvre mais présentent des limites importantes : elles n'identifient généralement qu'une application ou un compte, sans granularité fine par utilisateur final ; elles n'expirent pas automatiquement sauf mécanisme dédié ; leur compromission (fuite dans un dépôt de code, journal, ou message d'erreur) donne un accès prolongé tant qu'elle n'est pas révoquée manuellement. Elles restent adaptées à des cas d'usage simples (identification d'une application tierce, quotas d'usage) plutôt qu'à l'authentification d'utilisateurs finaux.
+
+---
+
+## 3. Authentification HTTP Basic
+
+L'authentification **Basic**, définie dans le protocole HTTP lui-même, transmet un identifiant et un mot de passe encodés en Base64 dans l'en-tête `Authorization` :
+
+```http
+Authorization: Basic YXdhLnRyYW9yZTpzZWNyZXQxMjM=
+```
+
+Un point de vigilance essentiel, souvent mal compris par les étudiants découvrant ce mécanisme : **l'encodage Base64 n'est pas un chiffrement**. Il s'agit d'une simple transformation réversible sans aucune clé secrète ; quiconque intercepte cet en-tête peut retrouver l'identifiant et le mot de passe en clair immédiatement. L'authentification Basic n'est donc **sûre que sur une connexion chiffrée par TLS** (HTTPS), condition qui doit toujours être vérifiée avant toute utilisation de ce mécanisme en production.
+
+---
+
+## 4. OAuth 2.0
+
+**OAuth 2.0** est un cadre d'autorisation (et non, à proprement parler, un protocole d'authentification) normalisé par l'IETF, qui permet à une application tierce d'accéder à des ressources appartenant à un utilisateur, hébergées par un autre service, sans que l'utilisateur ait à partager son mot de passe avec l'application tierce.
+
+### Les acteurs d'OAuth 2.0
+
+| Acteur | Rôle |
+|---|---|
+| **Propriétaire de la ressource** (*resource owner*) | L'utilisateur final, propriétaire des données |
+| **Client** | L'application tierce souhaitant accéder aux données |
+| **Serveur d'autorisation** | Authentifie l'utilisateur et délivre les jetons |
+| **Serveur de ressources** | Héberge les données protégées et vérifie les jetons présentés |
+
+### Principaux types d'octroi (*grant types*)
+
+| Grant type | Cas d'usage typique |
+|---|---|
+| **Authorization Code** (avec PKCE) | Applications web et mobiles avec interaction utilisateur — le flux recommandé aujourd'hui pour la quasi-totalité des cas |
+| **Client Credentials** | Communication de service à service, sans utilisateur final impliqué |
+| **Refresh Token** | Obtenir un nouveau jeton d'accès sans redemander l'authentification complète de l'utilisateur |
+
+Le flux *Authorization Code* se déroule schématiquement ainsi : l'application redirige l'utilisateur vers le serveur d'autorisation, celui-ci authentifie l'utilisateur et lui demande son consentement, puis redirige vers l'application avec un code temporaire à usage unique, que l'application échange ensuite, côté serveur, contre un jeton d'accès. L'extension **PKCE** (*Proof Key for Code Exchange*) ajoute une vérification cryptographique supplémentaire empêchant l'interception de ce code par une application malveillante sur le même appareil, et est aujourd'hui recommandée même pour les applications côté serveur.
+
+Les *grant types* historiques *Implicit* et *Resource Owner Password Credentials* sont aujourd'hui déconseillés par les recommandations de sécurité les plus récentes autour d'OAuth 2.0, au profit d'*Authorization Code* avec PKCE dans la quasi-totalité des cas.
+
+---
+
+## 5. JWT (JSON Web Token)
+
+Un **JWT** (*JSON Web Token*) est un format standardisé de jeton compact, auto-porteur (*self-contained*), fréquemment utilisé comme jeton d'accès dans les architectures OAuth 2.0 ou comme mécanisme d'authentification autonome. Un JWT se compose de trois parties encodées en Base64URL, séparées par des points :
+
+```
+en-tête.charge_utile.signature
+```
+
+```json
+// En-tête (algorithme et type)
+{"alg": "HS256", "typ": "JWT"}
+
+// Charge utile (claims)
+{"sub": "42", "nom": "Awa Traoré", "role": "etudiant", "exp": 1893456000}
+```
+
+### Structure et vérification
+
+```python
+import jwt   # bibliothèque PyJWT
+import datetime
+
+cle_secrete = "cle-tres-longue-et-aleatoire-stockee-hors-du-code"
+
+# Génération d'un jeton
+jeton = jwt.encode(
+    {"sub": "42", "role": "etudiant",
+     "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
+    cle_secrete, algorithm="HS256"
+)
+
+# Vérification d'un jeton reçu
+try:
+    charge_utile = jwt.decode(jeton, cle_secrete, algorithms=["HS256"])
+except jwt.ExpiredSignatureError:
+    charge_utile = None  # jeton expiré : accès refusé
+```
+
+La **signature** garantit l'intégrité du jeton : toute modification de l'en-tête ou de la charge utile invalide la signature, détectable lors de la vérification. Il est essentiel de noter que la charge utile d'un JWT signé (mais non chiffré) est **lisible par quiconque intercepte le jeton** — elle n'est pas confidentielle, seulement protégée en intégrité. Aucune donnée sensible (mot de passe, information personnelle non destinée à être exposée) ne doit donc y figurer.
+
+### Bonnes pratiques JWT
+
+- Toujours définir une expiration (`exp`) courte, et prévoir un mécanisme de jeton de rafraîchissement (*refresh token*) pour renouveler l'accès sans réauthentification complète.
+- Ne jamais faire confiance à l'algorithme annoncé dans l'en-tête du jeton reçu (imposer explicitement, côté serveur, l'algorithme attendu lors de la vérification) — une vulnérabilité historiquement rencontrée dans plusieurs bibliothèques JWT consistait précisément à faire confiance à un en-tête `alg` modifié par un attaquant (ex. bascule vers `none`).
+- Prévoir un mécanisme de révocation (liste de révocation, ou jetons de courte durée de vie combinés à un rafraîchissement contrôlé), car un JWT signé reste valide jusqu'à son expiration même si le compte associé est désactivé entre-temps.
+- Stocker la clé de signature (ou la clé privée en cas de signature asymétrique) hors du code source, dans un gestionnaire de secrets dédié.
+
+---
+
+## 6. CORS
+
+**CORS** (*Cross-Origin Resource Sharing*) est un mécanisme du navigateur, complémentaire de l'authentification, qui contrôle si une page web chargée depuis une origine donnée est autorisée à effectuer des requêtes vers une API hébergée sur une origine différente. Sans CORS, la politique par défaut du navigateur (*same-origin policy*) bloquerait toute requête cross-origin.
+
+```http
+Access-Control-Allow-Origin: https://app.exemple.edu
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Authorization, Content-Type
+Access-Control-Allow-Credentials: true
+```
+
+Un point de vigilance essentiel, déjà souligné dans le module *Sécurité des applications* : configurer `Access-Control-Allow-Origin: *` (toute origine autorisée) tout en acceptant des identifiants (cookies, en-têtes d'authentification) constitue une mauvaise pratique de sécurité, potentiellement exploitable par un site malveillant pour effectuer des requêtes authentifiées au nom d'un utilisateur. La configuration correcte consiste à lister explicitement les origines légitimes autorisées.
+
+```python
+from flask import Flask
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app, origins=["https://app.exemple.edu"], supports_credentials=True)
+```
+
+---
+
+## À retenir
+
+- Authentification (qui est l'émetteur) et autorisation (ce qu'il a le droit de faire) sont deux vérifications distinctes, qui doivent être appliquées systématiquement, y compris pour chaque objet individuel accédé.
+- Les clés d'API conviennent à l'identification d'applications ; l'authentification Basic n'est sûre que sur une connexion TLS ; OAuth 2.0 permet une délégation d'accès sans partage de mot de passe.
+- Le flux *Authorization Code* avec PKCE est aujourd'hui le grant type OAuth 2.0 recommandé pour la quasi-totalité des cas d'usage impliquant un utilisateur final.
+- Un JWT est signé (intégrité garantie) mais non chiffré par défaut (contenu lisible) ; l'algorithme de vérification doit toujours être imposé côté serveur, jamais déduit de l'en-tête du jeton reçu.
+- CORS protège le navigateur, pas le serveur ; une configuration `Access-Control-Allow-Origin: *` combinée à des identifiants transmis constitue une mauvaise pratique de sécurité.

@@ -158,6 +158,41 @@
   min-height: 1em;
 }
 
+.md-typeset .gate-form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.md-typeset .gate-input-inline {
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font-size: 0.8rem;
+  flex: 1 1 160px;
+  min-width: 140px;
+}
+
+.md-typeset .gate-input-inline:focus {
+  outline: none;
+  border-color: var(--brand-a);
+}
+
+.md-typeset .gate-form-inline .md-button {
+  border-radius: 999px;
+  font-size: 0.75rem;
+  padding: 0.45rem 1rem;
+  flex: 0 0 auto;
+}
+
+.md-typeset .gate-form-inline .gate-error {
+  flex-basis: 100%;
+  margin: 0.2rem 0 0;
+}
+
 .md-typeset .download-group {
   border: 1px solid var(--md-default-fg-color--lightest);
   border-radius: 12px;

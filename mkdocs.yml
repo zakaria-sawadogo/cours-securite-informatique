@@ -215,3 +215,33 @@ nav:
               - "TP2 — XSS et CSRF sur application vulnérable (2h)": 09-securite-des-applications/tp/tp2-xss-csrf.md
               - "TP3 — Exploitation contrôlée d'un buffer overflow en C (2h)": 09-securite-des-applications/tp/tp3-buffer-overflow-c.md
               - "TP4 — Sécurisation d'une API REST (2h)": 09-securite-des-applications/tp/tp4-securisation-api-rest.md
+      - "10. Service web":
+          - Syllabus: 10-service-web/index.md
+          - Cours:
+              - "1. Introduction aux services web et au protocole HTTP": 10-service-web/cours/01-introduction-services-web-http.md
+              - "2. Architecture REST et conception d'API": 10-service-web/cours/02-architecture-rest-conception-api.md
+              - "3. Formats d'échange : JSON, XML et SOAP": 10-service-web/cours/03-formats-echange-json-xml-soap.md
+              - "4. Authentification et autorisation des services web": 10-service-web/cours/04-authentification-autorisation-api.md
+              - "5. Documentation et test des API": 10-service-web/cours/05-documentation-test-api.md
+              - "6. Architectures orientées services et microservices": 10-service-web/cours/06-architectures-orientees-services-microservices.md
+          - Présentations: 10-service-web/slides/index.md
+          - Travaux pratiques:
+              - "TP1 — Découverte du protocole HTTP et d'une API REST (2h)": 10-service-web/tp/tp1-decouverte-http-api-rest.md
+              - "TP2 — Conception et implémentation d'une API REST (2h)": 10-service-web/tp/tp2-conception-implementation-api-rest.md
+              - "TP3 — Authentification par JWT d'une API (2h)": 10-service-web/tp/tp3-authentification-jwt-api.md
+              - "TP4 — Documentation et tests automatisés d'une API (2h)": 10-service-web/tp/tp4-documentation-tests-api.md
+      - "11. Analyse de malwares et sécurisation des données":
+          - Syllabus: 11-analyse-malwares-securisation-donnees/index.md
+          - Cours:
+              - "1. Introduction à l'analyse de malwares : taxonomie et cycle de vie": 11-analyse-malwares-securisation-donnees/cours/01-introduction-taxonomie-malwares.md
+              - "2. Analyse statique de malwares": 11-analyse-malwares-securisation-donnees/cours/02-analyse-statique.md
+              - "3. Analyse dynamique et sandboxing": 11-analyse-malwares-securisation-donnees/cours/03-analyse-dynamique-sandboxing.md
+              - "4. Techniques de rétro-ingénierie de base": 11-analyse-malwares-securisation-donnees/cours/04-retro-ingenierie-base.md
+              - "5. Détection et réponse": 11-analyse-malwares-securisation-donnees/cours/05-detection-reponse.md
+              - "6. Sécurisation des données": 11-analyse-malwares-securisation-donnees/cours/06-securisation-donnees.md
+          - Présentations: 11-analyse-malwares-securisation-donnees/slides/index.md
+          - Travaux pratiques:
+              - "TP1 — Identification et taxonomie d'échantillons pédagogiques (2h)": 11-analyse-malwares-securisation-donnees/tp/tp1-identification-taxonomie-echantillons.md
+              - "TP2 — Analyse statique avec des outils standards (2h)": 11-analyse-malwares-securisation-donnees/tp/tp2-analyse-statique-outils.md
+              - "TP3 — Sandbox et analyse comportementale (2h)": 11-analyse-malwares-securisation-donnees/tp/tp3-sandbox-analyse-comportementale.md
+              - "TP4 — Chiffrement et classification des données (2h)": 11-analyse-malwares-securisation-donnees/tp/tp4-chiffrement-classification-donnees.md
