@@ -2,10 +2,6 @@
 
 Support de cours complet et diapositives complètes, en PDF, pour chaque matière — réservés aux étudiants inscrits. **Chaque matière a son propre code d'accès**, communiqué par l'enseignant en cours.
 
-<div class="gate-note">
-Cette protection repose sur un code d'accès par matière, vérifié dans votre navigateur. Ce n'est pas un vrai contrôle d'identité côté serveur (le site est statique, sans base de données) : elle suffit à éviter qu'un lien traîne en accès libre, mais un utilisateur déterminé pourrait la contourner. Ne partagez pas les codes en dehors du cours.
-</div>
-
 <div class="module-picker" markdown>
 
 <label for="module-select" class="picker-label">1. Choisissez votre matière</label>
