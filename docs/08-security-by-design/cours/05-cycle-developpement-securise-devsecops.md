@@ -1,0 +1,55 @@
+# Chapitre 5 — Cycle de développement sécurisé (DevSecOps)
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=08-security-by-design/slides/05-cycle-developpement-securise-devsecops.txt){ target=_blank }
+
+## 1. Le cycle de développement sécurisé (Secure SDLC)
+
+Intégrer la sécurité à chaque phase du cycle de vie du développement logiciel, plutôt que de la traiter comme une étape de validation finale isolée :
+
+| Phase | Activités de sécurité |
+|---|---|
+| Exigences | exigences de sécurité explicites, classification de la sensibilité des données traitées |
+| Conception | threat modeling (chapitre 2), revue d'architecture |
+| Développement | bonnes pratiques de codage sécurisé, revue de code, analyse statique (SAST) |
+| Tests | tests de sécurité automatisés, analyse dynamique (DAST), tests d'intrusion |
+| Déploiement | durcissement de la configuration, gestion sécurisée des secrets |
+| Exploitation | supervision, gestion des correctifs, réponse à incident |
+
+## 2. « Shift left » : déplacer la sécurité en amont
+
+Le principe du *shift left* consiste à déplacer les activités de sécurité le plus tôt possible dans le cycle de développement (« vers la gauche » d'une frise chronologique), en cohérence avec l'observation du chapitre 1 : plus une faille est détectée tôt, moins elle coûte à corriger.
+
+## 3. DevSecOps : intégrer la sécurité dans DevOps
+
+DevOps vise à accélérer et fiabiliser le cycle développement-déploiement par l'automatisation (intégration continue, déploiement continu — CI/CD) et une collaboration étroite entre équipes de développement et d'exploitation. **DevSecOps** étend cette approche en intégrant la sécurité comme responsabilité partagée et automatisée tout au long du pipeline, plutôt que comme une porte de validation manuelle et tardive gérée par une équipe séparée.
+
+### Contrôles de sécurité automatisables dans un pipeline CI/CD
+
+| Étape du pipeline | Contrôle de sécurité |
+|---|---|
+| Commit / pre-commit | détection de secrets codés en dur (clés API, mots de passe) avant qu'ils n'entrent dans l'historique du dépôt |
+| Build | analyse statique du code (SAST) |
+| Dépendances | analyse de composition logicielle (SCA) : vulnérabilités connues dans les bibliothèques tierces utilisées |
+| Tests | tests de sécurité automatisés (cas de test dérivés du threat modeling) |
+| Déploiement en environnement de test | analyse dynamique (DAST) contre l'application en fonctionnement |
+| Image de conteneur | analyse de vulnérabilités de l'image avant publication |
+| Infrastructure as Code | analyse de configuration (détection de règles de pare-feu trop permissives, de stockage mal configuré) avant provisionnement |
+
+## 4. Gestion des secrets
+
+Les identifiants, clés d'API et certificats ne doivent jamais être codés en dur dans le code source ou versionnés dans un dépôt Git (même privé — un dépôt peut devenir public par erreur, ou son historique complet reste accessible à quiconque y a eu accès). Bonnes pratiques : gestionnaires de secrets dédiés (Vault et équivalents), variables d'environnement injectées au déploiement, rotation régulière des secrets, scan automatique des dépôts pour détecter des secrets déjà exposés.
+
+## 5. Gestion des vulnérabilités des dépendances tierces
+
+La majorité du code d'une application moderne provient de dépendances tierces (bibliothèques open source). Une vulnérabilité découverte dans une dépendance largement utilisée peut affecter un très grand nombre d'applications simultanément (illustré par des incidents majeurs affectant des bibliothèques de journalisation ou de compression largement répandues). L'analyse de composition logicielle (SCA) automatisée en continu, couplée à une politique de mise à jour réactive, est devenue une pratique de sécurité de base incontournable.
+
+## 6. Culture et organisation
+
+DevSecOps est autant une question de culture que d'outillage : formation des développeurs à la sécurité (« security champions » au sein des équipes de développement), responsabilité partagée plutôt que reportée entièrement sur une équipe sécurité séparée en fin de cycle, et retour d'information rapide (un développeur informé d'une faille immédiatement après son introduction la corrige bien plus efficacement qu'informé plusieurs mois plus tard lors d'un audit externe).
+
+## À retenir
+
+- Le Secure SDLC intègre des activités de sécurité à chaque phase du développement, pas uniquement en validation finale.
+- DevSecOps automatise ces contrôles directement dans le pipeline CI/CD (SAST, SCA, DAST, scan de secrets, scan d'infrastructure as code).
+- La gestion des secrets et des dépendances tierces vulnérables sont deux enjeux opérationnels majeurs et récurrents du développement logiciel moderne.

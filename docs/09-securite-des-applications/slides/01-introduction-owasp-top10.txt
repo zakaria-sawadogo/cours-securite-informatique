@@ -1,0 +1,60 @@
+# Chapitre 1 — Introduction et panorama OWASP Top 10
+
+### Sécurité des applications
+
+---
+
+## 1. Pourquoi la sécurité applicative est un enjeu central
+
+Les applications (web, mobiles, API) constituent aujourd'hui la surface d'attaque la plus exposée et la plus dynamique des systèmes d'information : accessibles depuis Internet, mises à jour fréquemment, développées avec de nombreuses dépendances tierces. Ce module approfondit chaque classe de vulnérabilité déjà introduite au module *Audit organisation et technique* (chapitre 5), avec un objectif de compréhension technique fine et de mise en œuvre de contre-mesures.
+
+---
+
+## 2. Rappel du classement OWASP Top 10 (édition de référence)
+
+1. Contrôle d'accès défaillant (*broken access control*)
+2. Défaillances cryptographiques
+3. Injection
+4. Conception non sécurisée (*insecure design*)
+5. Mauvaise configuration de sécurité
+6. Composants vulnérables et obsolètes
+7. Défaillances d'identification et d'authentification
+8. Défaillances d'intégrité des données et logiciels
+9. Journalisation et surveillance insuffisantes
+10. Falsification de requête côté serveur (SSRF)
+
+Ce classement évolue périodiquement en fonction des données réelles de vulnérabilités observées ; il reste la référence pédagogique et professionnelle la plus largement adoptée pour structurer un programme de sécurité applicative.
+
+---
+
+## 3. Principe général : ne jamais faire confiance aux entrées
+
+Le fil conducteur de la quasi-totalité des vulnérabilités applicatives est le même : **une donnée provenant d'une source non fiable (utilisateur, système tiers) est traitée comme si elle était fiable**, sans validation ni neutralisation appropriée avant d'être utilisée dans un contexte sensible (requête base de données, commande système, page HTML, chemin de fichier). Ce principe unificateur permet d'aborder chaque classe de vulnérabilité du module comme une variation d'un même problème fondamental, appliqué à des contextes différents.
+
+---
+
+## 4. Validation, encodage, échappement : trois mécanismes distincts à ne pas confondre
+
+- **Validation** : vérifier qu'une entrée respecte un format attendu (ex. une adresse e-mail respecte une syntaxe donnée), idéalement par liste blanche (n'accepter que ce qui est explicitement autorisé) plutôt que par liste noire (tenter de bloquer ce qui est connu comme dangereux, toujours incomplète).
+- **Encodage/échappement contextuel** : transformer une donnée pour qu'elle soit interprétée comme une donnée inerte et non comme du code exécutable dans le contexte de sortie visé (ex. échapper les caractères spéciaux HTML avant insertion dans une page, pour prévenir le XSS — chapitre 4).
+- **Paramétrage** : séparer structurellement le code de la donnée (ex. requêtes préparées en base de données — chapitre 2), la meilleure défense car elle élimine la classe de vulnérabilité par construction plutôt que de tenter de neutraliser après coup une donnée déjà mélangée au code.
+
+---
+
+## 5. Défense en profondeur appliquée à la sécurité applicative
+
+Rappel du module *Security by design* : aucune contre-mesure unique n'est infaillible. Une application robuste combine validation des entrées, requêtes paramétrées, contrôle d'accès systématique, moindre privilège des comptes de service, journalisation, et surveillance — de sorte qu'une défaillance isolée d'une couche ne suffise pas à compromettre l'ensemble.
+
+---
+
+## 6. Méthodologie de ce module
+
+Chaque chapitre suivant traite une famille de vulnérabilités selon la même structure : mécanisme technique de la vulnérabilité, exemple d'exploitation, impact, contre-mesures. Les TP associés permettent une mise en pratique contrôlée sur des cibles pédagogiques dédiées.
+
+---
+
+## À retenir
+
+- L'OWASP Top 10 structure ce module ; chaque chapitre suivant approfondit une ou plusieurs de ses catégories.
+- Le principe unificateur des vulnérabilités applicatives est le traitement d'une entrée non fiable comme si elle était fiable.
+- Validation par liste blanche, encodage contextuel et paramétrage sont trois mécanismes de défense distincts, souvent combinés.

@@ -1,0 +1,103 @@
+# Chapitre 6 — Pointeurs et gestion mémoire
+
+### Algorithmique et Programmation en C
+
+---
+
+## 1. Qu'est-ce qu'un pointeur ?
+
+Un pointeur est une variable dont la valeur est une adresse mémoire.
+
+```c
+int x = 10;
+int *p = &x;      // p contient l'adresse de x
+printf("%d\n", *p); // déréférencement : affiche 10
+*p = 20;            // modifie x via le pointeur : x vaut 20
+```
+
+- `&x` : opérateur « adresse de ».
+- `*p` : opérateur de déréférencement (« valeur pointée par »).
+
+---
+
+## 2. Les quatre zones de la mémoire d'un programme
+
+| Zone | Contenu | Durée de vie |
+|---|---|---|
+| Code (text) | instructions du programme | statique |
+| Données statiques | variables globales / `static` | toute l'exécution |
+| Tas (heap) | allocation dynamique (`malloc`) | jusqu'à `free` explicite |
+| Pile (stack) | variables locales, appels de fonction | durée du bloc/de l'appel |
+
+Comprendre cette organisation est indispensable pour analyser un débordement de pile, un *use-after-free*, ou une fuite mémoire.
+
+---
+
+## 3. Allocation dynamique
+
+```c
+#include <stdlib.h>
+
+int *tableau = malloc(10 * sizeof(int));
+if (tableau == NULL) {
+    // échec d'allocation : toujours vérifier
+    exit(EXIT_FAILURE);
+}
+for (int i = 0; i < 10; i++) tableau[i] = i * i;
+
+free(tableau);
+tableau = NULL;  // évite un « dangling pointer »
+```
+
+- `malloc(taille)` : alloue `taille` octets sur le tas, non initialisés.
+- `calloc(n, taille)` : alloue et initialise à zéro.
+- `realloc(ptr, nouvelle_taille)` : redimensionne un bloc existant.
+- `free(ptr)` : libère la mémoire ; **ne pas l'utiliser deux fois** (double free) ni après (*use-after-free*).
+
+---
+
+## 4. Classes de vulnérabilités mémoire liées aux pointeurs
+
+| Vulnérabilité | Cause |
+|---|---|
+| Déréférencement de pointeur nul | oubli de vérifier le retour de `malloc` ou une valeur non initialisée |
+| Fuite mémoire (*memory leak*) | `malloc` sans `free` correspondant |
+| Use-after-free | utilisation d'un pointeur après `free` |
+| Double free | `free` appelé deux fois sur le même pointeur |
+| Dangling pointer | pointeur vers une variable locale dont la portée est terminée |
+| Buffer overflow | écriture au-delà de la mémoire allouée |
+
+Ces classes de vulnérabilités constituent le socle du cours *Sécurité des applications* (exploitation) et sont directement liées aux outils d'audit statique/dynamique vus en *Audit organisation et technique*.
+
+---
+
+## 5. Arithmétique des pointeurs
+
+```c
+int tab[5] = {10, 20, 30, 40, 50};
+int *p = tab;      // p pointe sur tab[0]
+printf("%d\n", *(p + 2)); // 30, équivalent à tab[2]
+p++;                // p pointe maintenant sur tab[1]
+```
+
+L'arithmétique de pointeur se fait en unités de la taille du type pointé, pas en octets bruts.
+
+---
+
+## 6. Pointeurs de fonction (aperçu)
+
+```c
+int addition(int a, int b) { return a + b; }
+int (*operation)(int, int) = addition;
+printf("%d\n", operation(2, 3)); // 5
+```
+
+Utilisés pour construire des callbacks et des tables de dispatch — mécanisme aussi exploité par certaines techniques d'attaque (détournement de flot de contrôle).
+
+---
+
+## À retenir
+
+- Toujours vérifier le retour de `malloc`/`calloc`/`realloc`.
+- Toute allocation dynamique doit avoir une libération correspondante, une seule fois.
+- Mettre un pointeur à `NULL` après `free` limite les risques de use-after-free.

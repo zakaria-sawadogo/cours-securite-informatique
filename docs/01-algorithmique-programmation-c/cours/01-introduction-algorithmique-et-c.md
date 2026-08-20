@@ -1,0 +1,78 @@
+# Chapitre 1 — Introduction à l'algorithmique et au langage C
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=01-algorithmique-programmation-c/slides/01-introduction-algorithmique-et-c.txt){ target=_blank }
+
+## 1. Qu'est-ce qu'un algorithme ?
+
+Un algorithme est une suite finie et non ambiguë d'instructions permettant de résoudre un problème ou d'accomplir une tâche à partir de données d'entrée, en produisant un résultat en un temps fini. Trois propriétés le caractérisent : la **finitude** (il se termine), le **déterminisme** (chaque étape est définie sans ambiguïté) et l'**effectivité** (chaque étape est réalisable).
+
+Avant d'écrire du code, on décrit un algorithme en **pseudo-code**, indépendant de tout langage :
+
+```
+ALGORITHME Maximum
+ENTRÉE : a, b (deux entiers)
+SORTIE : le plus grand des deux
+DÉBUT
+    SI a > b ALORS
+        RETOURNER a
+    SINON
+        RETOURNER b
+    FIN SI
+FIN
+```
+
+## 2. Pourquoi le langage C ?
+
+Le C, créé par Dennis Ritchie en 1972, reste incontournable en sécurité informatique car :
+
+- il offre un accès direct à la mémoire (pointeurs), indispensable pour comprendre les vulnérabilités mémoire (buffer overflow, use-after-free, etc.) ;
+- une grande partie des systèmes d'exploitation, noyaux et outils bas niveau sont écrits en C ;
+- comprendre le C facilite la lecture de code décompilé/désassemblé en analyse de vulnérabilités et en cryptanalyse appliquée.
+
+## 3. De l'algorithme au programme exécutable
+
+La chaîne de compilation C comporte plusieurs étapes :
+
+1. **Préprocesseur** : traite les directives `#include`, `#define`, `#ifdef`.
+2. **Compilation** : traduit le code C en assembleur puis en code objet.
+3. **Édition de liens (linking)** : assemble les fichiers objets et les bibliothèques en un exécutable.
+
+```bash
+gcc -Wall -Wextra -std=c11 -o programme programme.c
+./programme
+```
+
+## 4. Premier programme
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    printf("Bonjour, monde !\n");
+    return 0;
+}
+```
+
+- `#include <stdio.h>` : inclut la bibliothèque d'entrées-sorties standard.
+- `int main(void)` : point d'entrée du programme ; renvoie un entier au système d'exploitation (0 = succès).
+- `printf` : affiche du texte formaté sur la sortie standard.
+
+## 5. Structure générale d'un programme C
+
+```
+directives de préprocesseur
+déclarations globales (constantes, prototypes de fonctions)
+int main(void) {
+    déclarations locales
+    instructions
+    return code;
+}
+définitions des autres fonctions
+```
+
+## À retenir
+
+- Un algorithme se conçoit avant de se coder.
+- Le C est un langage compilé, statiquement typé, proche de la machine.
+- Toujours compiler avec les avertissements activés (`-Wall -Wextra`) : la majorité des bugs de sécurité en C sont détectables dès la compilation ou l'analyse statique.

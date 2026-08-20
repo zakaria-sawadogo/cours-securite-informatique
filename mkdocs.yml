@@ -1,0 +1,211 @@
+site_name: "Master Sécurité Informatique"
+site_description: "Support de cours, présentations et travaux pratiques du programme Master Sécurité Informatique"
+site_author: "Dr Zakaria Sawadogo"
+site_url: "https://zakaria-sawadogo.github.io/cours-securite-informatique/"
+repo_url: "https://github.com/zakaria-sawadogo/cours-securite-informatique"
+repo_name: "cours-securite-informatique"
+docs_dir: docs
+use_directory_urls: false
+
+theme:
+  name: material
+  language: fr
+  icon:
+    logo: material/shield-lock-outline
+  favicon: assets/favicon.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: "Passer en mode sombre"
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: "Passer en mode clair"
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/zakaria-sawadogo
+  generator: false
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - toc:
+      permalink: true
+      title: "Sur cette page"
+  - attr_list
+  - md_in_html
+  - footnotes
+  - def_list
+
+plugins:
+  - search:
+      lang: fr
+
+nav:
+  - Accueil: index.md
+  - "1. Algorithmique et Programmation en C":
+      - Syllabus: 01-algorithmique-programmation-c/index.md
+      - Cours:
+          - "1. Introduction à l'algorithmique et au langage C": 01-algorithmique-programmation-c/cours/01-introduction-algorithmique-et-c.md
+          - "2. Variables, types, opérateurs et entrées-sorties": 01-algorithmique-programmation-c/cours/02-variables-types-operateurs-es.md
+          - "3. Structures de contrôle": 01-algorithmique-programmation-c/cours/03-structures-de-controle.md
+          - "4. Fonctions et portée des variables": 01-algorithmique-programmation-c/cours/04-fonctions-portee.md
+          - "5. Tableaux et chaînes de caractères": 01-algorithmique-programmation-c/cours/05-tableaux-chaines.md
+          - "6. Pointeurs et gestion mémoire": 01-algorithmique-programmation-c/cours/06-pointeurs-memoire.md
+          - "7. Structures (`struct`) et fichiers": 01-algorithmique-programmation-c/cours/07-structures-fichiers.md
+      - Présentations: 01-algorithmique-programmation-c/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Prise en main : compilation et premiers programmes (2h)": 01-algorithmique-programmation-c/tp/tp1-prise-en-main.md
+          - "TP2 — Structures de contrôle (2h)": 01-algorithmique-programmation-c/tp/tp2-structures-controle.md
+          - "TP3 — Fonctions (2h)": 01-algorithmique-programmation-c/tp/tp3-fonctions.md
+          - "TP4 — Tableaux (2h)": 01-algorithmique-programmation-c/tp/tp4-tableaux.md
+          - "TP5 — Chaînes de caractères (2h)": 01-algorithmique-programmation-c/tp/tp5-chaines.md
+          - "TP6 — Pointeurs et allocation dynamique (3h)": 01-algorithmique-programmation-c/tp/tp6-pointeurs.md
+          - "TP7 — Mini-projet : gestionnaire de contacts (2h)": 01-algorithmique-programmation-c/tp/tp7-mini-projet.md
+  - "2. Audit organisation et technique":
+      - Syllabus: 02-audit-organisation-technique/index.md
+      - Cours:
+          - "1. Introduction à l'audit de sécurité": 02-audit-organisation-technique/cours/01-introduction-audit-securite.md
+          - "2. Audit organisationnel : normes et référentiels": 02-audit-organisation-technique/cours/02-audit-organisationnel-referentiels.md
+          - "3. Audit technique : méthodologie des tests d'intrusion": 02-audit-organisation-technique/cours/03-audit-technique-methodologie.md
+          - "4. Audit des infrastructures réseau et systèmes": 02-audit-organisation-technique/cours/04-audit-infrastructures.md
+          - "5. Audit des applications et du code": 02-audit-organisation-technique/cours/05-audit-applications.md
+          - "6. Rapport d'audit et plan de remédiation": 02-audit-organisation-technique/cours/06-rapport-audit-remediation.md
+      - Présentations: 02-audit-organisation-technique/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Audit organisationnel sur cas d'étude (ISO 27001) (2h)": 02-audit-organisation-technique/tp/tp1-audit-organisationnel.md
+          - "TP2 — Reconnaissance et scan réseau (Nmap) (2h)": 02-audit-organisation-technique/tp/tp2-reconnaissance-scan.md
+          - "TP3 — Test d'intrusion applicatif (OWASP Top 10) (2h)": 02-audit-organisation-technique/tp/tp3-pentest-applicatif.md
+          - "TP4 — Rédaction d'un rapport d'audit complet (2h)": 02-audit-organisation-technique/tp/tp4-rapport-audit.md
+  - "3. Cryptanalyse":
+      - Syllabus: 03-cryptanalyse/index.md
+      - Cours:
+          - "1. Introduction à la cryptanalyse : histoire et classification des attaques": 03-cryptanalyse/cours/01-introduction-cryptanalyse.md
+          - "2. Cryptanalyse des chiffrements classiques": 03-cryptanalyse/cours/02-cryptanalyse-chiffrements-classiques.md
+          - "3. Cryptanalyse des chiffrements symétriques modernes": 03-cryptanalyse/cours/03-cryptanalyse-symetrique-moderne.md
+          - "4. Attaques sur les fonctions de hachage": 03-cryptanalyse/cours/04-attaques-fonctions-hachage.md
+          - "5. Cryptanalyse des systèmes asymétriques": 03-cryptanalyse/cours/05-cryptanalyse-asymetrique.md
+          - "6. Attaques par canaux auxiliaires et attaques pratiques": 03-cryptanalyse/cours/06-attaques-canaux-auxiliaires.md
+      - Présentations: 03-cryptanalyse/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Cryptanalyse par analyse fréquentielle (2h)": 03-cryptanalyse/tp/tp1-analyse-frequentielle.md
+          - "TP2 — Attaques par force brute et dictionnaire sur hachages (2h)": 03-cryptanalyse/tp/tp2-attaques-hachage.md
+          - "TP3 — Attaque sur le mode ECB et padding oracle (2h)": 03-cryptanalyse/tp/tp3-ecb-padding-oracle.md
+          - "TP4 — Cryptanalyse de RSA mal implémenté (2h)": 03-cryptanalyse/tp/tp4-cryptanalyse-rsa.md
+  - "4. Gouvernance et gestion des risques SI":
+      - Syllabus: 04-gouvernance-gestion-risques-si/index.md
+      - Cours:
+          - "1. Introduction à la gouvernance de la sécurité de l'information": 04-gouvernance-gestion-risques-si/cours/01-introduction-gouvernance-si.md
+          - "2. Méthodologies d'analyse de risques": 04-gouvernance-gestion-risques-si/cours/02-methodologies-analyse-risques.md
+          - "3. Traitement du risque, PSSI et continuité d'activité": 04-gouvernance-gestion-risques-si/cours/03-traitement-risque-pssi-pca.md
+          - "4. Pilotage, indicateurs et conformité réglementaire": 04-gouvernance-gestion-risques-si/cours/04-pilotage-indicateurs-conformite.md
+      - Présentations: 04-gouvernance-gestion-risques-si/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Cartographie des actifs et identification des menaces (2h)": 04-gouvernance-gestion-risques-si/tp/tp1-cartographie-actifs.md
+          - "TP2 — Analyse de risque EBIOS RM sur cas d'étude (2h)": 04-gouvernance-gestion-risques-si/tp/tp2-analyse-risque-ebios.md
+          - "TP3 — Élaboration d'une politique de sécurité (PSSI) (2h)": 04-gouvernance-gestion-risques-si/tp/tp3-elaboration-pssi.md
+          - "TP4 — Construction d'un tableau de bord SSI (2h)": 04-gouvernance-gestion-risques-si/tp/tp4-tableau-bord-ssi.md
+  - "5. IA appliquée à la sécurité informatique":
+      - Syllabus: 05-ia-appliquee-securite-informatique/index.md
+      - Cours:
+          - "1. Introduction : IA et cybersécurité, panorama": 05-ia-appliquee-securite-informatique/cours/01-introduction-ia-cybersecurite.md
+          - "2. Rappels de machine learning": 05-ia-appliquee-securite-informatique/cours/02-rappels-machine-learning.md
+          - "3. Détection d'anomalies et d'intrusions par ML": 05-ia-appliquee-securite-informatique/cours/03-detection-anomalies-intrusions.md
+          - "4. Détection de malwares par machine learning": 05-ia-appliquee-securite-informatique/cours/04-detection-malwares-ml.md
+          - "5. NLP appliqué à la sécurité (phishing, analyse de logs)": 05-ia-appliquee-securite-informatique/cours/05-nlp-securite.md
+          - "6. Sécurité de l'IA : attaques adversariales et IA offensive": 05-ia-appliquee-securite-informatique/cours/06-securite-de-lia.md
+      - Présentations: 05-ia-appliquee-securite-informatique/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Classification de trafic réseau (NSL-KDD) (2h)": 05-ia-appliquee-securite-informatique/tp/tp1-classification-trafic-reseau.md
+          - "TP2 — Détection d'anomalies non supervisée (2h)": 05-ia-appliquee-securite-informatique/tp/tp2-detection-anomalies.md
+          - "TP3 — Détection de phishing par NLP (2h)": 05-ia-appliquee-securite-informatique/tp/tp3-detection-phishing-nlp.md
+          - "TP4 — Attaque adversariale sur un classifieur (2h)": 05-ia-appliquee-securite-informatique/tp/tp4-attaque-adversariale.md
+  - "6. Cryptographie":
+      - Syllabus: 06-cryptographie/index.md
+      - Cours:
+          - "1. Introduction et principes fondamentaux": 06-cryptographie/cours/01-introduction-principes-fondamentaux.md
+          - "2. Cryptographie symétrique : chiffrement par bloc et par flux": 06-cryptographie/cours/02-cryptographie-symetrique.md
+          - "3. Fonctions de hachage et authentification de message (MAC/HMAC)": 06-cryptographie/cours/03-hachage-mac-hmac.md
+          - "4. Cryptographie asymétrique : RSA, Diffie-Hellman, ECC": 06-cryptographie/cours/04-cryptographie-asymetrique.md
+          - "5. Signatures numériques et infrastructures à clés publiques (PKI)": 06-cryptographie/cours/05-signatures-pki.md
+          - "6. Protocoles appliqués : TLS et cryptographie post-quantique": 06-cryptographie/cours/06-protocoles-appliques-tls-pqc.md
+      - Présentations: 06-cryptographie/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Chiffrement symétrique avec OpenSSL (2h)": 06-cryptographie/tp/tp1-chiffrement-symetrique-openssl.md
+          - "TP2 — Hachage, HMAC et intégrité de fichiers (2h)": 06-cryptographie/tp/tp2-hachage-hmac-integrite.md
+          - "TP3 — RSA : génération de clés, chiffrement et signature (2h)": 06-cryptographie/tp/tp3-rsa-cles-signature.md
+          - "TP4 — Analyse d'une négociation TLS et des certificats (2h)": 06-cryptographie/tp/tp4-analyse-tls-certificats.md
+  - "7. Technologie Blockchain":
+      - Syllabus: 07-technologie-blockchain/index.md
+      - Cours:
+          - "1. Introduction : principes fondamentaux de la blockchain": 07-technologie-blockchain/cours/01-introduction-principes-blockchain.md
+          - "2. Structures de données : chaînage cryptographique et arbres de Merkle": 07-technologie-blockchain/cours/02-structures-donnees-merkle.md
+          - "3. Mécanismes de consensus": 07-technologie-blockchain/cours/03-mecanismes-consensus.md
+          - "4. Smart contracts et Ethereum": 07-technologie-blockchain/cours/04-smart-contracts-ethereum.md
+          - "5. Sécurité et vulnérabilités des smart contracts": 07-technologie-blockchain/cours/05-securite-smart-contracts.md
+          - "6. Applications, enjeux et limites": 07-technologie-blockchain/cours/06-applications-enjeux-limites.md
+      - Présentations: 07-technologie-blockchain/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Implémentation d'une mini-blockchain en Python (2h)": 07-technologie-blockchain/tp/tp1-mini-blockchain-python.md
+          - "TP2 — Simulation d'un consensus par preuve de travail (2h)": 07-technologie-blockchain/tp/tp2-simulation-consensus-pow.md
+          - "TP3 — Développement d'un smart contract simple (Solidity) (2h)": 07-technologie-blockchain/tp/tp3-smart-contract-solidity.md
+          - "TP4 — Audit de vulnérabilités d'un smart contract (2h)": 07-technologie-blockchain/tp/tp4-audit-smart-contract.md
+  - "8. Security by design":
+      - Syllabus: 08-security-by-design/index.md
+      - Cours:
+          - "1. Introduction : principes de security by design et privacy by design": 08-security-by-design/cours/01-introduction-security-by-design.md
+          - "2. Modélisation des menaces (threat modeling)": 08-security-by-design/cours/02-modelisation-menaces.md
+          - "3. Principes de conception sécurisée": 08-security-by-design/cours/03-principes-conception-securisee.md
+          - "4. Architecture sécurisée : segmentation et zero trust": 08-security-by-design/cours/04-architecture-securisee-zero-trust.md
+          - "5. Cycle de développement sécurisé (DevSecOps)": 08-security-by-design/cours/05-cycle-developpement-securise-devsecops.md
+          - "6. Privacy by design": 08-security-by-design/cours/06-privacy-by-design.md
+      - Présentations: 08-security-by-design/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Threat modeling STRIDE sur une application (2h)": 08-security-by-design/tp/tp1-threat-modeling-stride.md
+          - "TP2 — Application des principes de conception sécurisée (2h)": 08-security-by-design/tp/tp2-principes-conception-securisee.md
+          - "TP3 — Conception d'une architecture zero trust (2h)": 08-security-by-design/tp/tp3-architecture-zero-trust.md
+          - "TP4 — Intégration de contrôles de sécurité en CI/CD (DevSecOps) (2h)": 08-security-by-design/tp/tp4-devsecops-cicd.md
+  - "9. Sécurité des applications":
+      - Syllabus: 09-securite-des-applications/index.md
+      - Cours:
+          - "1. Introduction et panorama OWASP Top 10": 09-securite-des-applications/cours/01-introduction-owasp-top10.md
+          - "2. Vulnérabilités d'injection": 09-securite-des-applications/cours/02-vulnerabilites-injection.md
+          - "3. Authentification et gestion de sessions": 09-securite-des-applications/cours/03-authentification-gestion-sessions.md
+          - "4. Vulnérabilités côté client : XSS, CSRF, clickjacking": 09-securite-des-applications/cours/04-vulnerabilites-cote-client.md
+          - "5. Vulnérabilités mémoire bas niveau et exploitation": 09-securite-des-applications/cours/05-vulnerabilites-memoire-exploitation.md
+          - "6. Sécurisation des API et bonnes pratiques": 09-securite-des-applications/cours/06-securisation-api-bonnes-pratiques.md
+      - Présentations: 09-securite-des-applications/slides/index.md
+      - Travaux pratiques:
+          - "TP1 — Injection SQL et contre-mesures (2h)": 09-securite-des-applications/tp/tp1-injection-sql.md
+          - "TP2 — XSS et CSRF sur application vulnérable (2h)": 09-securite-des-applications/tp/tp2-xss-csrf.md
+          - "TP3 — Exploitation contrôlée d'un buffer overflow en C (2h)": 09-securite-des-applications/tp/tp3-buffer-overflow-c.md
+          - "TP4 — Sécurisation d'une API REST (2h)": 09-securite-des-applications/tp/tp4-securisation-api-rest.md

@@ -1,0 +1,46 @@
+# Chapitre 6 — Attaques par canaux auxiliaires et attaques pratiques
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=03-cryptanalyse/slides/06-attaques-canaux-auxiliaires.txt){ target=_blank }
+
+## 1. Principe des attaques par canaux auxiliaires (side-channel)
+
+Une attaque par canal auxiliaire n'exploite pas de faiblesse mathématique de l'algorithme, mais une **information physique fuitée par son implémentation** : temps d'exécution, consommation électrique, rayonnement électromagnétique, comportement du cache processeur, messages d'erreur. Ces attaques rappellent que la sécurité d'un système cryptographique dépend autant de son implémentation que de sa conception mathématique.
+
+## 2. Attaques temporelles (timing attacks)
+
+Si le temps d'exécution d'une opération cryptographique dépend des bits secrets manipulés (ex. une comparaison de mot de passe qui s'arrête au premier octet différent), un attaquant mesurant précisément ce temps peut déduire de l'information sur le secret, octet par octet.
+
+**Contre-mesure** : comparaisons en temps constant (*constant-time comparison*), qui parcourent systématiquement toute la donnée indépendamment du résultat intermédiaire.
+
+## 3. Attaques par oracle de padding (padding oracle)
+
+Décrites en détail en TP3 : si un système révèle (même indirectement, par un code d'erreur différent ou un temps de réponse différent) si un texte chiffré déchiffré présente un padding valide selon un schéma comme PKCS#7 en mode CBC, un attaquant peut déchiffrer progressivement l'intégralité du message sans connaître la clé, en interrogeant le système bloc par bloc, octet par octet. Cette classe d'attaque (Vaudenay, 2002) a compromis en pratique de nombreuses implémentations TLS/SSL (ex. attaque *POODLE*, 2014).
+
+## 4. Attaques par analyse de consommation électrique et électromagnétique
+
+- **SPA (Simple Power Analysis)** : observation directe de la trace de consommation, révélant parfois la séquence d'opérations effectuées (ex. distinguer un carré d'une multiplication en exponentiation modulaire).
+- **DPA (Differential Power Analysis)** : analyse statistique de nombreuses traces de consommation pour un grand nombre d'entrées, permettant de retrouver des bits de clé même en présence de bruit.
+
+Ces attaques concernent principalement des dispositifs physiques (cartes à puce, modules matériels de sécurité, objets connectés) où l'attaquant a un accès physique ou de proximité.
+
+## 5. Attaques par cache (cache-timing attacks)
+
+Exploitent les différences de temps d'accès entre données présentes ou absentes du cache processeur. Des implémentations logicielles d'AES utilisant des tables précalculées (T-tables) indexées par des bits de la clé ont ainsi été attaquées avec succès, motivant l'adoption d'instructions matérielles dédiées (AES-NI) exécutant le chiffrement en temps constant indépendamment de la clé.
+
+## 6. Attaques sur les générateurs de nombres aléatoires
+
+Un générateur de nombres pseudo-aléatoires (PRNG) de mauvaise qualité ou mal initialisé (faible entropie au démarrage, graine prévisible) compromet directement toute construction cryptographique qui en dépend (génération de clés, de nonces, de vecteurs d'initialisation). Cas réel documenté : une faille dans le générateur aléatoire d'une distribution Linux (Debian, 2006-2008) a réduit l'espace des clés SSH générées à quelques dizaines de milliers de valeurs possibles, les rendant énumérables.
+
+## 7. Démarche défensive face aux canaux auxiliaires
+
+- Utiliser des implémentations cryptographiques éprouvées et auditées (bibliothèques reconnues) plutôt que réimplémenter soi-même des primitives sensibles.
+- Privilégier les implémentations en temps constant pour toute opération manipulant un secret.
+- S'assurer d'une source d'entropie fiable pour toute génération aléatoire cryptographique (`/dev/urandom`, CSPRNG dédié).
+- Pour les dispositifs physiques sensibles, envisager des contre-mesures matérielles (masquage, bruit ajouté).
+
+## À retenir
+
+- Les attaques par canaux auxiliaires exploitent l'implémentation, pas l'algorithme : elles rappellent qu'une preuve mathématique de sécurité ne suffit pas.
+- Le padding oracle est une attaque pratique majeure contre les usages naïfs de CBC, à l'origine de plusieurs failles réelles dans TLS/SSL.
+- Un générateur aléatoire de mauvaise qualité peut annuler la sécurité de tout système cryptographique qui en dépend, quelle que soit la robustesse théorique de l'algorithme utilisé.

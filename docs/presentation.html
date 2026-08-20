@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Présentation — Programme Sécurité Informatique</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/white.min.css" id="theme-link">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/zenburn.min.css">
+
+  <style>
+    :root {
+      --accent: #2563eb;
+    }
+    .reveal .slides section {
+      text-align: left;
+      font-size: 0.62em;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    .reveal .slides section h1,
+    .reveal .slides section h2 {
+      text-align: left;
+      color: var(--accent);
+      font-size: 1.4em;
+    }
+    .reveal .slides section:first-child {
+      text-align: center;
+    }
+    .reveal .slides section:first-child h1 {
+      text-align: center;
+      font-size: 1.8em;
+    }
+    .reveal .slides section:first-child h3 {
+      text-align: center;
+      color: #555;
+      font-weight: normal;
+    }
+    .reveal table { font-size: 0.85em; }
+    .reveal pre code { font-size: 0.75em; max-height: 55vh; }
+    .reveal p, .reveal li { line-height: 1.35; }
+    #loading-msg {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: sans-serif; color: #666; font-size: 1.2em; z-index: 1000;
+    }
+    #top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 34px;
+      background: #111827; color: #fff; font-family: sans-serif; font-size: 13px;
+      display: flex; align-items: center; padding: 0 12px; z-index: 2000; gap: 12px;
+    }
+    #top-bar a { color: #93c5fd; text-decoration: none; }
+    #top-bar a:hover { text-decoration: underline; }
+    #deck-title { opacity: 0.85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div id="top-bar">
+    <a href="index.html">&larr; Retour au site du cours</a>
+    <span id="deck-title"></span>
+  </div>
+  <div id="loading-msg">Chargement de la présentation…</div>
+
+  <div class="reveal" style="visibility:hidden;">
+    <div class="slides">
+      <section data-markdown data-separator-notes="^Note:">
+        <script type="text/template" id="md-content"></script>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/notes/notes.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/zoom/zoom.min.js"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const deck = params.get('deck');
+    const loadingEl = document.getElementById('loading-msg');
+    const revealEl = document.querySelector('.reveal');
+    const titleEl = document.getElementById('deck-title');
+
+    if (!deck) {
+      loadingEl.textContent = "Aucune présentation spécifiée. Ajoutez ?deck=chemin/vers/slides/fichier.md à l'URL, ou revenez au site du cours.";
+    } else {
+      titleEl.textContent = deck;
+      fetch(deck)
+        .then(r => {
+          if (!r.ok) throw new Error('Fichier introuvable : ' + deck);
+          return r.text();
+        })
+        .then(text => {
+          document.getElementById('md-content').textContent = text;
+          loadingEl.style.display = 'none';
+          revealEl.style.visibility = 'visible';
+          Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            controls: true,
+            progress: true,
+            center: false,
+            transition: 'slide',
+            width: 1100,
+            height: 700,
+            margin: 0.06,
+            plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealZoom ]
+          });
+        })
+        .catch(err => {
+          loadingEl.textContent = "Erreur de chargement : " + err.message;
+        });
+    }
+  </script>
+</body>
+</html>

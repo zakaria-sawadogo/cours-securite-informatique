@@ -1,0 +1,55 @@
+# Chapitre 3 — Détection d'anomalies et d'intrusions par ML
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=05-ia-appliquee-securite-informatique/slides/03-detection-anomalies-intrusions.txt){ target=_blank }
+
+## 1. Détection par signatures vs détection par anomalies
+
+| Approche | Principe | Avantage | Limite |
+|---|---|---|---|
+| **Signatures** | comparaison à des motifs d'attaques connues | très faible taux de faux positifs sur les menaces connues | ne détecte pas les attaques inédites |
+| **Anomalies (ML)** | apprentissage du comportement « normal », alerte sur tout écart significatif | peut détecter des menaces nouvelles (zero-day) | taux de faux positifs souvent plus élevé, nécessite une phase d'apprentissage du « normal » |
+
+En pratique, les IDS/IPS (systèmes de détection/prévention d'intrusion) modernes combinent les deux approches.
+
+## 2. Sources de données pour un IDS basé ML
+
+- **Trafic réseau** : caractéristiques dérivées des flux (NetFlow) : durée de connexion, protocole, nombre d'octets échangés, nombre de paquets, taux d'erreur.
+- **Journaux systèmes/applicatifs** : séquences d'événements, fréquence des connexions échouées.
+- **Comportement utilisateur (UEBA)** : horaires de connexion habituels, ressources accédées, volume de données téléchargées.
+
+## 3. Ingénierie des caractéristiques pour le trafic réseau
+
+Exemple de caractéristiques dérivées classiques (utilisées dans le jeu de données NSL-KDD, réutilisé en TP1) :
+
+- durée de la connexion ;
+- type de protocole (TCP, UDP, ICMP) ;
+- service ciblé (HTTP, FTP, SSH…) ;
+- nombre d'octets source→destination et destination→source ;
+- nombre de tentatives de connexion échouées récentes vers le même hôte ;
+- taux de connexions vers un même service dans une fenêtre temporelle glissante.
+
+Le passage de paquets réseau bruts à ce type de caractéristiques agrégées est une étape déterminante : un modèle ne peut être meilleur que les caractéristiques qui lui sont fournies.
+
+## 4. Approches non supervisées de détection d'anomalies
+
+- **Clustering (K-means, DBSCAN)** : les points isolés ou dans de petits clusters sont considérés suspects.
+- **Isolation Forest** : construit des arbres aléatoires ; une observation atypique nécessite en moyenne moins de séparations pour être isolée, ce qui produit un score d'anomalie.
+- **Autoencodeurs (réseaux de neurones)** : le modèle apprend à reconstruire les données normales ; une erreur de reconstruction élevée sur une nouvelle observation signale une anomalie potentielle.
+
+## 5. Approches supervisées
+
+Lorsque des données étiquetées (trafic normal vs attaques connues, ex. jeux NSL-KDD ou CICIDS) sont disponibles, une classification supervisée (Random Forest, SVM, réseaux de neurones) obtient généralement de meilleures performances qu'une approche purement non supervisée, mais reste limitée aux catégories d'attaques représentées dans les données d'entraînement.
+
+## 6. Défis pratiques du déploiement en production
+
+- **Déséquilibre des classes** : les attaques représentent une infime fraction du trafic total ; des techniques de rééquilibrage (sur-échantillonnage, sous-échantillonnage, SMOTE) ou des métriques adaptées (chapitre 2) sont nécessaires.
+- **Dérive conceptuelle (concept drift)** : le trafic « normal » évolue dans le temps (nouveaux usages, nouvelles applications), un modèle doit être réentraîné périodiquement.
+- **Volumétrie et latence** : un IDS doit souvent traiter des flux en temps réel, ce qui contraint le choix et la complexité du modèle.
+- **Intégration avec le SOC** : les alertes générées doivent être exploitables par des analystes humains (contexte, explicabilité, priorisation).
+
+## À retenir
+
+- Les systèmes de détection combinent en général signatures (précis mais limités aux menaces connues) et ML par anomalies (couvre potentiellement les menaces nouvelles, au prix de plus de faux positifs).
+- La qualité des caractéristiques extraites du trafic brut conditionne fortement la performance du modèle.
+- Le déséquilibre des classes et la dérive conceptuelle sont deux défis pratiques majeurs, souvent sous-estimés lors du passage du prototype à la production.

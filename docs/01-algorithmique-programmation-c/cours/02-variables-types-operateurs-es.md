@@ -1,0 +1,79 @@
+# Chapitre 2 — Variables, types, opérateurs et entrées-sorties
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=01-algorithmique-programmation-c/slides/02-variables-types-operateurs-es.txt){ target=_blank }
+
+## 1. Variables et types de base
+
+Une variable est un emplacement mémoire nommé, dont le type détermine la taille occupée et les opérations possibles.
+
+| Type | Taille usuelle | Exemple | Rôle |
+|---|---|---|---|
+| `int` | 4 octets | `int age = 25;` | entier signé |
+| `unsigned int` | 4 octets | `unsigned int compteur = 0;` | entier non signé |
+| `char` | 1 octet | `char lettre = 'A';` | caractère / petit entier |
+| `float` | 4 octets | `float prix = 19.99f;` | flottant simple précision |
+| `double` | 8 octets | `double pi = 3.14159265;` | flottant double précision |
+| `long`, `short` | variable | `long total;` | variantes de taille de `int` |
+
+La taille exacte dépend de l'architecture et du compilateur : on utilise `sizeof(type)` pour la vérifier, et `stdint.h` (`int32_t`, `uint8_t`, …) pour des tailles garanties — pratique essentielle en sécurité où les débordements d'entiers sont une classe de vulnérabilité à part entière.
+
+## 2. Déclaration, initialisation, portée
+
+```c
+int x;          // déclarée, valeur indéterminée (danger !)
+int y = 0;      // déclarée et initialisée
+const int MAX = 100; // constante, non modifiable après initialisation
+```
+
+Une variable non initialisée contient une valeur indéterminée (« garbage ») : l'utiliser avant affectation est une source classique de bug et de vulnérabilité (lecture de mémoire non initialisée).
+
+## 3. Opérateurs
+
+- **Arithmétiques** : `+ - * / %` (le `%` n'existe que pour les entiers).
+- **Relationnels** : `== != < > <= >=` (renvoient 0 ou 1).
+- **Logiques** : `&& || !`.
+- **Bit à bit** : `& | ^ ~ << >>` — fondamentaux en cryptographie (XOR, masques, décalages) et abordés en profondeur au chapitre Cryptographie.
+- **Affectation composée** : `+= -= *= /= %=`.
+- **Incrémentation/décrémentation** : `++ --` (pré/post-fixe).
+
+```c
+int a = 5, b = 3;
+int somme = a + b;      // 8
+int reste = a % b;      // 2
+int masque = a & b;     // ET bit à bit -> 1
+```
+
+## 4. Conversions de type (casting)
+
+```c
+int i = 7;
+double d = (double) i / 2;   // conversion explicite : 3.5
+int tronque = (int) 3.9;     // conversion explicite : 3
+```
+
+Les conversions implicites (entre `int` et `char`, `int` et `float`, etc.) peuvent provoquer des pertes de précision ou des dépassements silencieux : c'est une source fréquente de bugs de sécurité (ex. : troncature d'une taille de buffer calculée en `size_t` vers `int`).
+
+## 5. Entrées-sorties standard
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    int age;
+    printf("Entrez votre âge : ");
+    scanf("%d", &age);          // & : adresse de la variable
+    printf("Vous avez %d ans.\n", age);
+    return 0;
+}
+```
+
+Spécificateurs de format courants : `%d` (int), `%f` (float/double), `%c` (char), `%s` (chaîne), `%p` (pointeur), `%x` (hexadécimal).
+
+**Point de vigilance sécurité** : `scanf("%s", ...)` sans limite de taille, ou une chaîne de format contrôlée par l'utilisateur passée directement à `printf`, sont des vulnérabilités classiques (dépassement de tampon, format string). Ce point sera repris en détail dans le cours *Sécurité des applications*.
+
+## À retenir
+
+- Toujours initialiser ses variables.
+- Connaître la taille et les limites de chaque type (`limits.h`, `stdint.h`).
+- Se méfier des conversions implicites et des chaînes de format non maîtrisées.

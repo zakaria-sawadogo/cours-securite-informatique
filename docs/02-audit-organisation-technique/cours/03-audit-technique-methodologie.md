@@ -1,0 +1,64 @@
+# Chapitre 3 — Audit technique : méthodologie des tests d'intrusion
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=02-audit-organisation-technique/slides/03-audit-technique-methodologie.txt){ target=_blank }
+
+## 1. Le PTES (Penetration Testing Execution Standard)
+
+Le PTES structure un test d'intrusion en sept phases :
+
+1. **Pre-engagement** : cadrage, périmètre, mandat, règles d'engagement.
+2. **Intelligence gathering** (reconnaissance) : collecte passive et active d'informations.
+3. **Threat modeling** : identification des actifs critiques et des scénarios d'attaque plausibles.
+4. **Vulnerability analysis** : identification des failles (scan, analyse manuelle).
+5. **Exploitation** : tentative d'exploitation contrôlée des vulnérabilités identifiées.
+6. **Post-exploitation** : évaluation de l'impact réel (élévation de privilèges, pivot, exfiltration simulée).
+7. **Reporting** : rédaction du rapport.
+
+## 2. Reconnaissance passive vs active
+
+| Type | Exemples de techniques | Détectable par la cible ? |
+|---|---|---|
+| Passive | OSINT (WHOIS, réseaux sociaux, moteurs de recherche, `theHarvester`), consultation de code source public | non |
+| Active | scan de ports, résolution DNS directe, requêtes HTTP vers la cible | oui, potentiellement journalisé |
+
+## 3. Scan et énumération
+
+- **Scan de ports** (`nmap`) : identifier les services exposés (ports ouverts, fermés, filtrés).
+- **Fingerprinting** : identifier la version des services et systèmes (`nmap -sV -O`).
+- **Énumération** : lister les ressources exposées (partages réseau, utilisateurs, répertoires web).
+
+```bash
+nmap -sV -sC -p- 192.168.1.10
+```
+
+## 4. Analyse de vulnérabilités
+
+Outils automatisés (scanners) confrontent les versions de services identifiées à des bases de vulnérabilités connues (CVE) :
+
+- **Nessus**, **OpenVAS** : scanners généralistes réseau/systèmes.
+- **Nikto**, **OWASP ZAP**, **Burp Suite** : scanners orientés applications web.
+
+Un scan automatisé produit des **faux positifs** (vulnérabilité signalée mais non exploitable en pratique) et peut manquer des **faux négatifs** (vulnérabilités logiques non détectables par signature) : il ne remplace jamais l'analyse manuelle d'un auditeur.
+
+## 5. Exploitation contrôlée
+
+L'exploitation vise à démontrer l'impact réel d'une vulnérabilité (preuve de concept), sans dégrader le service ni les données de production. Principes :
+
+- privilégier les preuves non destructives (ex. lecture d'un fichier témoin plutôt que suppression) ;
+- documenter précisément chaque action entreprise (horodatage, commande, résultat) pour la traçabilité et le rapport ;
+- s'arrêter au périmètre autorisé par le mandat, même si une extension semble techniquement possible.
+
+## 6. Notation de la criticité (CVSS)
+
+Le score **CVSS** (Common Vulnerability Scoring System) permet de qualifier objectivement la gravité d'une vulnérabilité à partir de métriques (vecteur d'attaque, complexité, privilèges requis, impact sur confidentialité/intégrité/disponibilité). Un score CVSS de 9.8 sur 10 (ex. exécution de code à distance sans authentification) impose une remédiation immédiate ; un score de 3.1 peut être traité dans un cycle de correctifs standard.
+
+## 7. Limites et complémentarité avec l'audit organisationnel
+
+Un test d'intrusion technique donne une photographie à un instant *t* d'un périmètre limité. Il ne dit rien sur la capacité de l'organisation à détecter et répondre à une attaque réelle (à ne pas confondre avec un exercice de type *Red Team*, plus large et plus long, qui teste aussi la détection).
+
+## À retenir
+
+- Le PTES structure la démarche en sept phases, de la reconnaissance au rapport.
+- L'automatisation (scanners) accélère l'analyse mais ne remplace pas le jugement de l'auditeur.
+- Le score CVSS objective la priorisation des vulnérabilités identifiées.

@@ -1,0 +1,54 @@
+# Chapitre 5 — NLP appliqué à la sécurité (phishing, analyse de logs)
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=05-ia-appliquee-securite-informatique/slides/05-nlp-securite.txt){ target=_blank }
+
+## 1. Le traitement automatique du langage naturel (NLP) en cybersécurité
+
+Le NLP permet d'analyser automatiquement des contenus textuels : e-mails, messages, URL, journaux d'événements, rapports de threat intelligence. En sécurité, ses deux applications les plus répandues sont la détection de phishing et l'analyse assistée de journaux volumineux.
+
+## 2. Représentation du texte pour le machine learning
+
+Un modèle ML ne manipule pas directement du texte : il faut le transformer en représentation numérique.
+
+| Méthode | Principe | Caractéristique |
+|---|---|---|
+| **Bag-of-words / TF-IDF** | compte (pondéré) l'occurrence des mots, sans tenir compte de l'ordre | simple, efficace pour des tâches de classification classiques |
+| **N-grammes de caractères** | séquences de *n* caractères consécutifs | robuste aux fautes d'orthographe volontaires (technique d'évasion courante en phishing) |
+| **Word embeddings** (Word2Vec, GloVe) | représentation vectorielle dense capturant des relations sémantiques entre mots | capture le sens, plus coûteux à entraîner |
+| **Modèles de langage pré-entraînés (Transformers, type BERT)** | représentation contextuelle, état de l'art actuel | performance élevée, coût de calcul plus important |
+
+## 3. Détection de phishing par e-mail
+
+Caractéristiques exploitées, combinant NLP et méta-données :
+
+- contenu textuel du message (urgence, demande d'action, fautes, incitation au clic) ;
+- caractéristiques de l'expéditeur (domaine récemment enregistré, usurpation d'affichage — *display name spoofing*) ;
+- caractéristiques des URL contenues (longueur, présence de caractères trompeurs, similarité avec un domaine légitime — *typosquatting*) ;
+- en-têtes techniques du message (résultats SPF/DKIM/DMARC, incohérences de routage).
+
+Une approche efficace combine généralement un modèle NLP sur le contenu du message et des règles/caractéristiques dédiées à l'analyse des URL et des en-têtes, plutôt qu'un seul modèle « texte brut ».
+
+## 4. Détection d'URL malveillantes
+
+Approche fréquente : classification supervisée à partir de caractéristiques lexicales de l'URL elle-même (longueur, nombre de sous-domaines, présence de caractères spéciaux, entropie), sans nécessairement visiter la page cible — utile pour un filtrage rapide en amont.
+
+## 5. Analyse de journaux (log analysis) assistée par NLP
+
+Les journaux systèmes et applicatifs peuvent être traités comme du texte semi-structuré :
+
+- **Regroupement de motifs (log clustering / log parsing)** : regrouper des lignes de log similaires en « templates » (ex. `outils comme Drain`), pour réduire des millions de lignes à quelques centaines de motifs analysables.
+- **Détection d'anomalies séquentielles** : modéliser la séquence normale d'événements (via un modèle de séquence) et détecter les déviations, potentiellement révélatrices d'un comportement d'attaque (ex. séquence anormale de commandes après une compromission).
+- **Résumé automatique** : synthétiser de grands volumes d'alertes pour un analyste SOC, en s'appuyant de plus en plus sur des modèles de langage génératifs (avec vigilance sur la fiabilité de leurs sorties, cf. chapitre 6).
+
+## 6. Limites spécifiques au NLP en sécurité
+
+- Les attaquants adaptent activement leur texte pour éviter la détection (fautes volontaires, homoglyphes, texte caché dans des images) — un jeu du chat et de la souris comparable à celui vu pour les malwares.
+- Un modèle NLP entraîné sur une langue ou un contexte culturel donné généralise mal à d'autres langues ou contextes.
+- Le contenu généré automatiquement par des modèles de langage (utilisé de façon offensive par des attaquants pour rédiger des messages de phishing très convaincants et sans fautes, y compris en plusieurs langues) réduit l'efficacité des indicateurs textuels classiques (fautes d'orthographe, formulations maladroites) longtemps utilisés pour repérer le phishing.
+
+## À retenir
+
+- Le NLP transforme du texte en représentation numérique exploitable par un modèle (TF-IDF, embeddings, Transformers), avec un compromis performance/coût de calcul.
+- La détection de phishing combine efficacement analyse du contenu textuel et caractéristiques techniques (URL, en-têtes, authentification du domaine).
+- L'essor des modèles de langage génératifs facilite la production de contenus de phishing convaincants, ce qui affaiblit les indicateurs textuels traditionnels et pousse vers des défenses combinant plusieurs signaux.

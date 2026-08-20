@@ -1,0 +1,67 @@
+# Chapitre 6 — Sécurité de l'IA : attaques adversariales et IA offensive
+
+### IA appliquée à la sécurité informatique
+
+---
+
+## 1. L'IA comme nouvelle surface d'attaque
+
+À mesure que des systèmes d'IA sont déployés dans des fonctions sensibles (détection de fraude, contrôle d'accès biométrique, filtrage de contenu, systèmes autonomes), ils deviennent eux-mêmes des cibles. Le référentiel **OWASP Machine Learning Security Top 10** et le cadre **MITRE ATLAS** recensent ces menaces spécifiques.
+
+---
+
+## 2. Attaques adversariales (evasion attacks)
+
+Principe : modifier légèrement une entrée, de façon souvent imperceptible pour un humain, pour tromper un modèle et lui faire produire une prédiction erronée, sans modifier le comportement réel de l'objet analysé.
+
+- **Sur des images** : ajouter un bruit calculé, invisible à l'œil nu, qui fait classer une image de panneau stop comme un panneau de limitation de vitesse par un modèle de vision.
+- **Sur des malwares** : ajouter des octets inoffensifs à un binaire malveillant pour franchir la frontière de décision d'un classifieur, sans changer le comportement malveillant réel (évoqué au chapitre 4).
+- **Sur du texte (phishing, spam)** : introduire des variations orthographiques, des caractères invisibles ou des synonymes pour échapper à un filtre NLP tout en restant compréhensible par un humain.
+
+### Modèles d'attaque
+
+| Modèle | Connaissance de l'attaquant |
+|---|---|
+| **Boîte blanche (white-box)** | accès complet au modèle (architecture, paramètres) — permet de calculer des perturbations optimales |
+| **Boîte noire (black-box)** | accès uniquement aux prédictions du modèle (requêtes successives) — attaques par substitution (entraîner un modèle de substitution pour approximer les frontières de décision) |
+
+---
+
+## 3. Empoisonnement de données (data poisoning)
+
+Attaque visant la **phase d'entraînement** plutôt que l'inférence : un attaquant capable d'injecter des données malveillantes dans le jeu d'entraînement (ex. un système qui se ré-entraîne en continu sur des données utilisateurs) peut dégrader la performance générale du modèle ou y insérer une **porte dérobée (backdoor)** : le modèle se comporte normalement sauf en présence d'un déclencheur spécifique connu de l'attaquant, qui provoque alors une prédiction choisie.
+
+---
+
+## 4. Extraction et inversion de modèle
+
+- **Extraction de modèle (model extraction)** : reconstruire une approximation d'un modèle propriétaire à partir de requêtes successives à son API, permettant de le voler ou de préparer une attaque adversariale en boîte blanche sur la copie.
+- **Inversion de modèle / attaque par appartenance (membership inference)** : déterminer si une donnée spécifique a été utilisée dans l'entraînement d'un modèle, ou reconstruire partiellement des données d'entraînement sensibles — un enjeu direct de confidentialité (RGPD) lorsque le modèle a été entraîné sur des données personnelles.
+
+---
+
+## 5. IA offensive : usage par les attaquants
+
+- Génération automatisée de contenus de phishing personnalisés et sans fautes, à grande échelle.
+- Assistance à l'écriture de code malveillant ou à l'automatisation de tâches de reconnaissance.
+- Génération de deepfakes (voix, image, vidéo) utilisés dans des fraudes ciblées (ex. usurpation de la voix d'un dirigeant pour autoriser un virement frauduleux).
+- Automatisation partielle de certaines phases de reconnaissance ou de rédaction de rapports par des attaquants.
+
+---
+
+## 6. Contre-mesures et bonnes pratiques
+
+| Menace | Contre-mesure |
+|---|---|
+| Attaques adversariales | entraînement adversarial (inclure des exemples adversariaux dans l'entraînement), détection de perturbations anormales, limitation du taux de requêtes à une API de modèle |
+| Empoisonnement de données | validation et traçabilité des sources de données d'entraînement, détection d'anomalies dans les données avant réentraînement |
+| Extraction/inversion de modèle | limitation et surveillance des requêtes API, techniques de confidentialité différentielle |
+| IA offensive (phishing, deepfakes) | sensibilisation renforcée, vérification hors bande des demandes sensibles (procédures « callback » avant tout virement), défenses multi-signaux ne reposant pas uniquement sur des indices textuels |
+
+---
+
+## À retenir
+
+- Les systèmes d'IA sont vulnérables à des classes d'attaques spécifiques (adversariales, empoisonnement, extraction) distinctes des vulnérabilités logicielles classiques.
+- Les modèles de connaissance de l'attaquant (boîte blanche/noire) déterminent la faisabilité pratique de ces attaques.
+- L'IA offensive (contenus de phishing, deepfakes) accroît la sophistication des attaques d'ingénierie sociale et impose des contre-mesures organisationnelles autant que techniques.

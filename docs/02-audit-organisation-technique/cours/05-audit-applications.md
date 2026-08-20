@@ -1,0 +1,63 @@
+# Chapitre 5 — Audit des applications et du code
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=02-audit-organisation-technique/slides/05-audit-applications.txt){ target=_blank }
+
+## 1. Pourquoi auditer les applications spécifiquement
+
+Les applications web et métier constituent la surface d'attaque la plus exposée et la plus évolutive (déploiements fréquents, code sur mesure). Ce chapitre prépare le cours *Sécurité des applications*, qui approfondit chaque type de vulnérabilité.
+
+## 2. OWASP Top 10 comme grille d'audit
+
+Le classement OWASP Top 10 recense les catégories de vulnérabilités applicatives les plus critiques et sert de checklist minimale pour tout audit applicatif :
+
+1. Contrôle d'accès défaillant (*broken access control*)
+2. Défaillances cryptographiques
+3. Injection (SQL, commande, etc.)
+4. Conception non sécurisée (*insecure design*)
+5. Mauvaise configuration de sécurité
+6. Composants vulnérables et obsolètes
+7. Défaillances d'identification et d'authentification
+8. Défaillances d'intégrité des données et logiciels
+9. Journalisation et surveillance insuffisantes
+10. Falsification de requête côté serveur (SSRF)
+
+## 3. Approches d'audit applicatif
+
+| Approche | Description | Outils typiques |
+|---|---|---|
+| **DAST** (Dynamic Application Security Testing) | tests en boîte noire sur l'application en fonctionnement | OWASP ZAP, Burp Suite |
+| **SAST** (Static Application Security Testing) | analyse du code source sans exécution | SonarQube, Semgrep, Bandit (Python), Cppcheck (C/C++) |
+| **SCA** (Software Composition Analysis) | analyse des dépendances tierces et de leurs vulnérabilités connues | OWASP Dependency-Check, `npm audit` |
+| **Revue manuelle de code** | lecture experte, notamment pour la logique métier | — |
+
+Une démarche mature combine ces approches : le SAST/SCA s'intègre au pipeline CI/CD pour un contrôle continu, tandis que le DAST et la revue manuelle interviennent à intervalles réguliers ou avant une mise en production majeure.
+
+## 4. Méthodologie d'un pentest applicatif
+
+1. **Cartographie** de l'application (pages, fonctionnalités, rôles utilisateurs, points d'entrée de données).
+2. **Tests d'authentification et de gestion de session** (politique de mot de passe, expiration de session, protection contre le brute force).
+3. **Tests de contrôle d'accès** (un utilisateur standard peut-il accéder à des ressources d'un autre utilisateur ou d'un administrateur en modifiant un identifiant dans l'URL — IDOR ?).
+4. **Tests d'injection** (SQL, commande système, LDAP) sur chaque point de saisie.
+5. **Tests côté client** (XSS stocké/réfléchi, CSRF).
+6. **Tests de configuration** (en-têtes de sécurité HTTP, gestion des erreurs, informations sensibles exposées).
+
+## 5. Audit de code : exemple de grille (langage C, en lien avec le module Algorithmique)
+
+| Point de contrôle | Risque associé |
+|---|---|
+| Utilisation de `strcpy`, `gets`, `sprintf` sans borne | débordement de tampon |
+| Absence de vérification du retour de `malloc` | déréférencement de pointeur nul |
+| `free` sans remise à `NULL` | use-after-free |
+| Chaîne de format non constante passée à `printf` | vulnérabilité format string |
+| Calculs de taille non vérifiés (multiplication avant `malloc`) | débordement d'entier |
+
+## 6. Limites
+
+Un audit applicatif ponctuel ne couvre que l'état du code à un instant donné : toute évolution ultérieure du code peut réintroduire des vulnérabilités déjà corrigées, d'où l'intérêt d'intégrer des contrôles automatisés (SAST/SCA) en continu plutôt que de se reposer uniquement sur un audit annuel.
+
+## À retenir
+
+- L'OWASP Top 10 est la référence minimale pour structurer un audit applicatif.
+- SAST, DAST et SCA sont complémentaires, pas substituables l'un à l'autre.
+- L'audit de code bas niveau (C/C++) cible spécifiquement les erreurs de gestion mémoire et de validation des entrées.

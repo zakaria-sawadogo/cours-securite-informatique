@@ -1,0 +1,56 @@
+# Chapitre 2 — Structures de données : chaînage cryptographique et arbres de Merkle
+
+### Technologie Blockchain
+
+---
+
+## 1. Le chaînage cryptographique des blocs
+
+Chaque bloc contient, dans son en-tête, l'**empreinte de hachage du bloc précédent**. Cette construction crée une dépendance en cascade : modifier le contenu d'un bloc ancien change son empreinte, ce qui invalide l'empreinte enregistrée dans le bloc suivant, et ainsi de suite jusqu'au sommet de la chaîne. Un attaquant souhaitant altérer un bloc ancien devrait donc recalculer (et, selon le mécanisme de consensus, refaire valider) tous les blocs suivants plus rapidement que le reste du réseau honnête — d'où le terme d'immutabilité « pratique » plutôt qu'absolue, et la recommandation d'attendre un nombre suffisant de confirmations avant de considérer une transaction comme définitive.
+
+---
+
+## 2. Arbre de Merkle
+
+Un arbre de Merkle organise un ensemble de données (les transactions d'un bloc) de façon à pouvoir résumer l'ensemble par une seule empreinte (la **racine de Merkle**) tout en permettant de prouver efficacement qu'une donnée particulière fait bien partie de l'ensemble, sans avoir à transmettre l'ensemble complet.
+
+### Construction
+
+1. Chaque transaction est hachée individuellement (feuilles de l'arbre).
+2. Les empreintes sont regroupées deux par deux et hachées ensemble pour former le niveau supérieur.
+3. Ce processus est répété jusqu'à obtenir une seule empreinte : la racine de Merkle, stockée dans l'en-tête du bloc.
+
+### Preuve de Merkle (Merkle proof)
+
+Pour prouver qu'une transaction `T` appartient à un bloc, il suffit de fournir `T` et la liste des empreintes « sœurs » sur le chemin vers la racine (de l'ordre de log₂(n) empreintes pour n transactions), plutôt que l'ensemble des n transactions. Cette propriété est essentielle pour les **clients légers (SPV — Simplified Payment Verification)**, qui vérifient qu'une transaction est incluse dans un bloc sans télécharger l'intégralité de la blockchain.
+
+---
+
+## 3. Pourquoi cette double structure (chaîne de blocs + arbre par bloc) ?
+
+- Le **chaînage entre blocs** garantit l'intégrité de l'ordre et de l'historique global.
+- L'**arbre de Merkle au sein d'un bloc** garantit l'intégrité de l'ensemble des transactions d'un bloc tout en permettant des vérifications partielles efficaces.
+
+Cette architecture illustre directement l'usage des fonctions de hachage (module *Cryptographie*, chapitre 3) comme brique de construction pour des propriétés de plus haut niveau (intégrité globale d'un registre distribué).
+
+---
+
+## 4. Identifiants et adresses
+
+- Une **transaction** est identifiée par l'empreinte de son propre contenu (le « hash de transaction »).
+- Une **adresse** (compte) dérive généralement d'une clé publique (elle-même souvent hachée pour former une adresse plus courte), reliant directement ce chapitre au module *Cryptographie* (signatures numériques, chapitre 5) : chaque transaction est signée par la clé privée correspondant à l'adresse d'origine, et cette signature est vérifiable par tout nœud du réseau.
+
+---
+
+## 5. Variantes et structures alternatives
+
+- **DAG (Directed Acyclic Graph)** : certaines architectures (ex. IOTA) remplacent la chaîne linéaire de blocs par un graphe orienté acyclique de transactions, visant une meilleure scalabilité, au prix d'autres compromis de sécurité et de maturité.
+- **État global (state trie)** : les blockchains à smart contracts (Ethereum, chapitre 4) maintiennent, en plus de l'historique des transactions, une structure arborescente représentant l'état courant de tous les comptes et contrats, également authentifiée cryptographiquement (racine d'état incluse dans chaque bloc).
+
+---
+
+## À retenir
+
+- Le chaînage cryptographique entre blocs et l'arbre de Merkle au sein d'un bloc sont deux mécanismes complémentaires garantissant respectivement l'intégrité de l'historique global et celle du contenu de chaque bloc.
+- Une preuve de Merkle permet de vérifier l'inclusion d'une transaction sans télécharger l'intégralité de la blockchain, fondement des clients légers.
+- Toute cette architecture repose directement sur les fonctions de hachage et les signatures numériques étudiées dans le module *Cryptographie*.

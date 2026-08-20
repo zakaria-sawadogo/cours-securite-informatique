@@ -1,0 +1,45 @@
+# Chapitre 3 — Mécanismes de consensus
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=07-technologie-blockchain/slides/03-mecanismes-consensus.txt){ target=_blank }
+
+## 1. Pourquoi un mécanisme de consensus ?
+
+Dans un réseau décentralisé sans autorité centrale, il faut un mécanisme permettant à des participants potentiellement nombreux, anonymes et parfois malveillants de s'accorder sur un état unique et cohérent du registre (quel bloc suit quel bloc), tout en résistant à des tentatives de manipulation. C'est une instance du problème classique dit **des généraux byzantins** en informatique distribuée.
+
+## 2. Preuve de travail (Proof of Work, PoW)
+
+Principe : pour proposer un nouveau bloc, un participant (« mineur ») doit résoudre un défi calculatoire coûteux — trouver une valeur (le *nonce*) telle que l'empreinte de hachage du bloc satisfasse une condition de difficulté (par exemple, commencer par un certain nombre de zéros). Ce calcul est intentionnellement coûteux à réaliser mais trivial à vérifier par les autres nœuds.
+
+- **Sécurité** : falsifier l'historique nécessiterait de disposer d'une puissance de calcul supérieure à celle du reste du réseau honnête combiné (« attaque des 51 % »), un coût économique dissuasif pour un réseau suffisamment décentralisé et puissant.
+- **Limite majeure** : consommation énergétique très importante (Bitcoin), motivant la recherche d'alternatives.
+
+## 3. Preuve d'enjeu (Proof of Stake, PoS)
+
+Principe : le droit de proposer et de valider un bloc est attribué (souvent par tirage pondéré) en fonction de la quantité de cryptomonnaie qu'un participant a « mise en jeu » (staked), plutôt qu'en fonction de sa puissance de calcul.
+
+- **Sécurité** : un participant malveillant risque de perdre (« slashing ») une partie de sa mise s'il tente de valider des blocs contradictoires ou invalides, ce qui aligne son intérêt économique avec le comportement honnête.
+- **Avantage** : consommation énergétique très inférieure à PoW (Ethereum est passé de PoW à PoS en 2022, réduisant sa consommation énergétique de plus de 99 %).
+- **Débat en cours** : risque de centralisation accrue au profit des plus gros détenteurs (« les riches deviennent validateurs, les validateurs gagnent des récompenses, les riches s'enrichissent davantage »).
+
+## 4. Tolérance byzantine pratique (PBFT et variantes)
+
+Utilisée typiquement dans les blockchains à permission (nombre de participants limité et identifié) : les nœuds valident un bloc par un mécanisme de vote explicite, tolérant qu'une fraction des participants (typiquement jusqu'à un tiers) soit défaillante ou malveillante, avec une finalité de validation quasi immédiate (contrairement à PoW où la certitude augmente progressivement avec les confirmations).
+
+## 5. Comparaison synthétique
+
+| Mécanisme | Coût de sécurité | Consommation énergétique | Finalité | Exemple |
+|---|---|---|---|---|
+| PoW | puissance de calcul | très élevée | probabiliste (croît avec les confirmations) | Bitcoin |
+| PoS | capital économique en jeu | faible | souvent quasi immédiate selon l'implémentation | Ethereum (depuis 2022) |
+| BFT | identité/réputation des validateurs | faible | immédiate | réseaux à permission, certaines blockchains d'entreprise |
+
+## 6. Fork et résolution de conflits
+
+Lorsque deux blocs valides sont proposés presque simultanément (situation normale dans un réseau distribué), une **fourche (fork)** temporaire apparaît ; les nœuds convergent généralement vers la chaîne la plus longue (PoW) ou celle validée par le plus de participants (PoS) selon la règle de choix définie par le protocole. Un **hard fork** délibéré (changement de règles incompatible) peut aussi survenir lors d'une mise à jour majeure ou d'un désaccord de gouvernance dans la communauté.
+
+## À retenir
+
+- Le mécanisme de consensus répond à un problème classique d'informatique distribuée (accord dans un réseau potentiellement malveillant, sans autorité centrale).
+- PoW sécurise par le coût calculatoire mais consomme beaucoup d'énergie ; PoS sécurise par un risque économique direct (slashing) avec une empreinte énergétique bien moindre.
+- Le choix du mécanisme de consensus détermine directement les propriétés de sécurité, de décentralisation réelle et de coût du réseau — un compromis, pas une hiérarchie absolue de qualité.

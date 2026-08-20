@@ -1,0 +1,58 @@
+# Chapitre 2 — Modélisation des menaces (threat modeling)
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=08-security-by-design/slides/02-modelisation-menaces.txt){ target=_blank }
+
+## 1. Qu'est-ce que le threat modeling ?
+
+Le threat modeling est une démarche structurée visant à identifier, de façon systématique et le plus en amont possible, les menaces plausibles pesant sur un système, afin de concevoir des mesures de sécurité proportionnées avant l'implémentation. C'est l'un des outils centraux de *security by design*.
+
+## 2. La démarche générale en quatre questions (Adam Shostack)
+
+1. **Sur quoi travaillons-nous ?** (modéliser le système : diagramme de flux de données, composants, frontières de confiance).
+2. **Qu'est-ce qui peut mal tourner ?** (identification systématique des menaces).
+3. **Que faisons-nous à ce sujet ?** (définir des contre-mesures).
+4. **Avons-nous fait du bon travail ?** (valider la démarche, itérer).
+
+## 3. Diagramme de flux de données (DFD) et frontières de confiance
+
+Avant d'identifier des menaces, il faut représenter le système : processus, flux de données, magasins de données, entités externes, et surtout les **frontières de confiance** (points où le niveau de confiance change, ex. entre un client non authentifié et un serveur, entre une DMZ et un réseau interne). Les menaces se concentrent typiquement sur ces frontières.
+
+## 4. STRIDE : classification des menaces
+
+Modèle développé par Microsoft, six catégories de menaces à examiner systématiquement pour chaque composant/flux du diagramme :
+
+| Lettre | Menace | Propriété de sécurité visée | Exemple |
+|---|---|---|---|
+| **S** | Spoofing (usurpation d'identité) | Authenticité | se faire passer pour un autre utilisateur |
+| **T** | Tampering (falsification) | Intégrité | modifier des données en transit ou au repos |
+| **R** | Repudiation (répudiation) | Non-répudiation | nier avoir effectué une action, en l'absence de traçabilité |
+| **I** | Information disclosure (divulgation d'information) | Confidentialité | accéder à des données sans autorisation |
+| **D** | Denial of Service (déni de service) | Disponibilité | rendre un service indisponible |
+| **E** | Elevation of Privilege (élévation de privilège) | Autorisation | obtenir des droits supérieurs à ceux accordés |
+
+Pour chaque flux/composant du diagramme, on se demande systématiquement : ce composant est-il vulnérable à S ? à T ? etc.
+
+## 5. DREAD : évaluation de la sévérité
+
+Modèle complémentaire (moins utilisé aujourd'hui de façon isolée, souvent remplacé par une matrice de risque classique ou CVSS) pour scorer une menace identifiée selon cinq critères : **D**amage (dommage potentiel), **R**eproducibility (reproductibilité), **E**xploitability (facilité d'exploitation), **A**ffected users (utilisateurs affectés), **D**iscoverability (facilité de découverte).
+
+## 6. Arbres d'attaque (attack trees)
+
+Représentation hiérarchique où le nœud racine est l'objectif de l'attaquant (ex. « compromettre le compte administrateur »), décomposé en sous-objectifs (nœuds enfants) reliés par des relations logiques ET/OU, jusqu'à des actions concrètes réalisables. Cette structure aide à visualiser les différents chemins d'attaque possibles et à identifier où une contre-mesure unique bloque plusieurs branches.
+
+## 7. PASTA et autres méthodologies
+
+D'autres méthodologies existent, orientées différemment : **PASTA** (Process for Attack Simulation and Threat Analysis) adopte une perspective centrée sur le risque métier et simule des scénarios d'attaque complets ; **LINDDUN** est une méthodologie spécifiquement dédiée aux menaces sur la vie privée (à mettre en lien avec le chapitre 6, *privacy by design*).
+
+## 8. Quand et comment mener un threat modeling
+
+- Idéalement en phase de conception, avant l'écriture du code, et **révisé** à chaque évolution architecturale significative.
+- En atelier collaboratif, associant développeurs, architectes et personnel sécurité — le threat modeling gagne à ne pas être l'exercice isolé d'un seul expert sécurité déconnecté de l'équipe de développement.
+- Documenté et priorisé, pour alimenter directement le backlog de développement (contre-mesures = user stories/tâches techniques).
+
+## À retenir
+
+- Le threat modeling identifie systématiquement les menaces à partir d'une représentation du système et de ses frontières de confiance, avant l'implémentation.
+- STRIDE structure l'identification des menaces par catégorie, en miroir des propriétés de sécurité visées.
+- Les arbres d'attaque et les méthodologies alternatives (PASTA, LINDDUN) offrent des perspectives complémentaires selon le contexte (risque métier, vie privée).

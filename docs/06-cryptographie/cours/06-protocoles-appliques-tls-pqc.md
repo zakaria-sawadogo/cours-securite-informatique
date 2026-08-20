@@ -1,0 +1,50 @@
+# Chapitre 6 — Protocoles appliqués : TLS et cryptographie post-quantique
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=06-cryptographie/slides/06-protocoles-appliques-tls-pqc.txt){ target=_blank }
+
+## 1. TLS (Transport Layer Security) : rôle et positionnement
+
+TLS sécurise les communications entre un client et un serveur (HTTPS, mais aussi d'autres protocoles applicatifs) en fournissant confidentialité, intégrité et authentification du serveur (et optionnellement du client). Il illustre concrètement l'intégration de toutes les primitives vues dans ce module.
+
+## 2. La poignée de main TLS 1.3 (simplifiée)
+
+1. **ClientHello** : le client propose les suites cryptographiques supportées et envoie des paramètres pour un échange de clé (ex. clé publique éphémère pour Diffie-Hellman sur courbe elliptique).
+2. **ServerHello** : le serveur choisit une suite cryptographique, complète l'échange de clé et envoie son certificat.
+3. **Vérification du certificat** : le client valide la chaîne de confiance jusqu'à une AC racine reconnue (chapitre 5).
+4. **Dérivation des clés de session** : à partir du secret partagé issu de l'échange de clé, une fonction de dérivation de clé produit les clés symétriques utilisées pour le reste de la session.
+5. **Communication chiffrée** : l'ensemble du trafic applicatif est protégé par un chiffrement symétrique authentifié (AES-GCM ou ChaCha20-Poly1305).
+
+TLS 1.3 (2018) a simplifié la poignée de main par rapport à TLS 1.2, supprimé les suites cryptographiques jugées faibles (RC4, CBC sans protection adéquate, RSA pour l'échange de clé sans confidentialité persistante), et impose désormais un échange de clé Diffie-Hellman éphémère par défaut.
+
+## 3. Confidentialité persistante (Perfect Forward Secrecy)
+
+Propriété garantissant que la compromission ultérieure de la clé privée à long terme d'un serveur ne permet pas de déchiffrer rétroactivement des sessions passées interceptées et enregistrées. Obtenue en utilisant des clés d'échange **éphémères** (générées pour chaque session puis détruites), typiquement via Diffie-Hellman éphémère sur courbe elliptique (ECDHE). C'est une des raisons pour lesquelles TLS 1.3 impose ce mécanisme par défaut.
+
+## 4. Suites cryptographiques et obsolescence
+
+Une « suite cryptographique » combine un mécanisme d'échange de clé, un algorithme de signature, un chiffrement symétrique et une fonction de hachage. Les recommandations évoluent avec le temps à mesure que des faiblesses sont découvertes (rappel du module *Cryptanalyse*) : SSL 2.0/3.0, TLS 1.0/1.1, RC4, l'export de clés faibles (« EXPORT »), sont aujourd'hui déconseillés voire interdits par les référentiels de sécurité (ANSSI, PCI-DSS).
+
+## 5. Erreurs d'implémentation TLS fréquentes (audit)
+
+- Ne pas vérifier le nom de domaine du certificat.
+- Accepter des certificats auto-signés ou expirés en production.
+- Désactiver la vérification de certificat pendant le développement, oubli en production (vulnérabilité réelle et récurrente).
+- Utiliser des suites cryptographiques obsolètes non désactivées côté serveur.
+
+Ces points recoupent directement la grille d'audit applicatif vue dans le module *Audit organisation et technique*.
+
+## 6. La menace post-quantique et la migration en cours
+
+L'algorithme de Shor (rappel : module *Cryptanalyse*, chapitre 5), exécuté sur un ordinateur quantique suffisamment puissant, casserait RSA, Diffie-Hellman et ECC classiques. Bien qu'un tel ordinateur ne soit pas disponible aujourd'hui à l'échelle nécessaire, deux considérations motivent une action dès maintenant :
+
+- **« Harvest now, decrypt later »** : un adversaire peut enregistrer aujourd'hui du trafic chiffré intercepté, dans l'espoir de le déchiffrer plus tard une fois l'informatique quantique suffisamment mature — un risque réel pour des données à confidentialité longue durée.
+- **Délai de migration** : le déploiement d'une nouvelle famille cryptographique à l'échelle d'Internet prend typiquement plusieurs années.
+
+Le NIST a standardisé en 2024 des algorithmes post-quantiques (**ML-KEM**, anciennement Kyber, pour l'échange de clé ; **ML-DSA**, anciennement Dilithium, pour la signature), dont l'intégration progressive dans TLS et d'autres protocoles est en cours, souvent sous forme **hybride** (combinant un mécanisme classique et un mécanisme post-quantique, pour ne pas dépendre uniquement de la maturité encore récente de ces nouveaux algorithmes).
+
+## À retenir
+
+- TLS combine, de façon opérationnelle, échange de clé asymétrique, authentification par certificat et chiffrement symétrique authentifié — la synthèse pratique de tout ce module.
+- La confidentialité persistante (clés éphémères) protège les échanges passés même en cas de compromission future d'une clé long terme.
+- La transition post-quantique est engagée par anticipation, notamment face au risque « harvest now, decrypt later » sur des données sensibles à long terme.

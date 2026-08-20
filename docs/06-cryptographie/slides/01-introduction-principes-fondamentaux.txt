@@ -1,0 +1,70 @@
+# Chapitre 1 — Introduction et principes fondamentaux
+
+### Cryptographie
+
+---
+
+## 1. Les objectifs de la cryptographie
+
+La cryptographie moderne vise à garantir, en présence d'un adversaire potentiel, quatre propriétés fondamentales :
+
+- **Confidentialité** : seules les parties autorisées peuvent accéder au contenu d'une information.
+- **Intégrité** : toute modification non autorisée d'une information est détectable.
+- **Authenticité** : l'origine d'une information (identité de l'émetteur) est vérifiable.
+- **Non-répudiation** : l'émetteur d'un message ne peut pas nier ultérieurement en être l'auteur (propriété apportée notamment par la signature numérique).
+
+---
+
+## 2. Le principe de Kerckhoffs
+
+Formulé par Auguste Kerckhoffs en 1883 : **la sécurité d'un système cryptographique ne doit reposer que sur le secret de la clé, jamais sur le secret de l'algorithme**. Un algorithme dont la sécurité dépend de rester confidentiel (« security through obscurity ») est fragile : il suffit qu'il soit divulgué ou rétro-ingénié une seule fois pour effondrer la sécurité de tous les systèmes qui l'utilisent. À l'inverse, un algorithme public, largement étudié par la communauté scientifique (comme AES, RSA), gagne en confiance précisément parce qu'il résiste à un examen ouvert et prolongé — lien direct avec le module *Cryptanalyse*.
+
+---
+
+## 3. Confusion et diffusion (Claude Shannon, 1949)
+
+Deux propriétés structurantes de tout chiffrement robuste :
+
+- **Confusion** : rendre la relation entre la clé et le texte chiffré la plus complexe possible, pour qu'une analyse statistique du chiffré ne révèle rien sur la clé.
+- **Diffusion** : répartir l'influence de chaque bit du texte clair (et de la clé) sur l'ensemble du texte chiffré, pour qu'une modification d'un seul bit du clair change en moyenne la moitié des bits du chiffré (effet avalanche).
+
+Ces deux notions justifient directement la structure des chiffrements par blocs modernes (tours de substitution et de permutation dans AES, chapitre 2).
+
+---
+
+## 4. Cryptographie symétrique vs asymétrique : vue d'ensemble
+
+| | Symétrique | Asymétrique |
+|---|---|---|
+| Clés | une seule clé, partagée entre émetteur et récepteur | une paire de clés (publique/privée) |
+| Vitesse | rapide | beaucoup plus lente |
+| Problème principal | distribution sécurisée de la clé partagée | vérification de l'authenticité de la clé publique |
+| Exemples | AES, ChaCha20 | RSA, Diffie-Hellman, ECC |
+
+En pratique, les systèmes réels combinent les deux : la cryptographie asymétrique établit ou échange une clé de session, ensuite utilisée pour un chiffrement symétrique rapide du volume de données (principe du **chiffrement hybride**, à l'œuvre notamment dans TLS, détaillé au chapitre 6).
+
+---
+
+## 5. Notion de sécurité prouvable et de sécurité calculatoire
+
+La sécurité d'un système cryptographique moderne repose généralement sur une hypothèse calculatoire : un problème mathématique réputé difficile à résoudre en un temps raisonnable avec les moyens de calcul actuels et prévisibles (factorisation pour RSA, logarithme discret pour Diffie-Hellman/ECC). Il ne s'agit pas d'une preuve d'impossibilité absolue (à l'exception du **masque jetable** — *one-time pad* — seul système prouvé théoriquement incassable, mais impraticable car il exige une clé aussi longue que le message, utilisée une seule fois).
+
+---
+
+## 6. Vocabulaire de base
+
+| Terme | Définition |
+|---|---|
+| Texte clair (plaintext) | message original, non protégé |
+| Texte chiffré (ciphertext) | résultat du chiffrement |
+| Clé | paramètre secret contrôlant le chiffrement/déchiffrement |
+| Algorithme (chiffre, cipher) | procédure de transformation, publique (Kerckhoffs) |
+| Cryptosystème | ensemble algorithme + gestion des clés + protocole d'usage |
+
+---
+
+## À retenir
+
+- Confidentialité, intégrité, authenticité, non-répudiation : quatre objectifs distincts, pas toujours tous nécessaires simultanément selon le contexte.
+- Le principe de Kerckhoffs interdit de fonder la sécurité sur le secret de l'algorithme.
+- La cryptographie moderne combine en pratique symétrique (rapide, volume) et asymétrique (échange de clé, authentification) dans des schémas hybrides.

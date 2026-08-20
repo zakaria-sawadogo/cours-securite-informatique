@@ -1,0 +1,83 @@
+# Chapitre 2 — Vulnérabilités d'injection
+
+### Sécurité des applications
+
+---
+
+## 1. Principe général de l'injection
+
+Une injection se produit lorsqu'une donnée fournie par un utilisateur est concaténée directement dans une commande, une requête ou un interpréteur, sans séparation stricte entre code et donnée, permettant à l'attaquant de modifier la structure ou la sémantique de la commande exécutée.
+
+---
+
+## 2. Injection SQL
+
+### Exemple de code vulnérable
+
+```sql
+-- Requête construite par concaténation de chaînes
+requete = "SELECT * FROM utilisateurs WHERE login = '" + login + "' AND motdepasse = '" + motdepasse + "'"
+```
+
+Si `login` reçoit la valeur `admin' -- `, la requête devient :
+
+```sql
+SELECT * FROM utilisateurs WHERE login = 'admin' -- ' AND motdepasse = '...'
+```
+
+Le `--` commente le reste de la requête (syntaxe SQL) : la vérification du mot de passe est neutralisée, permettant une connexion en tant qu'`admin` sans en connaître le mot de passe.
+
+### Injection UNION-based
+
+Une injection peut aussi être utilisée pour extraire des données d'autres tables via l'opérateur `UNION SELECT`, si le nombre et le type de colonnes sont devinés ou déduits par tâtonnement (technique pratiquée en TP1).
+
+### Injection en aveugle (blind SQL injection)
+
+Lorsque l'application ne retourne pas directement le résultat de la requête mais seulement un comportement différent (page d'erreur, temps de réponse), un attaquant peut néanmoins extraire des données bit par bit en observant ces différences (injection booléenne ou temporelle).
+
+### Contre-mesure de référence : requêtes préparées (paramétrées)
+
+```
+requete = "SELECT * FROM utilisateurs WHERE login = ? AND motdepasse = ?"
+executer(requete, [login, motdepasse])
+```
+
+La donnée est transmise séparément de la structure de la requête au moteur de base de données, qui ne l'interprète jamais comme du code SQL, quel que soit son contenu. C'est la défense structurelle recommandée en priorité, à préférer systématiquement à un simple échappement de caractères spéciaux (plus fragile et sujet à contournement).
+
+---
+
+## 3. Injection de commande système
+
+```c
+char commande[100];
+snprintf(commande, sizeof(commande), "ping -c 1 %s", entree_utilisateur);
+system(commande);
+```
+
+Si `entree_utilisateur` vaut `8.8.8.8; rm -rf /donnees`, la commande système exécutée exécute en réalité deux commandes distinctes, la seconde étant totalement contrôlée par l'attaquant. **Contre-mesure** : éviter autant que possible d'appeler un interpréteur de commande shell avec des données utilisateur ; si indispensable, utiliser des API d'exécution de processus qui séparent explicitement la commande de ses arguments (sans passer par un shell interprétant les métacaractères), et valider strictement le format attendu (liste blanche).
+
+---
+
+## 4. Autres formes d'injection
+
+| Type | Contexte | Exemple |
+|---|---|---|
+| **LDAP injection** | annuaires d'authentification | manipulation d'un filtre de recherche LDAP |
+| **XPath injection** | requêtes sur documents XML | équivalent de l'injection SQL pour XPath |
+| **NoSQL injection** | bases de données non relationnelles | injection d'opérateurs de requête dans un objet JSON mal validé |
+| **Injection de gabarit côté serveur (SSTI)** | moteurs de templates web | exécution de code via une syntaxe de template non neutralisée |
+| **Injection de code (command/eval injection)** | fonctions d'évaluation dynamique de code | passage direct d'une entrée utilisateur à une fonction `eval()` ou équivalente |
+
+---
+
+## 5. Principe de défense commun
+
+Quelle que soit la variante, la défense structurelle privilégiée est la **séparation stricte entre code et donnée** (requêtes paramétrées, API d'exécution sans interprétation shell, désactivation des fonctionnalités dynamiques dangereuses des moteurs de template), complétée par une validation stricte des entrées en liste blanche et le principe du moindre privilège pour le compte utilisé par l'application (un compte de base de données en lecture seule limite l'impact même en cas d'injection réussie).
+
+---
+
+## À retenir
+
+- L'injection résulte du mélange entre code et donnée non fiable dans un même flux interprété.
+- Les requêtes préparées constituent la défense de référence contre l'injection SQL, structurellement plus robuste qu'un simple échappement.
+- Le principe de moindre privilège du compte applicatif limite l'impact même en cas de contournement des autres défenses.

@@ -1,0 +1,71 @@
+# Chapitre 4 — Cryptographie asymétrique : RSA, Diffie-Hellman, ECC
+
+### Cryptographie
+
+---
+
+## 1. Principe général
+
+Chaque partie dispose d'une paire de clés mathématiquement liées : une **clé publique**, diffusable librement, et une **clé privée**, gardée strictement secrète. Deux usages principaux : chiffrer avec la clé publique du destinataire (lui seul peut déchiffrer avec sa clé privée), ou signer avec sa propre clé privée (tout le monde peut vérifier avec la clé publique correspondante — chapitre 5).
+
+---
+
+## 2. Rappels d'arithmétique modulaire nécessaires
+
+- **Congruence modulo n** : `a ≡ b (mod n)` si `a` et `b` ont le même reste dans la division par `n`.
+- **Exponentiation modulaire** : `a^e mod n`, calculable efficacement par l'algorithme d'exponentiation rapide (« square and multiply »), sans jamais calculer `a^e` en entier.
+- **Petit théorème de Fermat / théorème d'Euler** : fondement de la construction de RSA.
+- **Inverse modulaire** : `d` tel que `e × d ≡ 1 (mod φ(n))`, calculable par l'algorithme d'Euclide étendu — c'est ainsi que la clé privée RSA est dérivée de la clé publique et des facteurs premiers.
+
+---
+
+## 3. RSA : construction
+
+1. Choisir deux grands nombres premiers distincts `p` et `q` ; calculer `n = p × q`.
+2. Calculer `φ(n) = (p-1)(q-1)` (indicatrice d'Euler).
+3. Choisir un exposant public `e` premier avec `φ(n)` (souvent 65537).
+4. Calculer l'exposant privé `d`, inverse modulaire de `e` modulo `φ(n)`.
+5. Clé publique : `(n, e)`. Clé privée : `(n, d)`.
+
+**Chiffrement** : `c = m^e mod n`. **Déchiffrement** : `m = c^d mod n`.
+
+La sécurité repose sur la difficulté de retrouver `d` (ou de factoriser `n`) sans connaître `p` et `q` (rappel : chapitre 5 du module *Cryptanalyse*).
+
+### Padding : une nécessité, pas une option
+
+RSA « brut » (sans padding) est déterministe et vulnérable à plusieurs attaques structurelles (cf. module Cryptanalyse). Les standards actuels imposent un schéma de padding : **OAEP** pour le chiffrement, **PSS** pour la signature (chapitre 5). Utiliser RSA sans padding correct est une erreur d'implémentation grave, quelle que soit la taille de clé.
+
+---
+
+## 4. Échange de clé Diffie-Hellman
+
+Permet à deux parties d'établir un secret partagé sur un canal public, sans jamais transmettre ce secret directement :
+
+1. Paramètres publics : un nombre premier `p` et un générateur `g`.
+2. Alice choisit un secret `a`, calcule et envoie `A = g^a mod p`.
+3. Bob choisit un secret `b`, calcule et envoie `B = g^b mod p`.
+4. Alice calcule `B^a mod p`, Bob calcule `A^b mod p` : les deux obtiennent la même valeur `g^(ab) mod p`, le secret partagé.
+
+Un observateur du canal voit `p`, `g`, `A` et `B`, mais retrouver `a` ou `b` (ou directement `g^(ab)`) requiert de résoudre le problème du logarithme discret, réputé difficile pour des paramètres suffisamment grands.
+
+**Limite importante** : Diffie-Hellman « pur » ne fournit aucune authentification — il est vulnérable à une attaque de l'homme du milieu (*man-in-the-middle*) si les parties ne vérifient pas par ailleurs l'identité de leur interlocuteur (rôle des certificats et signatures, chapitre 5).
+
+---
+
+## 5. Cryptographie sur courbes elliptiques (ECC)
+
+Remplace le groupe multiplicatif modulo `p` par le groupe des points d'une courbe elliptique définie sur un corps fini. Le problème équivalent au logarithme discret (ECDLP) y est considéré plus difficile à taille de clé égale, permettant des clés bien plus courtes pour un niveau de sécurité équivalent (rappel chapitre 5 du module *Cryptanalyse* : ECC 256 bits ≈ RSA 3072 bits). Courbes largement utilisées aujourd'hui : P-256 (NIST), Curve25519 (utilisée par X25519 pour l'échange de clé et Ed25519 pour la signature, chapitre 5).
+
+---
+
+## 6. Chiffrement hybride
+
+En pratique, la cryptographie asymétrique n'est presque jamais utilisée pour chiffrer directement de gros volumes de données (trop lente) : elle sert à établir ou transmettre une **clé de session**, ensuite utilisée avec un chiffrement symétrique rapide (AES-GCM). C'est le principe exact mis en œuvre par TLS (chapitre 6).
+
+---
+
+## À retenir
+
+- RSA repose sur la difficulté de factorisation ; Diffie-Hellman et ECC reposent sur la difficulté du logarithme discret (classique ou sur courbe elliptique).
+- Le padding (OAEP/PSS) n'est pas optionnel : RSA brut est vulnérable à des attaques structurelles connues.
+- Diffie-Hellman pur n'authentifie pas les parties ; il doit être combiné à un mécanisme d'authentification pour résister à une attaque de l'homme du milieu.

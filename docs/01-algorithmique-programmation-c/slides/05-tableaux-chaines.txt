@@ -1,0 +1,83 @@
+# Chapitre 5 — Tableaux et chaînes de caractères
+
+### Algorithmique et Programmation en C
+
+---
+
+## 1. Tableaux statiques
+
+```c
+int notes[5] = {12, 15, 8, 17, 10};
+int i;
+for (i = 0; i < 5; i++) {
+    printf("%d\n", notes[i]);
+}
+```
+
+En C, un tableau `notes[5]` occupe un bloc contigu de mémoire ; `notes[i]` est strictement équivalent à `*(notes + i)`. **Le C n'effectue aucune vérification de borne** : lire ou écrire `notes[5]` ou `notes[-1]` compile et s'exécute, en accédant à de la mémoire hors du tableau. C'est la cause première des débordements de tampon (*buffer overflow*), une des vulnérabilités logicielles les plus exploitées historiquement — approfondie dans *Sécurité des applications*.
+
+---
+
+## 2. Tableaux à deux dimensions
+
+```c
+int matrice[3][4];
+matrice[1][2] = 7;
+```
+
+Stockage en mémoire en *row-major order* : les éléments d'une même ligne sont contigus.
+
+---
+
+## 3. Chaînes de caractères
+
+En C, une chaîne est un tableau de `char` terminé par l'octet nul `'\0'`.
+
+```c
+char nom[20] = "Zakaria";
+printf("%s\n", nom);
+printf("Longueur : %zu\n", strlen(nom)); // 7, sans compter '\0'
+```
+
+### Fonctions de `string.h`
+
+| Fonction | Rôle | Risque |
+|---|---|---|
+| `strlen` | longueur d'une chaîne | boucle infinie si pas de `'\0'` |
+| `strcpy(dst, src)` | copie | **aucune vérification de taille** → débordement |
+| `strncpy(dst, src, n)` | copie bornée | ne garantit pas la terminaison par `'\0'` |
+| `strcat(dst, src)` | concaténation | même risque que `strcpy` |
+| `strcmp(a, b)` | comparaison lexicographique | — |
+| `snprintf` | formatage borné | alternative sûre recommandée |
+
+```c
+char buffer[10];
+strcpy(buffer, "Ceci dépasse dix caractères"); // comportement indéfini : écrase la mémoire adjacente
+```
+
+**Bonne pratique** : préférer systématiquement les variantes bornées (`snprintf`, `strncat` avec vérification manuelle du `'\0'` final) et vérifier la taille des buffers avant toute copie.
+
+---
+
+## 4. Tableaux de chaînes
+
+```c
+const char *jours[] = {"Lundi", "Mardi", "Mercredi"};
+printf("%s\n", jours[1]); // Mardi
+```
+
+---
+
+## 5. Parcours et algorithmes classiques
+
+- **Recherche** d'un élément (séquentielle, dichotomique sur tableau trié).
+- **Tri** : sélection, insertion, bulle (introduction aux algorithmes de tri, complétés par des algorithmes plus efficaces — tri rapide, tri fusion — en exercice de TP).
+- **Inversion** d'un tableau en place (technique des deux pointeurs, réutilisée en cryptographie pour l'endianness et le padding).
+
+---
+
+## À retenir
+
+- Un tableau C ne connaît pas sa propre taille à l'exécution : il faut la transmettre séparément.
+- Aucune vérification de borne : la responsabilité de la validité des indices incombe entièrement au programmeur.
+- Une chaîne C est un tableau de `char` + `'\0'` ; toute fonction qui manipule des chaînes sans vérifier les tailles est un point d'attention sécurité.

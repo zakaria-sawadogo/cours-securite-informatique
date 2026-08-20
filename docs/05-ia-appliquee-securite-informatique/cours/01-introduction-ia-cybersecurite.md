@@ -1,0 +1,43 @@
+# Chapitre 1 — Introduction : IA et cybersécurité, panorama
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=05-ia-appliquee-securite-informatique/slides/01-introduction-ia-cybersecurite.txt){ target=_blank }
+
+## 1. Pourquoi l'IA en cybersécurité ?
+
+Les volumes de données à surveiller (journaux, flux réseau, alertes) ont dépassé depuis longtemps la capacité d'analyse manuelle humaine. L'IA et le machine learning (ML) permettent d'automatiser la détection de schémas (patterns) suspects, de traiter des volumes massifs en temps quasi réel, et de détecter des menaces nouvelles (« zero-day ») que des règles de détection statiques (signatures) ne couvrent pas encore.
+
+## 2. Deux faces d'une même discipline
+
+- **IA défensive** : détection d'intrusions, de malwares, de phishing, priorisation d'alertes, automatisation de la réponse à incident (SOAR).
+- **IA comme surface d'attaque** : les systèmes d'IA eux-mêmes deviennent des cibles (empoisonnement de données d'entraînement, attaques adversariales, extraction de modèle).
+- **IA offensive** : usage de l'IA par les attaquants (génération de contenus de phishing convaincants, automatisation de la reconnaissance, génération de code malveillant).
+
+Ce module couvre les trois dimensions, avec un accent particulier sur la défense (chapitres 3 à 5) puis sur la sécurité de l'IA elle-même (chapitre 6).
+
+## 3. Cas d'usage défensifs courants
+
+| Cas d'usage | Type de tâche ML | Exemple |
+|---|---|---|
+| Détection d'intrusions réseau | classification supervisée / détection d'anomalies | identifier un trafic réseau anormal |
+| Détection de malwares | classification supervisée | classer un fichier binaire comme sain/malveillant |
+| Détection de phishing | classification de texte (NLP) | analyser le contenu d'un e-mail ou d'une URL |
+| Analyse comportementale des utilisateurs (UEBA) | détection d'anomalies | repérer un compte utilisateur au comportement inhabituel |
+| Priorisation d'alertes SOC | classification / scoring | réduire la fatigue d'alerte des analystes |
+
+## 4. Limites et illusions à éviter
+
+- **Le ML n'élimine pas le besoin d'expertise humaine** : un modèle mal conçu ou mal évalué produit des faux positifs (fatigue d'alerte) ou des faux négatifs (menaces non détectées) coûteux.
+- **Les données d'entraînement conditionnent tout** : un modèle entraîné sur un contexte donné (réseau, période) généralise mal à un contexte différent (concept drift).
+- **Explicabilité** : un modèle « boîte noire » (ex. réseau de neurones profond) est difficile à auditer et à justifier auprès d'un analyste ou d'un régulateur — un critère important dans le choix du modèle selon le contexte d'usage.
+- **L'IA n'est pas une solution miracle contre un attaquant déterminé** : un attaquant conscient qu'un système de détection utilise du ML peut chercher spécifiquement à le contourner (chapitre 6).
+
+## 5. Articulation avec les autres modules du programme
+
+Ce module s'appuie sur les notions de trafic réseau et de vulnérabilités vues en *Audit organisation et technique*, et prépare une lecture critique des outils de sécurité modernes (EDR, XDR, SIEM) qui intègrent aujourd'hui massivement des composants de ML.
+
+## À retenir
+
+- L'IA en cybersécurité recouvre trois dimensions : défense, sécurité de l'IA elle-même, et usage offensif par les attaquants.
+- Le ML complète mais ne remplace pas l'expertise humaine et les approches par signatures/règles.
+- La qualité et la représentativité des données d'entraînement sont le facteur déterminant de la performance réelle d'un système de détection basé ML.

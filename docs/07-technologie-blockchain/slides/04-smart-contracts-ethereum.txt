@@ -1,0 +1,75 @@
+# Chapitre 4 — Smart contracts et Ethereum
+
+### Technologie Blockchain
+
+---
+
+## 1. Qu'est-ce qu'un smart contract ?
+
+Un smart contract (« contrat intelligent ») est un programme informatique déployé sur une blockchain, dont le code et l'état s'exécutent de façon déterministe et vérifiable par l'ensemble des nœuds du réseau, sans possibilité de modification unilatérale une fois déployé (sauf mécanisme d'évolutivité explicitement prévu). Le terme « contrat » est trompeur au sens juridique : il s'agit avant tout d'un **programme auto-exécutable**, dont la portée juridique effective dépend du contexte réglementaire.
+
+---
+
+## 2. Ethereum : une blockchain programmable
+
+Ethereum (2015) a étendu le modèle de Bitcoin en introduisant une **machine virtuelle Turing-complète** (l'EVM — Ethereum Virtual Machine), permettant d'exécuter des programmes arbitrairement complexes sur la blockchain, et non plus seulement des transactions de transfert de valeur.
+
+### Notion de « gas »
+
+Chaque opération exécutée par l'EVM consomme du « gas », payé par l'émetteur de la transaction dans la cryptomonnaie native (Ether). Ce mécanisme a un double rôle : rémunérer les validateurs pour les ressources de calcul consommées, et **empêcher les boucles infinies ou les attaques par déni de service** (un programme épuise son budget de gas avant de pouvoir consommer des ressources indéfiniment — solution pratique au problème de l'arrêt appliqué à un contexte adversarial).
+
+---
+
+## 3. Langages et environnement de développement
+
+- **Solidity** : langage le plus utilisé pour écrire des smart contracts sur Ethereum, syntaxe proche du JavaScript/C++.
+- **Environnements de développement/test** : Remix (IDE en ligne), Hardhat, Foundry, permettant de développer, tester et déployer sur des réseaux de test avant tout déploiement sur le réseau principal.
+- **Réseaux de test (testnets)** : répliques du réseau principal utilisant une monnaie sans valeur réelle, indispensables pour tester un contrat avant déploiement (utilisés en TP3/TP4).
+
+---
+
+## 4. Exemple simplifié de structure d'un smart contract (Solidity)
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract CompteSimple {
+    mapping(address => uint256) public soldes;
+
+    function deposer() external payable {
+        soldes[msg.sender] += msg.value;
+    }
+
+    function retirer(uint256 montant) external {
+        require(soldes[msg.sender] >= montant, "Solde insuffisant");
+        soldes[msg.sender] -= montant;
+        payable(msg.sender).transfer(montant);
+    }
+}
+```
+
+Ce court exemple illustre déjà des notions clés : état persistant sur la blockchain (`mapping`), vérifications explicites (`require`), et manipulation de valeur (Ether) — et prépare directement le chapitre suivant sur la sécurité (l'ordre des opérations dans `retirer` a une importance de sécurité directe).
+
+---
+
+## 5. Cas d'usage des smart contracts
+
+- **Jetons (tokens)** : représentation d'actifs numériques selon des standards (ERC-20 pour des jetons fongibles, ERC-721 pour des jetons non fongibles/NFT).
+- **Finance décentralisée (DeFi)** : prêts, échanges décentralisés (DEX), sans intermédiaire financier traditionnel.
+- **Gouvernance décentralisée (DAO)** : votes et décisions automatisées selon des règles codées.
+- **Traçabilité** : suivi de chaîne logistique, certification de provenance.
+
+---
+
+## 6. Le problème de l'oracle
+
+Un smart contract, par conception, ne peut accéder qu'aux données déjà présentes sur la blockchain : il ne peut pas consulter directement une donnée du monde extérieur (cours d'une action, résultat sportif, météo). Un **oracle** est un service tiers chargé d'apporter cette donnée externe sur la blockchain. Ce point est une source de risque majeure : la sécurité de tout le smart contract dépend alors de la fiabilité de l'oracle utilisé, qui redevient un point de confiance centralisé, en tension avec l'objectif initial de décentralisation.
+
+---
+
+## À retenir
+
+- Un smart contract est un programme auto-exécutable, pas nécessairement un contrat juridique au sens classique.
+- Le mécanisme de gas rémunère l'exécution et empêche les boucles infinies, brique essentielle de la sécurité opérationnelle d'Ethereum.
+- Le problème de l'oracle rappelle qu'un smart contract ne résout la confiance que pour les données déjà présentes sur la chaîne, pas pour les données du monde réel qui y sont importées.

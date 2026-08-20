@@ -1,0 +1,75 @@
+# Chapitre 2 — Méthodologies d'analyse de risques
+
+!!! tip "Présentation de ce chapitre"
+    [🖥 Ouvrir les diapositives](../../presentation.html?deck=04-gouvernance-gestion-risques-si/slides/02-methodologies-analyse-risques.txt){ target=_blank }
+
+## 1. Vocabulaire de base de la gestion des risques
+
+| Terme | Définition |
+|---|---|
+| **Actif (asset)** | tout élément ayant de la valeur pour l'organisation (donnée, système, processus, image) |
+| **Menace** | événement potentiel pouvant porter atteinte à un actif (attaque, erreur humaine, panne, catastrophe naturelle) |
+| **Vulnérabilité** | faiblesse exploitable par une menace |
+| **Risque** | combinaison de la probabilité qu'une menace exploite une vulnérabilité et de l'impact qui en résulterait |
+| **Mesure de sécurité (contrôle)** | action réduisant la probabilité et/ou l'impact d'un risque |
+| **Risque résiduel** | risque subsistant après application des mesures de sécurité |
+
+Formule couramment utilisée pour qualifier un risque : **Risque = Probabilité × Impact** (souvent affinée par des échelles qualitatives à 3-5 niveaux plutôt qu'un calcul numérique naïf).
+
+## 2. EBIOS Risk Manager (méthode ANSSI)
+
+EBIOS RM structure l'analyse en cinq ateliers :
+
+1. **Cadrage et socle de sécurité** : périmètre de l'étude, missions et valeurs métier, événements redoutés, socle de mesures de sécurité déjà en place.
+2. **Sources de risque** : identification des sources de risque (attaquant opportuniste, concurrent, État, initié malveillant) et de leurs objectifs visés.
+3. **Scénarios stratégiques** : chemins d'attaque à haut niveau, cartographie de l'écosystème (fournisseurs, partenaires comme vecteurs indirects).
+4. **Scénarios opérationnels** : déroulé technique détaillé d'une attaque, mode opératoire probable.
+5. **Traitement du risque** : synthèse des risques, décision de traitement, plan d'action et suivi.
+
+EBIOS RM se distingue par son approche « par la menace » (partir des scénarios d'attaque plausibles) en complément d'une approche « par les actifs ».
+
+## 3. ISO/IEC 27005
+
+Norme internationale de référence pour la gestion des risques SSI, structurée en :
+
+1. Établissement du contexte (critères de risque, périmètre).
+2. Appréciation du risque (identification, analyse, évaluation).
+3. Traitement du risque.
+4. Acceptation du risque.
+5. Communication et concertation.
+6. Surveillance et revue.
+
+ISO 27005 est le référentiel généralement utilisé pour nourrir le processus de gestion des risques exigé par la clause 6 de l'ISO 27001, dans une logique de certification.
+
+## 4. NIST Risk Management Framework (RMF)
+
+Cadre en sept étapes (Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor), largement utilisé dans le secteur public américain et par des organisations internationales, avec une articulation forte entre catégorisation des systèmes (impact potentiel) et sélection de mesures de sécurité issues d'un catalogue (NIST SP 800-53).
+
+## 5. Comparaison synthétique
+
+| Critère | EBIOS RM | ISO 27005 | NIST RMF |
+|---|---|---|---|
+| Origine | France (ANSSI) | International (ISO) | États-Unis (NIST) |
+| Approche dominante | par la menace (scénarios d'attaque) | par les actifs et le contexte | par la catégorisation et un catalogue de contrôles |
+| Usage typique | administrations, OIV, grandes entreprises francophones | certification ISO 27001 | secteur public américain, sous-traitants fédéraux |
+
+Ces méthodes ne sont pas mutuellement exclusives : une organisation peut s'appuyer sur ISO 27005 pour son SMSI certifié tout en utilisant les ateliers EBIOS RM pour affiner l'analyse des scénarios d'attaque les plus critiques.
+
+## 6. Échelles d'évaluation
+
+Un exemple d'échelle qualitative simple à 4 niveaux, utilisable en TP :
+
+| Niveau | Probabilité | Impact |
+|---|---|---|
+| 1 | Rare | Négligeable |
+| 2 | Possible | Modéré |
+| 3 | Probable | Majeur |
+| 4 | Quasi certain | Critique (met en péril la continuité) |
+
+La combinaison probabilité × impact positionne chaque risque sur une **matrice de criticité**, outil central de priorisation (repris en TP2).
+
+## À retenir
+
+- Risque = fonction de la probabilité d'occurrence et de l'impact, jamais l'un sans l'autre.
+- EBIOS RM structure l'analyse « par la menace » en cinq ateliers ; ISO 27005 structure l'analyse « par le contexte et les actifs » en six étapes.
+- Le choix de la méthode dépend souvent du contexte réglementaire et sectoriel de l'organisation.
