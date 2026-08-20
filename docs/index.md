@@ -30,6 +30,7 @@ Dr. Zakaria Sawadogo enseigne la sécurité informatique à l'École Polytechniq
 - [Audit organisation et technique](02-audit-organisation-technique/index.md)
 - [Cryptanalyse](03-cryptanalyse/index.md)
 - [IA appliquée à la sécurité informatique](05-ia-appliquee-securite-informatique/index.md)
+- [Technologie Blockchain](07-technologie-blockchain/index.md)
 - Analyse de malwares et sécurisation des données
 - [Sécurité des applications](09-securite-des-applications/index.md) *(tronc commun)*
 - Service web *(tronc commun)*
