@@ -1,8 +1,17 @@
+<div class="hero" markdown>
+
 # Les Cours du Dr. Zakaria Sawadogo
 
 **Dr Zakaria Sawadogo** — École Polytechnique de Ouagadougou
 
 Support de cours, présentations (diapositives) et travaux pratiques des 9 matières enseignées, réunis sur un seul site.
+
+<span class="hero-actions">
+[:material-view-grid-outline: Parcourir les matières](#les-matieres){ .md-button .md-button--primary }
+[:fontawesome-brands-github: Voir le dépôt](https://github.com/zakaria-sawadogo/cours-securite-informatique){ .md-button }
+</span>
+
+</div>
 
 ## En un coup d'œil
 

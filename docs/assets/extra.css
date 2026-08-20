@@ -1,4 +1,102 @@
 /* ============================================================
+   Identité visuelle du site — palette de marque
+   ============================================================ */
+:root {
+  --md-primary-fg-color: #3538cd;
+  --md-primary-fg-color--light: #6c63ff;
+  --md-primary-fg-color--dark: #262aa0;
+  --md-accent-fg-color: #1fb6c9;
+  --brand-a: #3538cd;
+  --brand-b: #6c3ce9;
+  --brand-c: #1fb6c9;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #4b4fe0;
+  --md-accent-fg-color: #29d0e0;
+  --md-default-bg-color: #14162a;
+}
+
+/* ============================================================
+   Bandeau "hero" — page d'accueil
+   ============================================================ */
+.md-typeset .hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 2.8rem 2.4rem;
+  margin: 0 0 1.8rem;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.14), transparent 45%),
+    linear-gradient(135deg, var(--brand-a) 0%, var(--brand-b) 55%, var(--brand-c) 100%);
+  color: #fff;
+  box-shadow: 0 20px 45px -18px rgba(53, 56, 205, .5);
+}
+
+.md-typeset .hero h1 {
+  color: #fff;
+  font-size: 2.15rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.6rem;
+}
+
+.md-typeset .hero p { color: rgba(255,255,255,.92); margin: 0.3rem 0; }
+.md-typeset .hero strong { color: #fff; }
+
+.md-typeset .hero .hero-actions {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.md-typeset .hero .md-button {
+  border-radius: 999px;
+  font-size: 0.78rem;
+  padding: 0.55rem 1.2rem;
+}
+
+.md-typeset .hero .md-button--primary {
+  background: #fff;
+  color: var(--brand-a);
+  border: none;
+}
+
+.md-typeset .hero .md-button--primary:hover {
+  filter: brightness(0.96);
+  transform: translateY(-1px);
+}
+
+.md-typeset .hero .md-button:not(.md-button--primary) {
+  border-color: rgba(255,255,255,.55);
+  color: #fff;
+}
+
+.md-typeset .hero .md-button:not(.md-button--primary):hover {
+  background: rgba(255,255,255,.12);
+}
+
+/* ============================================================
+   Encart "Ouvrir les diapositives" (admonition tip) — recoloré
+   pour suivre l'identité de marque plutôt que le vert par défaut
+   ============================================================ */
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-color: var(--brand-c);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary {
+  background-color: rgba(31, 182, 201, 0.1);
+}
+
+.md-typeset .tip > .admonition-title::before,
+.md-typeset .tip > summary::before {
+  background-color: var(--brand-c);
+}
+
+/* ============================================================
    Cartes des matières — page d'accueil
    Design "smart" : accent coloré par carte, relief au survol,
    badges pour le volume horaire, bouton d'accès mis en valeur.

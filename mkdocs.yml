@@ -13,6 +13,9 @@ theme:
   icon:
     logo: material/shield-lock-outline
   favicon: assets/favicon.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
