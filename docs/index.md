@@ -165,8 +165,8 @@ Support de cours, présentations (diapositives) et travaux pratiques des 9 mati�
 
 ## Comment naviguer
 
-- La **barre d'onglets** en haut de page permet de passer directement d'une matière à l'autre, ou de revenir à l'accueil.
-- Dès qu'une matière est sélectionnée, le **panneau latéral** apparaît (cliquable, avec recherche) et liste : le syllabus, les chapitres de cours, les présentations et les TP.
+- Le **panneau latéral** (avec recherche) liste l'accueil et les 9 matières. Seule la matière que vous consultez déploie son détail — syllabus, chapitres de cours, présentations, TP — les autres restent repliées en une seule ligne, pour garder la navigation lisible.
+- Cliquer sur le nom d'une matière ouvre directement son **syllabus** ; le titre du site (en haut à gauche) ramène à tout moment à cet accueil.
 - Chaque **chapitre de cours** comporte un encart en tête de page pour ouvrir directement la présentation associée.
 - Les **énoncés de TP** font également office de travaux dirigés (aucune distinction TD/TP séparée dans ce programme : chaque séance combine exercices dirigés et manipulation pratique).
 
