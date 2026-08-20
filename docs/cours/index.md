@@ -2,12 +2,11 @@
 
 # Les cours
 
-Support de cours, présentations (diapositives) et travaux pratiques des 9 matières du programme, réunis sur un seul site.
+Support de cours, présentations (diapositives) et travaux pratiques des matières publiées en ligne, réunis sur un seul site.
 
 <span class="hero-actions">
 [:material-view-grid-outline: Parcourir les matières](#les-matieres){ .md-button .md-button--primary }
 [:material-download-outline: Téléchargements PDF](telechargements.md){ .md-button }
-[:fontawesome-brands-github: Voir le dépôt](https://github.com/zakaria-sawadogo/cours-securite-informatique){ .md-button }
 </span>
 
 </div>
@@ -179,20 +178,6 @@ Support de cours, présentations (diapositives) et travaux pratiques des 9 mati�
 - Les **énoncés de TP** font également office de travaux dirigés (aucune distinction TD/TP séparée dans ce programme : chaque séance combine exercices dirigés et manipulation pratique).
 
 Pour projeter une présentation en cours, ouvrez le lien de diapositives correspondant et utilisez les flèches du clavier ou la touche `F` pour le plein écran.
-
-## Structure du dépôt
-
-```
-NN-nom-de-la-matiere/
-├── index.md            # syllabus : objectifs, prérequis, plan de séances, évaluation, bibliographie
-├── cours/                # support de cours magistral (un fichier Markdown par chapitre)
-├── slides/                # sources des diapositives (.txt, Markdown reveal.js) + page d'index
-└── tp/                     # énoncés de travaux pratiques / dirigés (un fichier par séance)
-```
-
-`presentation.html`, à la racine du site, est le visualiseur de diapositives (reveal.js) commun à toutes les matières.
-
-Pour les modalités de développement local, de mise à jour du contenu et de publication du site, voir le [README](https://github.com/zakaria-sawadogo/cours-securite-informatique#readme) du dépôt.
 
 ---
 

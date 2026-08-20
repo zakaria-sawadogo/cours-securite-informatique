@@ -2,8 +2,6 @@ site_name: "Les Cours du Dr. Zakaria Sawadogo"
 site_description: "Support de cours, présentations et travaux pratiques — Dr Zakaria Sawadogo, École Polytechnique de Ouagadougou"
 site_author: "Dr Zakaria Sawadogo"
 site_url: "https://zakaria-sawadogo.github.io/cours-securite-informatique/"
-repo_url: "https://github.com/zakaria-sawadogo/cours-securite-informatique"
-repo_name: "cours-securite-informatique"
 docs_dir: docs
 use_directory_urls: false
 
@@ -49,9 +47,6 @@ extra_css:
   - assets/extra.css
 
 extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/zakaria-sawadogo
   generator: false
 
 markdown_extensions:
