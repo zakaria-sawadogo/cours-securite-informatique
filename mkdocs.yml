@@ -8,8 +8,8 @@ use_directory_urls: false
 theme:
   name: material
   language: fr
-  logo: assets/img/epo-emblem.png
-  favicon: assets/img/epo-favicon.png
+  logo: assets/img/epo-emblem-v2.png
+  favicon: assets/img/epo-favicon-v2.png
   font:
     text: Inter
     code: JetBrains Mono
@@ -43,7 +43,7 @@ theme:
     - content.tabs.link
 
 extra_css:
-  - assets/extra.css
+  - assets/extra.css?v=2
 
 extra:
   generator: false

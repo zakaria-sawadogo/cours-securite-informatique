@@ -21,8 +21,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "1. Algorithmique et Programmation en C",
       hash: "d05364c46571ff941e0cbbadb19c8b10855216c2e5957036d073ce0e05f7aaf4",
       files: [
-        ["Support de cours complet", "01-algorithmique-programmation-c-cours-complet.pdf", "722 Ko"],
-        ["Diapositives complètes", "01-algorithmique-programmation-c-diapositives.pdf", "722 Ko"]
+        ["Support de cours complet", "01-algorithmique-programmation-c-cours-complet.pdf", "706 Ko"],
+        ["Diapositives complètes", "01-algorithmique-programmation-c-diapositives.pdf", "706 Ko"]
       ]
     },
     {
@@ -30,8 +30,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "2. Audit organisation et technique",
       hash: "fca78b23d79fb6f9049239d00123171d9e0d298634c6636959fa76511e929eb9",
       files: [
-        ["Support de cours complet", "02-audit-organisation-technique-cours-complet.pdf", "646 Ko"],
-        ["Diapositives complètes", "02-audit-organisation-technique-diapositives.pdf", "505 Ko"]
+        ["Support de cours complet", "02-audit-organisation-technique-cours-complet.pdf", "630 Ko"],
+        ["Diapositives complètes", "02-audit-organisation-technique-diapositives.pdf", "489 Ko"]
       ]
     },
     {
@@ -39,8 +39,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "3. Cryptanalyse",
       hash: "fffb6c1dcdd8ee9c9b570c02b837946d9d3994075af6ffa234b3f44e8b87312f",
       files: [
-        ["Support de cours complet", "03-cryptanalyse-cours-complet.pdf", "555 Ko"],
-        ["Diapositives complètes", "03-cryptanalyse-diapositives.pdf", "499 Ko"]
+        ["Support de cours complet", "03-cryptanalyse-cours-complet.pdf", "539 Ko"],
+        ["Diapositives complètes", "03-cryptanalyse-diapositives.pdf", "483 Ko"]
       ]
     },
     {
@@ -48,8 +48,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "4. Gouvernance et gestion des risques SI",
       hash: "60263d76c4f953a94f45f2ceff2854f3706fe42c77c87eaeb53524786ef0b79a",
       files: [
-        ["Support de cours complet", "04-gouvernance-gestion-risques-si-cours-complet.pdf", "479 Ko"],
-        ["Diapositives complètes", "04-gouvernance-gestion-risques-si-diapositives.pdf", "404 Ko"]
+        ["Support de cours complet", "04-gouvernance-gestion-risques-si-cours-complet.pdf", "463 Ko"],
+        ["Diapositives complètes", "04-gouvernance-gestion-risques-si-diapositives.pdf", "388 Ko"]
       ]
     },
     {
@@ -57,8 +57,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "5. IA appliquée à la sécurité informatique",
       hash: "911a25f06f12e4e350b3c935635d8d3eff1e0bd16d395b472345738dd5654edd",
       files: [
-        ["Support de cours complet", "05-ia-appliquee-securite-informatique-cours-complet.pdf", "613 Ko"],
-        ["Diapositives complètes", "05-ia-appliquee-securite-informatique-diapositives.pdf", "463 Ko"]
+        ["Support de cours complet", "05-ia-appliquee-securite-informatique-cours-complet.pdf", "596 Ko"],
+        ["Diapositives complètes", "05-ia-appliquee-securite-informatique-diapositives.pdf", "447 Ko"]
       ]
     },
     {
@@ -66,8 +66,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "6. Cryptographie",
       hash: "1baddba504d8a08dbb0e4b9c1bf5d509e0e315d487296627242f207c4fc8f32f",
       files: [
-        ["Support de cours complet", "06-cryptographie-cours-complet.pdf", "620 Ko"],
-        ["Diapositives complètes", "06-cryptographie-diapositives.pdf", "536 Ko"]
+        ["Support de cours complet", "06-cryptographie-cours-complet.pdf", "604 Ko"],
+        ["Diapositives complètes", "06-cryptographie-diapositives.pdf", "520 Ko"]
       ]
     },
     {
@@ -75,8 +75,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "7. Technologie Blockchain",
       hash: "26fdd16166ac510a1813c8a112b93c493c42b2a0ae3dc059c23da604d7e27b1a",
       files: [
-        ["Support de cours complet", "07-technologie-blockchain-cours-complet.pdf", "605 Ko"],
-        ["Diapositives complètes", "07-technologie-blockchain-diapositives.pdf", "488 Ko"]
+        ["Support de cours complet", "07-technologie-blockchain-cours-complet.pdf", "588 Ko"],
+        ["Diapositives complètes", "07-technologie-blockchain-diapositives.pdf", "472 Ko"]
       ]
     },
     {
@@ -84,8 +84,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "8. Security by design",
       hash: "d2b05b96f4b14fb34affec417180c9e1db17550acc1d522af5dc8c099e5cb831",
       files: [
-        ["Support de cours complet", "08-security-by-design-cours-complet.pdf", "513 Ko"],
-        ["Diapositives complètes", "08-security-by-design-diapositives.pdf", "479 Ko"]
+        ["Support de cours complet", "08-security-by-design-cours-complet.pdf", "497 Ko"],
+        ["Diapositives complètes", "08-security-by-design-diapositives.pdf", "463 Ko"]
       ]
     },
     {
@@ -93,8 +93,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "9. Sécurité des applications",
       hash: "4640c1f7d87fc01f065b502194b5330be0fd59f97b1ac9a549f8d6b5be581eb8",
       files: [
-        ["Support de cours complet", "09-securite-des-applications-cours-complet.pdf", "610 Ko"],
-        ["Diapositives complètes", "09-securite-des-applications-diapositives.pdf", "515 Ko"]
+        ["Support de cours complet", "09-securite-des-applications-cours-complet.pdf", "594 Ko"],
+        ["Diapositives complètes", "09-securite-des-applications-diapositives.pdf", "499 Ko"]
       ]
     },
     {
@@ -102,8 +102,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "10. Service web",
       hash: "5b75a08b72dc9ceb961f202695c02ba04370c897eddeddb5fdf4854c3c0e1998",
       files: [
-        ["Support de cours complet", "10-service-web-cours-complet.pdf", "556 Ko"],
-        ["Diapositives complètes", "10-service-web-diapositives.pdf", "544 Ko"]
+        ["Support de cours complet", "10-service-web-cours-complet.pdf", "540 Ko"],
+        ["Diapositives complètes", "10-service-web-diapositives.pdf", "528 Ko"]
       ]
     },
     {
@@ -111,8 +111,8 @@ Support de cours complet et diapositives complètes, en PDF, pour chaque matièr
       title: "11. Analyse de malwares et sécurisation des données",
       hash: "c194b621f8e14ca0b2bcd0a23a23bd34269b65955195214f4a270fcf199c16d9",
       files: [
-        ["Support de cours complet", "11-analyse-malwares-securisation-donnees-cours-complet.pdf", "495 Ko"],
-        ["Diapositives complètes", "11-analyse-malwares-securisation-donnees-diapositives.pdf", "501 Ko"]
+        ["Support de cours complet", "11-analyse-malwares-securisation-donnees-cours-complet.pdf", "479 Ko"],
+        ["Diapositives complètes", "11-analyse-malwares-securisation-donnees-diapositives.pdf", "485 Ko"]
       ]
     }
   ];
