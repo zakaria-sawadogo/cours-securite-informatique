@@ -1,0 +1,5682 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Support de cours, présentations et travaux pratiques — Dr Zakaria Sawadogo, École Polytechnique de Ouagadougou">
+      
+      
+        <meta name="author" content="Dr Zakaria Sawadogo">
+      
+      
+        <link rel="canonical" href="https://zakaria-sawadogo.github.io/cours-securite-informatique/07-technologie-blockchain/cours/02-structures-donnees-merkle.html">
+      
+      
+        <link rel="prev" href="01-introduction-principes-blockchain.html">
+      
+      
+        <link rel="next" href="03-mecanismes-consensus.html">
+      
+      
+      <link rel="icon" href="../../assets/img/epo-favicon-v2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>2. Structures de données : chaînage cryptographique et arbres de Merkle - Les Cours du Dr. Zakaria Sawadogo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css?v=2">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapitre-2-structures-de-donnees-chainage-cryptographique-et-arbres-de-merkle" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../../index.html" title="Les Cours du Dr. Zakaria Sawadogo" class="md-header__button md-logo" aria-label="Les Cours du Dr. Zakaria Sawadogo" data-md-component="logo">
+      
+  <img src="../../assets/img/epo-emblem-v2.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Les Cours du Dr. Zakaria Sawadogo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2. Structures de données : chaînage cryptographique et arbres de Merkle
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="amber"  aria-label="Passer en mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Passer en mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="green" data-md-color-accent="amber"  aria-label="Passer en mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Passer en mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.html" class="md-tabs__link">
+        
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../cours/index.html" class="md-tabs__link">
+          
+  
+    
+  
+  Cours
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Les Cours du Dr. Zakaria Sawadogo" class="md-nav__button md-logo" aria-label="Les Cours du Dr. Zakaria Sawadogo" data-md-component="logo">
+      
+  <img src="../../assets/img/epo-emblem-v2.png" alt="logo">
+
+    </a>
+    Les Cours du Dr. Zakaria Sawadogo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Accueil
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../cours/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cours/telechargements.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Téléchargements
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../01-algorithmique-programmation-c/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    1. Algorithmique et Programmation en C
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            1. Algorithmique et Programmation en C
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_2" id="__nav_2_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/01-introduction-algorithmique-et-c.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à l'algorithmique et au langage C
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/02-variables-types-operateurs-es.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Variables, types, opérateurs et entrées-sorties
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/03-structures-de-controle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Structures de contrôle
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/04-fonctions-portee.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Fonctions et portée des variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/05-tableaux-chaines.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Tableaux et chaînes de caractères
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/06-pointeurs-memoire.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Pointeurs et gestion mémoire
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/07-structures-fichiers.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    7. Structures (`struct`) et fichiers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_4" id="__nav_2_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp1-prise-en-main.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Prise en main : compilation et premiers programmes (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp2-structures-controle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Structures de contrôle (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp3-fonctions.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Fonctions (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp4-tableaux.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Tableaux (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp5-chaines.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP5 — Chaînes de caractères (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp6-pointeurs.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP6 — Pointeurs et allocation dynamique (3h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp7-mini-projet.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP7 — Mini-projet : gestionnaire de contacts (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../02-audit-organisation-technique/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    2. Audit organisation et technique
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            2. Audit organisation et technique
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4_2" id="__nav_2_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/01-introduction-audit-securite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à l'audit de sécurité
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/02-audit-organisationnel-referentiels.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Audit organisationnel : normes et référentiels
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/03-audit-technique-methodologie.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Audit technique : méthodologie des tests d'intrusion
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/04-audit-infrastructures.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Audit des infrastructures réseau et systèmes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/05-audit-applications.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Audit des applications et du code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/06-rapport-audit-remediation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Rapport d'audit et plan de remédiation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4_4" id="__nav_2_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp1-audit-organisationnel.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Audit organisationnel sur cas d'étude (ISO 27001) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp2-reconnaissance-scan.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Reconnaissance et scan réseau (Nmap) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp3-pentest-applicatif.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Test d'intrusion applicatif (OWASP Top 10) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp4-rapport-audit.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Rédaction d'un rapport d'audit complet (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../03-cryptanalyse/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    3. Cryptanalyse
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_5" id="__nav_2_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            3. Cryptanalyse
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_5_2" id="__nav_2_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/01-introduction-cryptanalyse.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à la cryptanalyse : histoire et classification des attaques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/02-cryptanalyse-chiffrements-classiques.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Cryptanalyse des chiffrements classiques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/03-cryptanalyse-symetrique-moderne.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Cryptanalyse des chiffrements symétriques modernes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/04-attaques-fonctions-hachage.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Attaques sur les fonctions de hachage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/05-cryptanalyse-asymetrique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Cryptanalyse des systèmes asymétriques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/06-attaques-canaux-auxiliaires.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Attaques par canaux auxiliaires et attaques pratiques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_5_4" id="__nav_2_5_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp1-analyse-frequentielle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Cryptanalyse par analyse fréquentielle (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp2-attaques-hachage.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Attaques par force brute et dictionnaire sur hachages (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp3-ecb-padding-oracle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Attaque sur le mode ECB et padding oracle (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp4-cryptanalyse-rsa.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Cryptanalyse de RSA mal implémenté (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../04-gouvernance-gestion-risques-si/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    4. Gouvernance et gestion des risques SI
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_6" id="__nav_2_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            4. Gouvernance et gestion des risques SI
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_6_2" id="__nav_2_6_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/01-introduction-gouvernance-si.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à la gouvernance de la sécurité de l'information
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/02-methodologies-analyse-risques.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Méthodologies d'analyse de risques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/03-traitement-risque-pssi-pca.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Traitement du risque, PSSI et continuité d'activité
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/04-pilotage-indicateurs-conformite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Pilotage, indicateurs et conformité réglementaire
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_6_4" id="__nav_2_6_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp1-cartographie-actifs.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Cartographie des actifs et identification des menaces (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp2-analyse-risque-ebios.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Analyse de risque EBIOS RM sur cas d'étude (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp3-elaboration-pssi.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Élaboration d'une politique de sécurité (PSSI) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp4-tableau-bord-ssi.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Construction d'un tableau de bord SSI (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../05-ia-appliquee-securite-informatique/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    5. IA appliquée à la sécurité informatique
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_7" id="__nav_2_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_7">
+            <span class="md-nav__icon md-icon"></span>
+            5. IA appliquée à la sécurité informatique
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_7_2" id="__nav_2_7_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_7_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_7_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/01-introduction-ia-cybersecurite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction : IA et cybersécurité, panorama
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/02-rappels-machine-learning.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Rappels de machine learning
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/03-detection-anomalies-intrusions.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Détection d'anomalies et d'intrusions par ML
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/04-detection-malwares-ml.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Détection de malwares par machine learning
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/05-nlp-securite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. NLP appliqué à la sécurité (phishing, analyse de logs)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/06-securite-de-lia.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Sécurité de l'IA : attaques adversariales et IA offensive
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_7_4" id="__nav_2_7_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_7_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_7_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp1-classification-trafic-reseau.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Classification de trafic réseau (NSL-KDD) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp2-detection-anomalies.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Détection d'anomalies non supervisée (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp3-detection-phishing-nlp.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Détection de phishing par NLP (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp4-attaque-adversariale.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Attaque adversariale sur un classifieur (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../06-cryptographie/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    6. Cryptographie
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_8" id="__nav_2_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_8">
+            <span class="md-nav__icon md-icon"></span>
+            6. Cryptographie
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_8_2" id="__nav_2_8_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/01-introduction-principes-fondamentaux.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction et principes fondamentaux
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/02-cryptographie-symetrique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Cryptographie symétrique : chiffrement par bloc et par flux
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/03-hachage-mac-hmac.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Fonctions de hachage et authentification de message (MAC/HMAC)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/04-cryptographie-asymetrique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Cryptographie asymétrique : RSA, Diffie-Hellman, ECC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/05-signatures-pki.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Signatures numériques et infrastructures à clés publiques (PKI)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/06-protocoles-appliques-tls-pqc.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Protocoles appliqués : TLS et cryptographie post-quantique
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_8_4" id="__nav_2_8_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_8_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp1-chiffrement-symetrique-openssl.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Chiffrement symétrique avec OpenSSL (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp2-hachage-hmac-integrite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Hachage, HMAC et intégrité de fichiers (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp3-rsa-cles-signature.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — RSA : génération de clés, chiffrement et signature (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp4-analyse-tls-certificats.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Analyse d'une négociation TLS et des certificats (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    7. Technologie Blockchain
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_9" id="__nav_2_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_9">
+            <span class="md-nav__icon md-icon"></span>
+            7. Technologie Blockchain
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_9_2" id="__nav_2_9_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_9_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_9_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="01-introduction-principes-blockchain.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction : principes fondamentaux de la blockchain
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    2. Structures de données : chaînage cryptographique et arbres de Merkle
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="02-structures-donnees-merkle.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    2. Structures de données : chaînage cryptographique et arbres de Merkle
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Sur cette page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Sur cette page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-le-chainage-cryptographique-des-blocs" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Le chaînage cryptographique des blocs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Le chaînage cryptographique des blocs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#illustration-pedagogique-du-chainage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Illustration pédagogique du chaînage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-arbre-de-merkle" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Arbre de Merkle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Arbre de Merkle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemple-pedagogique-de-construction-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemple pédagogique de construction (Python)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preuve-de-merkle-merkle-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preuve de Merkle (Merkle proof)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemple-pedagogique-de-verification-dune-preuve" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemple pédagogique de vérification d'une preuve
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-pourquoi-cette-double-structure-chaine-de-blocs-arbre-par-bloc" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Pourquoi cette double structure (chaîne de blocs + arbre par bloc) ?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Pourquoi cette double structure (chaîne de blocs + arbre par bloc) ?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proprietes-cryptographiques-requises-de-la-fonction-de-hachage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Propriétés cryptographiques requises de la fonction de hachage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-identifiants-et-adresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Identifiants et adresses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Identifiants et adresses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modele-utxo-contre-modele-de-compte" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modèle UTXO contre modèle de compte
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-variantes-et-structures-alternatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Variantes et structures alternatives
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Variantes et structures alternatives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limites-de-la-structure-de-merkle-simple" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limites de la structure de Merkle simple
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-retenir" class="md-nav__link">
+    <span class="md-ellipsis">
+      À retenir
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-mecanismes-consensus.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Mécanismes de consensus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-smart-contracts-ethereum.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Smart contracts et Ethereum
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-securite-smart-contracts.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Sécurité et vulnérabilités des smart contracts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-applications-enjeux-limites.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Applications, enjeux et limites
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_9_4" id="__nav_2_9_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_9_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_9_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp1-mini-blockchain-python.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Implémentation d'une mini-blockchain en Python (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp2-simulation-consensus-pow.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Simulation d'un consensus par preuve de travail (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp3-smart-contract-solidity.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Développement d'un smart contract simple (Solidity) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp4-audit-smart-contract.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Audit de vulnérabilités d'un smart contract (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_10" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../08-security-by-design/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    8. Security by design
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_10" id="__nav_2_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_10">
+            <span class="md-nav__icon md-icon"></span>
+            8. Security by design
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_10_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_10_2" id="__nav_2_10_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_10_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_10_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/01-introduction-security-by-design.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction : principes de security by design et privacy by design
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/02-modelisation-menaces.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Modélisation des menaces (threat modeling)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/03-principes-conception-securisee.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Principes de conception sécurisée
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/04-architecture-securisee-zero-trust.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Architecture sécurisée : segmentation et zero trust
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/05-cycle-developpement-securise-devsecops.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Cycle de développement sécurisé (DevSecOps)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/06-privacy-by-design.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Privacy by design
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_10_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_10_4" id="__nav_2_10_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_10_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_10_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp1-threat-modeling-stride.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Threat modeling STRIDE sur une application (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp2-principes-conception-securisee.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Application des principes de conception sécurisée (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp3-architecture-zero-trust.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Conception d'une architecture zero trust (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp4-devsecops-cicd.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Intégration de contrôles de sécurité en CI/CD (DevSecOps) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../09-securite-des-applications/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    9. Sécurité des applications
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            9. Sécurité des applications
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11_2" id="__nav_2_11_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_11_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/01-introduction-owasp-top10.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction et panorama OWASP Top 10
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/02-vulnerabilites-injection.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Vulnérabilités d'injection
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/03-authentification-gestion-sessions.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Authentification et gestion de sessions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/04-vulnerabilites-cote-client.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Vulnérabilités côté client : XSS, CSRF, clickjacking
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/05-vulnerabilites-memoire-exploitation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Vulnérabilités mémoire bas niveau et exploitation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/06-securisation-api-bonnes-pratiques.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Sécurisation des API et bonnes pratiques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11_4" id="__nav_2_11_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_11_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp1-injection-sql.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Injection SQL et contre-mesures (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp2-xss-csrf.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — XSS et CSRF sur application vulnérable (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp3-buffer-overflow-c.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Exploitation contrôlée d'un buffer overflow en C (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp4-securisation-api-rest.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Sécurisation d'une API REST (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_12" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../10-service-web/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    10. Service web
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_12" id="__nav_2_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            10. Service web
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_12_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_12_2" id="__nav_2_12_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_12_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/01-introduction-services-web-http.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction aux services web et au protocole HTTP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/02-architecture-rest-conception-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Architecture REST et conception d'API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/03-formats-echange-json-xml-soap.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Formats d'échange : JSON, XML et SOAP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/04-authentification-autorisation-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Authentification et autorisation des services web
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/05-documentation-test-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Documentation et test des API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/06-architectures-orientees-services-microservices.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Architectures orientées services et microservices
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_12_4" id="__nav_2_12_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp1-decouverte-http-api-rest.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Découverte du protocole HTTP et d'une API REST (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp2-conception-implementation-api-rest.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Conception et implémentation d'une API REST (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp3-authentification-jwt-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Authentification par JWT d'une API (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp4-documentation-tests-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Documentation et tests automatisés d'une API (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_13" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../11-analyse-malwares-securisation-donnees/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    11. Analyse de malwares et sécurisation des données
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_13" id="__nav_2_13_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13">
+            <span class="md-nav__icon md-icon"></span>
+            11. Analyse de malwares et sécurisation des données
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_13_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_13_2" id="__nav_2_13_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_13_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/01-introduction-taxonomie-malwares.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à l'analyse de malwares : taxonomie et cycle de vie
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/02-analyse-statique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Analyse statique de malwares
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/03-analyse-dynamique-sandboxing.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Analyse dynamique et sandboxing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/04-retro-ingenierie-base.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Techniques de rétro-ingénierie de base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/05-detection-reponse.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Détection et réponse
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/06-securisation-donnees.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Sécurisation des données
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_13_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_13_4" id="__nav_2_13_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_13_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp1-identification-taxonomie-echantillons.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Identification et taxonomie d'échantillons pédagogiques (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp2-analyse-statique-outils.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Analyse statique avec des outils standards (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp3-sandbox-analyse-comportementale.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Sandbox et analyse comportementale (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp4-chiffrement-classification-donnees.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Chiffrement et classification des données (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Sur cette page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Sur cette page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-le-chainage-cryptographique-des-blocs" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Le chaînage cryptographique des blocs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Le chaînage cryptographique des blocs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#illustration-pedagogique-du-chainage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Illustration pédagogique du chaînage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-arbre-de-merkle" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Arbre de Merkle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Arbre de Merkle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemple-pedagogique-de-construction-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemple pédagogique de construction (Python)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preuve-de-merkle-merkle-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preuve de Merkle (Merkle proof)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exemple-pedagogique-de-verification-dune-preuve" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemple pédagogique de vérification d'une preuve
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-pourquoi-cette-double-structure-chaine-de-blocs-arbre-par-bloc" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Pourquoi cette double structure (chaîne de blocs + arbre par bloc) ?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Pourquoi cette double structure (chaîne de blocs + arbre par bloc) ?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proprietes-cryptographiques-requises-de-la-fonction-de-hachage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Propriétés cryptographiques requises de la fonction de hachage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-identifiants-et-adresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Identifiants et adresses
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Identifiants et adresses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modele-utxo-contre-modele-de-compte" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modèle UTXO contre modèle de compte
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-variantes-et-structures-alternatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Variantes et structures alternatives
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Variantes et structures alternatives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limites-de-la-structure-de-merkle-simple" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limites de la structure de Merkle simple
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-retenir" class="md-nav__link">
+    <span class="md-ellipsis">
+      À retenir
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="chapitre-2-structures-de-donnees-chainage-cryptographique-et-arbres-de-merkle">Chapitre 2 — Structures de données : chaînage cryptographique et arbres de Merkle<a class="headerlink" href="#chapitre-2-structures-de-donnees-chainage-cryptographique-et-arbres-de-merkle" title="Permanent link">&para;</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Présentation de ce chapitre</p>
+<p><a href="../../presentation.html?deck=07-technologie-blockchain/slides/02-structures-donnees-merkle.txt" target="_blank">🖥 Ouvrir les diapositives</a></p>
+</div>
+<h2 id="1-le-chainage-cryptographique-des-blocs">1. Le chaînage cryptographique des blocs<a class="headerlink" href="#1-le-chainage-cryptographique-des-blocs" title="Permanent link">&para;</a></h2>
+<p>Chaque bloc contient, dans son en-tête, l'<strong>empreinte de hachage du bloc précédent</strong>. Cette construction crée une dépendance en cascade : modifier le contenu d'un bloc ancien change son empreinte, ce qui invalide l'empreinte enregistrée dans le bloc suivant, et ainsi de suite jusqu'au sommet de la chaîne. Un attaquant souhaitant altérer un bloc ancien devrait donc recalculer (et, selon le mécanisme de consensus, refaire valider) tous les blocs suivants plus rapidement que le reste du réseau honnête — d'où le terme d'immutabilité « pratique » plutôt qu'absolue, et la recommandation d'attendre un nombre suffisant de confirmations avant de considérer une transaction comme définitive.</p>
+<h3 id="illustration-pedagogique-du-chainage">Illustration pédagogique du chaînage<a class="headerlink" href="#illustration-pedagogique-du-chainage" title="Permanent link">&para;</a></h3>
+<p>Le fragment Python suivant (purement pédagogique, très simplifié par rapport à une implémentation réelle) illustre le principe du chaînage sur une liste de blocs minimalistes, afin de rendre concrète l'idée de « dépendance en cascade » :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">hashlib</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">def</span> <span class="nf">empreinte</span><span class="p">(</span><span class="n">bloc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Calcule l&#39;empreinte d&#39;un bloc à partir de ses champs (exemple pédagogique).&quot;&quot;&quot;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">contenu</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bloc</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">bloc</span><span class="p">[</span><span class="s1">&#39;precedent&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">bloc</span><span class="p">[</span><span class="s1">&#39;donnees&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">bloc</span><span class="p">[</span><span class="s1">&#39;nonce&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">contenu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># Construction d&#39;une mini-chaîne de 3 blocs</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">genese</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;precedent&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;donnees&quot;</span><span class="p">:</span> <span class="s2">&quot;bloc genese&quot;</span><span class="p">,</span> <span class="s2">&quot;nonce&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">genese</span><span class="p">[</span><span class="s2">&quot;empreinte&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">empreinte</span><span class="p">(</span><span class="n">genese</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">bloc1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;precedent&quot;</span><span class="p">:</span> <span class="n">genese</span><span class="p">[</span><span class="s2">&quot;empreinte&quot;</span><span class="p">],</span> <span class="s2">&quot;donnees&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice paie Bob&quot;</span><span class="p">,</span> <span class="s2">&quot;nonce&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">bloc1</span><span class="p">[</span><span class="s2">&quot;empreinte&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">empreinte</span><span class="p">(</span><span class="n">bloc1</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">bloc2</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;precedent&quot;</span><span class="p">:</span> <span class="n">bloc1</span><span class="p">[</span><span class="s2">&quot;empreinte&quot;</span><span class="p">],</span> <span class="s2">&quot;donnees&quot;</span><span class="p">:</span> <span class="s2">&quot;Bob paie Chloé&quot;</span><span class="p">,</span> <span class="s2">&quot;nonce&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">bloc2</span><span class="p">[</span><span class="s2">&quot;empreinte&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">empreinte</span><span class="p">(</span><span class="n">bloc2</span><span class="p">)</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># Si l&#39;on modifie les données du bloc1 après coup...</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="n">bloc1</span><span class="p">[</span><span class="s2">&quot;donnees&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Alice paie Eve&quot;</span>        <span class="c1"># falsification tentée</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># ...son empreinte change, ce qui invalide le champ &quot;precedent&quot; enregistré dans bloc2 :</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="k">assert</span> <span class="n">empreinte</span><span class="p">(</span><span class="n">bloc1</span><span class="p">)</span> <span class="o">!=</span> <span class="n">bloc1</span><span class="p">[</span><span class="s2">&quot;empreinte&quot;</span><span class="p">]</span>     <span class="c1"># l&#39;empreinte stockée ne correspond plus au contenu</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="k">assert</span> <span class="n">bloc2</span><span class="p">[</span><span class="s2">&quot;precedent&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">empreinte</span><span class="p">(</span><span class="n">bloc1</span><span class="p">)</span>     <span class="c1"># la cascade de rupture se propage vers l&#39;avant</span>
+</code></pre></div>
+<p>Cet exemple simplifié omet volontairement l'arbre de Merkle (une seule donnée par bloc) et le mécanisme de consensus (le <code>nonce</code> n'est pas ajusté pour satisfaire une difficulté) : il vise uniquement à rendre visible, en quelques lignes, la propriété de dépendance en cascade au cœur de l'immutabilité pratique.</p>
+<h2 id="2-arbre-de-merkle">2. Arbre de Merkle<a class="headerlink" href="#2-arbre-de-merkle" title="Permanent link">&para;</a></h2>
+<p>Un arbre de Merkle organise un ensemble de données (les transactions d'un bloc) de façon à pouvoir résumer l'ensemble par une seule empreinte (la <strong>racine de Merkle</strong>) tout en permettant de prouver efficacement qu'une donnée particulière fait bien partie de l'ensemble, sans avoir à transmettre l'ensemble complet.</p>
+<h3 id="construction">Construction<a class="headerlink" href="#construction" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Chaque transaction est hachée individuellement (feuilles de l'arbre).</li>
+<li>Les empreintes sont regroupées deux par deux et hachées ensemble pour former le niveau supérieur.</li>
+<li>Ce processus est répété jusqu'à obtenir une seule empreinte : la racine de Merkle, stockée dans l'en-tête du bloc.</li>
+</ol>
+<p>Lorsque le nombre de feuilles à un niveau donné est impair, une convention doit être adoptée pour former les paires (par exemple dupliquer la dernière feuille) ; ce détail d'implémentation, anodin en apparence, a par le passé été source de subtilités de sécurité dans certaines implémentations réelles (risque de confusion entre deux ensembles de transactions différents produisant, par construction naïve, la même racine) — une illustration du principe général selon lequel les détails d'implémentation d'une primitive cryptographique ont une importance de sécurité directe, et non purement cosmétique.</p>
+<h3 id="exemple-pedagogique-de-construction-python">Exemple pédagogique de construction (Python)<a class="headerlink" href="#exemple-pedagogique-de-construction-python" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span> <span class="nn">hashlib</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">def</span> <span class="nf">racine_merkle</span><span class="p">(</span><span class="n">transactions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Construit itérativement la racine de Merkle d&#39;une liste de transactions</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">    (implémentation pédagogique, sans les optimisations d&#39;une bibliothèque réelle).&quot;&quot;&quot;</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">niveau</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span> <span class="k">for</span> <span class="n">tx</span> <span class="ow">in</span> <span class="n">transactions</span><span class="p">]</span>          <span class="c1"># feuilles : hachage de chaque transaction</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">niveau</span><span class="p">:</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="k">return</span> <span class="n">h</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">niveau</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">niveau</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>            <span class="n">niveau</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">niveau</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>                 <span class="c1"># convention : dupliquer la dernière feuille si nombre impair</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="n">niveau</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="p">(</span><span class="n">niveau</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">niveau</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">niveau</span><span class="p">),</span> <span class="mi">2</span><span class="p">)]</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="k">return</span> <span class="n">niveau</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">transactions</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;Alice-&gt;Bob:10&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;Bob-&gt;Chloe:4&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;Chloe-&gt;Alice:1&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;Alice-&gt;David:2&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="nb">print</span><span class="p">(</span><span class="n">racine_merkle</span><span class="p">(</span><span class="n">transactions</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">())</span>
+</code></pre></div>
+<h3 id="preuve-de-merkle-merkle-proof">Preuve de Merkle (Merkle proof)<a class="headerlink" href="#preuve-de-merkle-merkle-proof" title="Permanent link">&para;</a></h3>
+<p>Pour prouver qu'une transaction <code>T</code> appartient à un bloc, il suffit de fournir <code>T</code> et la liste des empreintes « sœurs » sur le chemin vers la racine (de l'ordre de log₂(n) empreintes pour n transactions), plutôt que l'ensemble des n transactions. Cette propriété est essentielle pour les <strong>clients légers (SPV — Simplified Payment Verification)</strong>, qui vérifient qu'une transaction est incluse dans un bloc sans télécharger l'intégralité de la blockchain.</p>
+<p>L'efficacité de cette preuve est ce qui rend la structure de Merkle si utile en pratique : pour un bloc contenant, par exemple, 2 048 transactions (2¹¹), une preuve d'inclusion ne nécessite que 11 empreintes intermédiaires (plus la racine déjà connue), soit un volume de données de l'ordre de quelques centaines d'octets, indépendamment du fait que le bloc entier pèse potentiellement plusieurs mégaoctets. C'est un exemple caractéristique de structure de données offrant une <strong>preuve de taille logarithmique</strong> pour une propriété portant sur un ensemble de taille linéaire — un compromis extrêmement favorable, comparé à la transmission de l'ensemble complet des transactions qu'exigerait une simple liste non structurée.</p>
+<h3 id="exemple-pedagogique-de-verification-dune-preuve">Exemple pédagogique de vérification d'une preuve<a class="headerlink" href="#exemple-pedagogique-de-verification-dune-preuve" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span> <span class="nf">verifier_preuve</span><span class="p">(</span><span class="n">feuille</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">preuve</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">racine_attendue</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;preuve est une liste de tuples (empreinte_soeur, position) où position vaut</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="sd">    &#39;gauche&#39; ou &#39;droite&#39;, indiquant de quel côté placer l&#39;empreinte sœur (exemple pédagogique).&quot;&quot;&quot;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">courant</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">feuille</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">for</span> <span class="n">empreinte_soeur</span><span class="p">,</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">preuve</span><span class="p">:</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="s2">&quot;gauche&quot;</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>            <span class="n">courant</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">empreinte_soeur</span> <span class="o">+</span> <span class="n">courant</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>            <span class="n">courant</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">courant</span> <span class="o">+</span> <span class="n">empreinte_soeur</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="k">return</span> <span class="n">courant</span> <span class="o">==</span> <span class="n">racine_attendue</span>
+</code></pre></div>
+<p>Ce court exemple illustre un point pédagogique important : la vérification d'une preuve de Merkle ne nécessite que la fonction de hachage et la preuve elle-même — aucune donnée de l'arbre entier n'est requise, ce qui permet à un client léger de vérifier une transaction avec des ressources minimales (mémoire, bande passante).</p>
+<h2 id="3-pourquoi-cette-double-structure-chaine-de-blocs-arbre-par-bloc">3. Pourquoi cette double structure (chaîne de blocs + arbre par bloc) ?<a class="headerlink" href="#3-pourquoi-cette-double-structure-chaine-de-blocs-arbre-par-bloc" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Le <strong>chaînage entre blocs</strong> garantit l'intégrité de l'ordre et de l'historique global.</li>
+<li>L'<strong>arbre de Merkle au sein d'un bloc</strong> garantit l'intégrité de l'ensemble des transactions d'un bloc tout en permettant des vérifications partielles efficaces.</li>
+</ul>
+<p>Cette architecture illustre directement l'usage des fonctions de hachage (module <em>Cryptographie</em>, chapitre 3) comme brique de construction pour des propriétés de plus haut niveau (intégrité globale d'un registre distribué).</p>
+<h3 id="proprietes-cryptographiques-requises-de-la-fonction-de-hachage">Propriétés cryptographiques requises de la fonction de hachage<a class="headerlink" href="#proprietes-cryptographiques-requises-de-la-fonction-de-hachage" title="Permanent link">&para;</a></h3>
+<p>Cette double structure ne fonctionne correctement que si la fonction de hachage utilisée possède certaines propriétés étudiées en détail dans le module <em>Cryptographie</em> :</p>
+<ul>
+<li><strong>résistance aux collisions</strong> : il doit être calculatoirement infaisable de trouver deux entrées distinctes produisant la même empreinte — sans cela, un attaquant pourrait substituer une transaction frauduleuse à une transaction légitime tout en conservant la même racine de Merkle ;</li>
+<li><strong>résistance à la préimage</strong> : il doit être infaisable, à partir d'une empreinte, de retrouver une entrée qui la produit — propriété moins critique ici que pour le stockage de mots de passe, mais toujours pertinente ;</li>
+<li><strong>effet avalanche</strong> : une modification infime de l'entrée (un seul bit) doit produire une empreinte de sortie complètement différente, sans corrélation apparente avec l'entrée d'origine — c'est cette propriété qui garantit qu'aucune modification, même mineure, d'une transaction ancienne ne peut passer inaperçue dans la racine de Merkle ni dans le chaînage des blocs.</li>
+</ul>
+<p>Bitcoin et Ethereum utilisent des fonctions de la famille SHA-2/SHA-3/Keccak, étudiées en détail dans le chapitre correspondant du module <em>Cryptographie</em> ; ce chapitre présuppose cette base et se concentre sur l'usage qui en est fait pour structurer un registre distribué.</p>
+<h2 id="4-identifiants-et-adresses">4. Identifiants et adresses<a class="headerlink" href="#4-identifiants-et-adresses" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Une <strong>transaction</strong> est identifiée par l'empreinte de son propre contenu (le « hash de transaction »).</li>
+<li>Une <strong>adresse</strong> (compte) dérive généralement d'une clé publique (elle-même souvent hachée pour former une adresse plus courte), reliant directement ce chapitre au module <em>Cryptographie</em> (signatures numériques, chapitre 5) : chaque transaction est signée par la clé privée correspondant à l'adresse d'origine, et cette signature est vérifiable par tout nœud du réseau.</li>
+</ul>
+<h3 id="modele-utxo-contre-modele-de-compte">Modèle UTXO contre modèle de compte<a class="headerlink" href="#modele-utxo-contre-modele-de-compte" title="Permanent link">&para;</a></h3>
+<p>Deux grandes familles de modèles de représentation des soldes coexistent dans les blockchains actuelles, avec des implications directes sur la façon dont les transactions sont structurées et vérifiées :</p>
+<table>
+<thead>
+<tr>
+<th>Modèle</th>
+<th>Principe</th>
+<th>Exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UTXO</strong> (<em>Unspent Transaction Output</em>)</td>
+<td>chaque transaction consomme un ou plusieurs « jetons » de sortie non dépensés issus de transactions antérieures, et en produit de nouveaux ; le solde d'une adresse est la somme des UTXO qui lui sont associés</td>
+<td>Bitcoin</td>
+</tr>
+<tr>
+<td><strong>Modèle de compte</strong></td>
+<td>chaque adresse possède un solde global directement mis à jour (comme un compte bancaire classique), analogue au champ <code>soldes</code> de l'exemple de smart contract présenté au chapitre 4</td>
+<td>Ethereum</td>
+</tr>
+</tbody>
+</table>
+<p>Le modèle UTXO offre un parallélisme naturel pour la validation (des UTXO indépendants peuvent être vérifiés séparément) et facilite le respect de la confidentialité (une nouvelle adresse peut être générée pour chaque transaction reçue), mais rend plus complexe la représentation d'un état global mutable — d'où le choix du modèle de compte pour Ethereum, mieux adapté à l'exécution de smart contracts à état persistant (chapitre 4).</p>
+<h2 id="5-variantes-et-structures-alternatives">5. Variantes et structures alternatives<a class="headerlink" href="#5-variantes-et-structures-alternatives" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>DAG (Directed Acyclic Graph)</strong> : certaines architectures (ex. IOTA) remplacent la chaîne linéaire de blocs par un graphe orienté acyclique de transactions, visant une meilleure scalabilité, au prix d'autres compromis de sécurité et de maturité.</li>
+<li><strong>État global (state trie)</strong> : les blockchains à smart contracts (Ethereum, chapitre 4) maintiennent, en plus de l'historique des transactions, une structure arborescente représentant l'état courant de tous les comptes et contrats, également authentifiée cryptographiquement (racine d'état incluse dans chaque bloc).</li>
+</ul>
+<p>Ethereum va plus loin que le simple couple chaînage + arbre de Merkle des transactions : chaque bloc y contient en réalité <strong>trois racines distinctes</strong> dans son en-tête — la racine de Merkle des transactions du bloc, une racine résumant l'état global de tous les comptes et contrats après exécution du bloc (le <em>state trie</em>, techniquement un arbre de Merkle-Patricia, une variante combinant arbre de Merkle et arbre préfixe pour un accès et une mise à jour efficaces), et une racine résumant les reçus d'exécution des transactions. Cette architecture plus riche prépare directement le chapitre 4, où l'état global inclut non seulement des soldes mais aussi le code et les variables persistantes des smart contracts déployés.</p>
+<h3 id="limites-de-la-structure-de-merkle-simple">Limites de la structure de Merkle simple<a class="headerlink" href="#limites-de-la-structure-de-merkle-simple" title="Permanent link">&para;</a></h3>
+<p>Il est utile, à ce stade, de noter une limite pédagogique de l'arbre de Merkle « statique » tel que présenté en section 2 : il est optimisé pour prouver l'appartenance d'un élément à un ensemble <strong>figé</strong> au moment de la construction de l'arbre. Or l'état global d'une blockchain à smart contracts change à chaque bloc (nouveaux soldes, nouvelles variables de contrat). Les arbres de Merkle-Patricia (et plus généralement les <em>arbres de Merkle persistants</em> ou <em>versionnés</em>) répondent à ce besoin en permettant de dériver efficacement, à chaque mise à jour, une nouvelle racine sans reconstruire l'arbre entier depuis zéro — un raffinement d'ingénierie que ce cours ne détaille pas davantage mais qu'il est utile de savoir identifier pour la suite du module.</p>
+<h2 id="a-retenir">À retenir<a class="headerlink" href="#a-retenir" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Le chaînage cryptographique entre blocs et l'arbre de Merkle au sein d'un bloc sont deux mécanismes complémentaires garantissant respectivement l'intégrité de l'historique global et celle du contenu de chaque bloc.</li>
+<li>Une preuve de Merkle permet de vérifier l'inclusion d'une transaction en un nombre d'étapes logarithmique par rapport au nombre de transactions du bloc, sans télécharger l'intégralité de la blockchain — fondement des clients légers (SPV).</li>
+<li>Le bon fonctionnement de cette architecture dépend de propriétés cryptographiques précises de la fonction de hachage utilisée (résistance aux collisions, effet avalanche), étudiées en détail dans le module <em>Cryptographie</em>.</li>
+<li>Le modèle UTXO (Bitcoin) et le modèle de compte (Ethereum) représentent différemment les soldes et ont des implications directes sur le parallélisme de validation et la facilité à représenter un état mutable complexe.</li>
+<li>Les blockchains à smart contracts étendent la structure vue dans ce chapitre avec une racine d'état global (state trie), authentifiant non seulement les transactions mais tout l'état courant du réseau.</li>
+</ul>
+<hr />
+<p><em>Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Pied de page" >
+        
+          
+          <a href="01-introduction-principes-blockchain.html" class="md-footer__link md-footer__link--prev" aria-label="Précédent: 1. Introduction : principes fondamentaux de la blockchain">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Précédent
+              </span>
+              <div class="md-ellipsis">
+                1. Introduction : principes fondamentaux de la blockchain
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="03-mecanismes-consensus.html" class="md-footer__link md-footer__link--next" aria-label="Suivant: 3. Mécanismes de consensus">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Suivant
+              </span>
+              <div class="md-ellipsis">
+                3. Mécanismes de consensus
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.instant", "navigation.tracking", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>

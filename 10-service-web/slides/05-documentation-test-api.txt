@@ -1,0 +1,167 @@
+# Chapitre 5 — Documentation et test des API
+
+### Service web
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Pourquoi documenter une API formellement
+
+Une API mal documentée, ou documentée uniquement de façon informelle (page wiki non maintenue, exemples éparpillés), impose à chaque nouveau consommateur — humain ou équipe — de redécouvrir son comportement par expérimentation, source d'erreurs et de perte de temps. Une **documentation formelle et exécutable**, générée à partir d'une spécification structurée plutôt que rédigée manuellement en texte libre, présente des avantages décisifs : elle reste synchronisée avec le code si elle est intégrée au processus de développement, elle permet de générer automatiquement des clients dans plusieurs langages, et elle sert de base à des tests de contrat (section 3).
+
+---
+
+## 2. La spécification OpenAPI
+
+**OpenAPI** (anciennement connue sous le nom de Swagger, avant que sa spécification ne soit cédée à l'*OpenAPI Initiative*) est aujourd'hui la spécification de référence pour décrire formellement une API REST au format JSON ou YAML : ses ressources, ses opérations, ses paramètres, les schémas de ses corps de requête et de réponse (en s'appuyant sur JSON Schema, chapitre 3), ses codes de statut possibles, et ses mécanismes d'authentification.
+
+```yaml
+openapi: 3.0.3
+info:
+  title: API de gestion des commandes
+  version: "1.0.0"
+paths:
+  /commandes/{id}:
+    get:
+      summary: Obtenir une commande par son identifiant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Commande trouvée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Commande"
+        "404":
+          description: Commande introuvable
+components:
+  schemas:
+    Commande:
+      type: object
+      required: [id, statut, montant]
+      properties:
+        id:
+          type: integer
+        statut:
+          type: string
+          enum: [en_preparation, expediee, livree, annulee]
+        montant:
+          type: number
+```
+
+### Ce que permet une spécification OpenAPI
+
+- **Documentation interactive** : des outils (ex. Swagger UI, Redoc) génèrent automatiquement une interface web navigable et testable à partir du fichier de spécification.
+- **Génération de code** : génération automatique de clients (SDK) dans de nombreux langages, et parfois de squelettes de serveur, à partir de la même source de vérité.
+- **Validation automatique** : une requête ou une réponse peut être validée automatiquement contre le schéma déclaré, détectant les écarts entre l'implémentation réelle et le contrat documenté.
+- **Base pour les tests de contrat** (section 3).
+
+### Documentation générée depuis le code
+
+De nombreux frameworks modernes (ex. FastAPI en Python) génèrent automatiquement une spécification OpenAPI à partir du code de l'application lui-même (annotations de type, modèles de données), réduisant le risque de désynchronisation entre le code et sa documentation, comparé à une spécification maintenue manuellement en parallèle du code.
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI(title="API de gestion des commandes")
+
+class Commande(BaseModel):
+    id: int
+    statut: str
+    montant: float
+
+@app.get("/commandes/{id_commande}", response_model=Commande)
+def obtenir_commande(id_commande: int):
+    return {"id": id_commande, "statut": "en_preparation", "montant": 45000}
+
+# La spécification OpenAPI est disponible automatiquement sur /openapi.json,
+# et une interface interactive Swagger UI sur /docs.
+```
+
+---
+
+## 3. Stratégies de test d'une API
+
+Comme pour tout logiciel, les tests d'une API se déclinent en plusieurs niveaux complémentaires, chacun ayant un objectif et un coût différents.
+
+| Niveau | Objectif | Exemple |
+|---|---|---|
+| **Test unitaire** | Vérifier isolément une fonction ou un composant métier, sans passer par la couche HTTP | Vérifier qu'une fonction de calcul de remise applique correctement le taux attendu |
+| **Test d'intégration** | Vérifier le comportement de l'API à travers de véritables requêtes HTTP, généralement avec une base de données de test | Envoyer une requête `POST /commandes` et vérifier la réponse et l'état de la base |
+| **Test de contrat** (*contract testing*) | Vérifier que l'implémentation respecte fidèlement le contrat documenté (OpenAPI) | Valider automatiquement chaque réponse réelle contre le schéma déclaré |
+| **Test de bout en bout** (*end-to-end*) | Vérifier un scénario complet impliquant plusieurs services ou composants | Créer un compte, s'authentifier, passer une commande, vérifier la facturation |
+
+### Test d'intégration avec `pytest`
+
+```python
+import pytest
+from mon_application import app
+
+@pytest.fixture
+def client():
+    app.config["TESTING"] = True
+    with app.test_client() as client:
+        yield client
+
+def test_creation_commande(client):
+    reponse = client.post("/commandes", json={"produit": "Livre", "quantite": 2})
+    assert reponse.status_code == 201
+    corps = reponse.get_json()
+    assert corps["statut"] == "en_preparation"
+
+def test_commande_introuvable(client):
+    reponse = client.get("/commandes/99999")
+    assert reponse.status_code == 404
+```
+
+### Test manuel exploratoire avec des outils dédiés
+
+Des outils comme **Postman** ou son équivalent en ligne de commande **Newman** permettent de construire des collections de requêtes réutilisables, de les enchaîner en scénarios, et de les automatiser dans un pipeline d'intégration continue, en complément — et non en remplacement — des tests automatisés écrits en code (`pytest` ou équivalent), qui restent nécessaires pour une couverture systématique et reproductible.
+
+### Test de contrat automatisé
+
+Un test de contrat vérifie que chaque réponse réelle de l'API respecte le schéma JSON Schema déclaré dans la spécification OpenAPI, ce qui permet de détecter automatiquement une dérive entre le comportement réel de l'implémentation et sa documentation officielle — un problème fréquent lorsque documentation et code évoluent séparément.
+
+```python
+from openapi_core import Spec
+from openapi_core.validation.response import openapi_response_validator
+
+spec = Spec.from_file_path("openapi.yaml")
+# La validation compare la réponse HTTP réelle au schéma déclaré pour cette route
+# et lève une erreur en cas d'écart (champ manquant, type incorrect, code de statut
+# non documenté).
+```
+
+---
+
+## 4. Documentation des erreurs
+
+Une API bien documentée décrit également ses réponses d'erreur, idéalement selon un format cohérent à travers toute l'API (ex. la spécification **RFC 9457 — Problem Details for HTTP APIs**, qui normalise une structure commune pour les réponses d'erreur) :
+
+```json
+{
+  "type": "https://exemple.edu/erreurs/commande-introuvable",
+  "titre": "Commande introuvable",
+  "statut": 404,
+  "detail": "Aucune commande ne correspond à l'identifiant 99999."
+}
+```
+
+Documenter systématiquement les codes d'erreur possibles pour chaque opération, plutôt que de se limiter au seul cas de succès, réduit fortement le temps d'intégration côté client et le nombre d'incidents liés à une mauvaise gestion des cas d'échec.
+
+---
+
+## À retenir
+
+- OpenAPI est la spécification de référence pour décrire formellement une API REST ; elle permet documentation interactive, génération de code client et validation automatisée.
+- Générer la spécification depuis le code (ex. FastAPI) réduit le risque de désynchronisation entre documentation et implémentation réelle, comparé à une spécification maintenue manuellement.
+- Les tests d'une API se déclinent en plusieurs niveaux complémentaires : unitaire, intégration, contrat, bout en bout, chacun ayant un rôle distinct.
+- Le test de contrat vérifie spécifiquement la conformité de l'implémentation réelle à la spécification documentée, ce qui distingue cette approche des tests d'intégration classiques.
+- Documenter systématiquement les cas d'erreur, idéalement selon un format uniforme, fait partie intégrante d'une documentation d'API de qualité.

@@ -1,0 +1,83 @@
+# Chapitre 2 — Structures de données : chaînage cryptographique et arbres de Merkle
+
+### Technologie Blockchain
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Le chaînage cryptographique des blocs
+
+Le mécanisme qui donne son nom à la « chaîne de blocs » repose sur une idée simple mais puissante : chaque bloc contient, dans son en-tête, l'**empreinte de hachage du bloc précédent**. Une fonction de hachage cryptographique (module *Cryptographie*, chapitre 3) transforme une donnée d'entrée de taille quelconque en une empreinte de taille fixe, de façon déterministe, et présente une propriété essentielle ici : la moindre modification de l'entrée produit une empreinte totalement différente et imprévisible (effet d'avalanche).
+
+Cette construction crée une **dépendance en cascade** entre tous les blocs de la chaîne : modifier le contenu d'un bloc ancien — ne serait-ce qu'un seul bit d'une seule transaction — change son empreinte de hachage. Or cette empreinte est précisément la valeur enregistrée dans l'en-tête du bloc suivant. L'empreinte enregistrée devient donc incorrecte, ce qui invalide le bloc suivant, ce qui invalide à son tour l'empreinte attendue par le bloc d'après, et ainsi de suite jusqu'au sommet de la chaîne.
+
+Un attaquant souhaitant altérer un bloc ancien ne peut donc pas se contenter de modifier ce seul bloc : il doit recalculer l'intégralité des blocs qui le suivent, et — selon le mécanisme de consensus utilisé (chapitre 3) — refaire valider chacun d'eux plus rapidement que le reste du réseau honnête n'ajoute de nouveaux blocs légitimes. C'est un travail dont le coût croît directement avec la profondeur du bloc à modifier : plus un bloc est ancien et « enfoui » sous des blocs ultérieurs, plus le réécrire est coûteux. C'est ce raisonnement précis qui justifie l'expression d'**immutabilité « pratique »** plutôt qu'absolue introduite au chapitre 1, et qui motive la recommandation opérationnelle d'attendre un nombre suffisant de **confirmations** (c'est-à-dire de blocs ajoutés après celui contenant une transaction donnée) avant de considérer cette transaction comme définitivement acquise.
+
+---
+
+## 2. Arbre de Merkle
+
+Le chaînage entre blocs protège l'ordre et l'intégrité de la chaîne dans son ensemble, mais il reste à résoudre un second problème : comment garantir, de manière efficace, l'intégrité de l'ensemble potentiellement volumineux des transactions **à l'intérieur** d'un même bloc, sans devoir stocker ni transmettre systématiquement la totalité de ces transactions pour vérifier qu'une seule d'entre elles y figure bien ? C'est le rôle de l'**arbre de Merkle** (*Merkle tree*), une structure de données introduite par Ralph Merkle et aujourd'hui omniprésente dans les systèmes distribués.
+
+Un arbre de Merkle organise un ensemble de données — ici, les transactions d'un bloc — de façon à pouvoir **résumer l'ensemble par une seule empreinte** (la **racine de Merkle**, *Merkle root*), tout en conservant la possibilité de prouver efficacement qu'une donnée particulière fait bien partie de l'ensemble, sans avoir à transmettre l'ensemble complet des données.
+
+### Construction
+
+La construction d'un arbre de Merkle procède par niveaux successifs, des feuilles vers la racine :
+
+1. Chaque transaction est hachée individuellement ; ces empreintes forment les **feuilles** de l'arbre.
+2. Les empreintes sont regroupées **deux par deux** et concaténées puis hachées ensemble, produisant une empreinte pour chaque paire : c'est le niveau immédiatement supérieur de l'arbre (s'il y a un nombre impair d'empreintes à un niveau donné, la dernière est généralement dupliquée pour compléter la paire, selon la convention retenue par l'implémentation).
+3. Ce processus de regroupement et de hachage par paires est répété niveau par niveau, jusqu'à obtenir une seule et unique empreinte au sommet : la **racine de Merkle**, la seule valeur effectivement stockée dans l'en-tête du bloc (voir chapitre 1).
+
+Ainsi, un bloc contenant des milliers de transactions peut être résumé par une empreinte de taille fixe (typiquement 256 bits pour une fonction comme SHA-256), tout en garantissant que toute modification, même minime, d'une seule transaction changerait la racine de Merkle du bloc — et donc, par le chaînage vu à la section précédente, invaliderait tout l'historique ultérieur.
+
+### Preuve de Merkle (Merkle proof)
+
+L'intérêt pratique majeur de cette structure arborescente est qu'elle permet de prouver l'appartenance d'un élément **sans révéler ni transmettre l'ensemble des autres éléments**. Pour prouver qu'une transaction `T` appartient effectivement à un bloc donné, il suffit de fournir :
+
+- la transaction `T` elle-même (ou son empreinte) ;
+- la liste des empreintes « sœurs » situées sur le chemin remontant des feuilles jusqu'à la racine (une seule empreinte sœur par niveau).
+
+Le vérificateur recalcule alors, niveau par niveau, l'empreinte du chemin en combinant `T` avec chacune des empreintes sœurs fournies, et compare le résultat final avec la racine de Merkle déjà connue (car incluse dans l'en-tête du bloc, lui-même chaîné et vérifiable). Si les deux valeurs correspondent, l'appartenance de `T` au bloc est prouvée. Le nombre d'empreintes à fournir est de l'ordre de **log₂(n)** pour un bloc contenant n transactions — pour mille transactions, une dizaine d'empreintes suffisent, contre les mille transactions complètes qu'il aurait fallu transmettre sans cette structure.
+
+Cette propriété est essentielle pour les **clients légers** (*SPV — Simplified Payment Verification*), des logiciels qui souhaitent vérifier qu'une transaction donnée a bien été incluse dans un bloc, sans pour autant télécharger et stocker l'intégralité de l'historique de la blockchain (qui peut représenter un volume de données considérable). Un client léger ne conserve que les en-têtes de blocs, beaucoup plus légers, et demande une preuve de Merkle à un nœud complet lorsqu'il a besoin de vérifier une transaction précise — un compromis raisonnable entre autonomie de vérification et ressources requises.
+
+---
+
+## 3. Pourquoi cette double structure (chaîne de blocs + arbre par bloc) ?
+
+Les deux mécanismes présentés jusqu'ici jouent des rôles complémentaires et ne se substituent pas l'un à l'autre :
+
+- Le **chaînage entre blocs** garantit l'intégrité de l'**ordre et de l'historique global** : il rend coûteuse toute tentative de réorganisation ou de suppression rétroactive d'un bloc entier, et donc de la séquence des événements enregistrés.
+- L'**arbre de Merkle au sein d'un bloc** garantit l'intégrité de l'**ensemble des transactions d'un bloc donné**, tout en permettant des vérifications partielles efficaces sans dépendre du volume total de données du bloc.
+
+Ensemble, ces deux structures forment un système où toute modification, à quelque niveau que ce soit — une transaction individuelle ou l'ordre des blocs — se propage inévitablement jusqu'à une empreinte vérifiable par n'importe quel participant du réseau. Cette architecture illustre de façon directe comment des primitives cryptographiques relativement simples (fonctions de hachage, étudiées dans le module *Cryptographie*) peuvent servir de briques de construction pour obtenir des propriétés de bien plus haut niveau — ici, l'intégrité vérifiable d'un registre distribué entre des participants qui ne se font pas mutuellement confiance.
+
+---
+
+## 4. Identifiants et adresses
+
+Le chaînage cryptographique et les arbres de Merkle protègent l'intégrité des données, mais un système de registre distribué a également besoin d'identifier de façon unique ses transactions et ses participants.
+
+Une **transaction** est identifiée par l'empreinte de son propre contenu (le « hash de transaction », ou *transaction ID*, *TXID*) : puisque cette empreinte dépend intégralement du contenu de la transaction, deux transactions au contenu strictement identique produiraient la même empreinte, et la moindre différence de contenu produit un identifiant totalement différent — un identifiant qui sert donc à la fois de nom unique et de garantie d'intégrité.
+
+Une **adresse** (représentant un compte ou un destinataire) dérive généralement d'une **clé publique**, elle-même souvent hachée à son tour pour produire une adresse plus courte et plus pratique à manipuler. Ce point relie directement ce chapitre au module *Cryptographie* (signatures numériques, chapitre 5) : chaque transaction sortante est **signée** par la clé privée correspondant à l'adresse d'origine, et cette signature est **vérifiable publiquement** par tout nœud du réseau à l'aide de la clé publique correspondante, sans que la clé privée n'ait jamais besoin d'être révélée. C'est ce mécanisme, et non un mot de passe ou une identité déclarée, qui prouve qu'une transaction a bien été autorisée par le détenteur légitime des fonds ou des droits concernés.
+
+---
+
+## 5. Variantes et structures alternatives
+
+Le modèle « chaîne linéaire de blocs contenant chacun un arbre de Merkle » n'est pas la seule architecture possible pour un registre distribué sécurisé cryptographiquement. Deux variantes méritent d'être mentionnées pour situer ce modèle dans un paysage plus large :
+
+- **DAG (Directed Acyclic Graph, graphe orienté acyclique)** : certaines architectures, comme celle du projet IOTA, remplacent la chaîne linéaire de blocs par un **graphe** de transactions individuelles, chacune référençant directement une ou plusieurs transactions précédentes plutôt que d'être regroupée en blocs successifs. L'objectif recherché est généralement une meilleure scalabilité (traitement parallèle plus naturel des transactions), au prix d'autres compromis en matière de sécurité, de maturité du protocole et de retour d'expérience en conditions réelles, comparés à des architectures en blocs plus anciennes et plus éprouvées.
+- **État global (state trie)** : les blockchains supportant des smart contracts, au premier rang desquelles Ethereum (chapitre 4), ne se contentent pas de chaîner un historique de transactions : elles maintiennent également une **structure arborescente d'état** représentant la situation courante de tous les comptes et contrats du réseau (soldes, variables internes des contrats). Cette structure d'état est elle-même authentifiée cryptographiquement, avec une racine incluse dans chaque bloc — un principe directement analogue à celui de la racine de Merkle des transactions, mais appliqué cette fois à l'état courant du système plutôt qu'à son historique.
+
+---
+
+## À retenir
+
+- Le chaînage cryptographique entre blocs et l'arbre de Merkle au sein d'un bloc sont deux mécanismes complémentaires garantissant respectivement l'intégrité de l'historique global et celle du contenu de chaque bloc.
+- Une preuve de Merkle permet de vérifier l'inclusion d'une transaction en transmettant seulement de l'ordre de log₂(n) empreintes, fondement des clients légers (SPV).
+- Les transactions sont identifiées par leur propre empreinte et les adresses dérivent de clés publiques signées par la clé privée correspondante.
+- Toute cette architecture repose directement sur les fonctions de hachage et les signatures numériques étudiées dans le module *Cryptographie*.

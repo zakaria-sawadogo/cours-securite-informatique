@@ -1,0 +1,75 @@
+# Chapitre 3 — Mécanismes de consensus
+
+### Technologie Blockchain
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Pourquoi un mécanisme de consensus ?
+
+Le chapitre précédent a montré comment le chaînage cryptographique et les arbres de Merkle protègent l'**intégrité** d'un bloc et de l'historique une fois qu'ils sont acceptés par le réseau. Il reste cependant une question distincte, et tout aussi cruciale : **qui a le droit de décider quel bloc est ajouté ensuite**, et comment s'assurer que ce choix est accepté de la même manière par l'ensemble des participants ?
+
+Dans un réseau décentralisé sans autorité centrale, potentiellement composé de milliers de participants anonymes ou pseudonymes, dont certains peuvent être malveillants ou simplement défaillants (panne réseau, matériel arrêté), il faut un mécanisme permettant à l'ensemble de ces participants de **s'accorder sur un état unique et cohérent du registre** — c'est-à-dire, concrètement, sur quel bloc suit quel bloc — tout en résistant à des tentatives délibérées de manipulation. Ce problème n'est pas propre aux blockchains : c'est une instance directe d'un problème classique et bien étudié en informatique distribuée, le **problème des généraux byzantins**, qui formalise la difficulté d'obtenir un accord fiable entre participants distants lorsque certains d'entre eux peuvent transmettre des informations contradictoires ou mensongères. C'est précisément ce que résolvent, chacun avec des compromis différents, les **mécanismes de consensus** présentés dans ce chapitre.
+
+---
+
+## 2. Preuve de travail (Proof of Work, PoW)
+
+La **preuve de travail** est le mécanisme de consensus historique, popularisé par Bitcoin. Son principe est le suivant : pour avoir le droit de proposer un nouveau bloc, un participant du réseau — appelé **mineur** — doit résoudre un **défi calculatoire coûteux**. Concrètement, il doit trouver une valeur particulière, appelée **nonce**, telle que l'empreinte de hachage de l'en-tête du bloc (incluant ce nonce) satisfasse une condition de difficulté arbitrairement exigeante, par exemple : commencer par un certain nombre de zéros en écriture binaire ou hexadécimale.
+
+Il n'existe aucun raccourci mathématique connu pour trouver directement un tel nonce : en pratique, un mineur doit essayer un très grand nombre de valeurs différentes, une par une, jusqu'à en trouver une qui fonctionne (« essai-erreur » systématique, aussi appelé recherche par force brute sur l'espace des nonces). Ce calcul est donc **intentionnellement coûteux à réaliser**, en temps de calcul et en électricité consommée, mais en contrepartie **trivial à vérifier** par n'importe quel autre nœud du réseau : il suffit de recalculer une seule fois l'empreinte de hachage du bloc proposé et de constater qu'elle satisfait bien la condition de difficulté annoncée.
+
+- **Sécurité** : un attaquant souhaitant falsifier l'historique — par exemple pour effectuer une double dépense — devrait disposer d'une puissance de calcul supérieure à celle de l'ensemble du reste du réseau honnête combiné, afin de pouvoir recalculer plus rapidement une chaîne alternative de blocs. C'est ce qu'on appelle une **attaque des 51 %** : un coût économique considérable et dissuasif dès lors que le réseau est suffisamment décentralisé et que sa puissance de calcul cumulée est importante.
+- **Limite majeure** : la preuve de travail implique, par construction, une **consommation énergétique très importante**, puisque l'ensemble des mineurs en compétition dépensent continuellement de l'énergie électrique pour tenter de résoudre le défi calculatoire avant les autres, y compris les mineurs qui ne trouveront finalement pas le bon nonce. C'est cette limite structurelle qui a motivé la recherche active d'alternatives moins gourmandes en ressources.
+
+---
+
+## 3. Preuve d'enjeu (Proof of Stake, PoS)
+
+La **preuve d'enjeu** propose une approche radicalement différente pour attribuer le droit de proposer et de valider un bloc : plutôt que de le faire dépendre d'une puissance de calcul consommée en continu, ce droit est attribué — souvent par un tirage aléatoire pondéré — en fonction de la **quantité de cryptomonnaie qu'un participant a mise en jeu** (*staked*), c'est-à-dire immobilisée et engagée comme garantie de bonne conduite sur le réseau.
+
+- **Sécurité** : le mécanisme d'incitation change de nature par rapport à la preuve de travail. Un participant (**validateur**) qui tenterait de valider des blocs contradictoires, invalides, ou de tricher d'une autre manière détectable par le protocole, risque de perdre (« **slashing** ») une partie ou la totalité de sa mise engagée. Le comportement honnête devient ainsi la stratégie économiquement rationnelle : l'intérêt financier du validateur est directement aligné avec l'intérêt du réseau dans son ensemble.
+- **Avantage** : la consommation énergétique de la preuve d'enjeu est très inférieure à celle de la preuve de travail, puisqu'elle ne repose plus sur une compétition de calcul continue entre participants. Ethereum est passé de la preuve de travail à la preuve d'enjeu en septembre 2022 (un changement connu sous le nom de « The Merge »), réduisant considérablement l'empreinte énergétique du réseau.
+- **Débat en cours** : la preuve d'enjeu soulève un débat non tranché sur le risque de **centralisation accrue** au profit des plus gros détenteurs de la cryptomonnaie concernée. Le raisonnement critique s'exprime souvent ainsi : plus un participant détient de capital à mettre en jeu, plus il a de chances d'être sélectionné pour valider des blocs et percevoir les récompenses associées, ce qui accroît encore son capital et donc son influence future sur le réseau — un mécanisme potentiellement auto-renforçant que les concepteurs de protocoles PoS cherchent à atténuer par diverses règles (plafonds, sélection aléatoire pondérée non strictement linéaire, etc.).
+
+---
+
+## 4. Tolérance byzantine pratique (PBFT et variantes)
+
+Une troisième famille de mécanismes, la **tolérance byzantine pratique** (*Practical Byzantine Fault Tolerance*, PBFT) et ses nombreuses variantes, est typiquement utilisée dans les **blockchains à permission**, où le nombre de participants habilités à valider est limité et connu à l'avance (chapitre 1).
+
+Le principe diffère fondamentalement de PoW et PoS : les nœuds valident un bloc par un **mécanisme de vote explicite** entre eux, plutôt que par un calcul coûteux ou une mise en jeu de capital. Le protocole tolère qu'une fraction des participants — typiquement jusqu'à un tiers du total — soit défaillante ou activement malveillante, tout en garantissant que les nœuds honnêtes restants parviennent malgré tout à un accord cohérent. Un avantage pratique important de cette approche est sa **finalité quasi immédiate** : dès qu'un nombre suffisant de votes valides est réuni, le bloc est considéré comme définitivement validé, contrairement à la preuve de travail où la certitude qu'un bloc ne sera pas remis en cause augmente seulement **progressivement** avec le nombre de confirmations ultérieures.
+
+---
+
+## 5. Comparaison synthétique
+
+Les trois familles de mécanismes présentées reposent sur des logiques de sécurité fondamentalement différentes, résumées ci-dessous :
+
+| Mécanisme | Coût de sécurité | Consommation énergétique | Finalité | Exemple |
+|---|---|---|---|---|
+| PoW | puissance de calcul | très élevée | probabiliste (croît avec les confirmations) | Bitcoin |
+| PoS | capital économique en jeu | faible | souvent quasi immédiate selon l'implémentation | Ethereum (depuis 2022) |
+| BFT | identité/réputation des validateurs | faible | immédiate | réseaux à permission, certaines blockchains d'entreprise |
+
+Ce tableau ne doit pas être lu comme un classement de qualité : chaque mécanisme représente un compromis différent entre décentralisation réelle (nombre et diversité des participants qui peuvent effectivement contribuer à la validation), sécurité économique, performance et consommation de ressources. Le choix pertinent dépend du contexte d'usage visé, un point qui sera repris au chapitre 6.
+
+---
+
+## 6. Fork et résolution de conflits
+
+Même avec un mécanisme de consensus bien conçu, il arrive qu'à un instant donné, **deux blocs valides** soient proposés presque simultanément par deux participants différents — une situation tout à fait normale dans un réseau distribué où l'information met un certain temps à se propager entre nœuds géographiquement dispersés. Cette situation crée temporairement une **fourche** (*fork*) : deux versions concurrentes de la chaîne coexistent brièvement.
+
+Le protocole définit une règle claire pour résoudre cette situation : les nœuds convergent généralement vers la **chaîne la plus longue** (règle typique de la preuve de travail, où la longueur reflète la quantité de travail calculatoire cumulée) ou vers celle **validée par le plus grand nombre de participants** (règle plus courante en preuve d'enjeu). Une fois la convergence effectuée, les blocs de la chaîne écartée sont abandonnés et leurs transactions, si elles n'ont pas été incluses dans la chaîne retenue, redeviennent en attente de validation.
+
+Il faut distinguer ces fourches temporaires et involontaires d'un **hard fork** délibéré : un changement de règles du protocole incompatible avec les versions précédentes, décidé lors d'une mise à jour majeure du logiciel ou à la suite d'un désaccord de gouvernance profond au sein de la communauté des développeurs et des utilisateurs. Un hard fork peut, dans les cas les plus conflictuels, aboutir à la coexistence durable de deux réseaux distincts issus d'une même histoire commune.
+
+---
+
+## À retenir
+
+- Le mécanisme de consensus répond à un problème classique d'informatique distribuée (accord dans un réseau potentiellement malveillant, sans autorité centrale), analogue au problème des généraux byzantins.
+- PoW sécurise par le coût calculatoire mais consomme beaucoup d'énergie ; PoS sécurise par un risque économique direct (slashing) avec une empreinte énergétique bien moindre ; BFT offre une finalité immédiate mais suppose des validateurs identifiés.
+- Le choix du mécanisme de consensus détermine directement les propriétés de sécurité, de décentralisation réelle et de coût du réseau — un compromis, pas une hiérarchie absolue de qualité.
+- Les fourches temporaires sont un phénomène normal résolu par une règle de convergence du protocole ; un hard fork est un changement délibéré et incompatible des règles elles-mêmes.

@@ -1,0 +1,142 @@
+# Chapitre 6 — Architectures orientées services et microservices
+
+### Service web
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. De l'architecture monolithique aux architectures distribuées
+
+Une application **monolithique** regroupe l'ensemble de ses fonctionnalités (gestion des utilisateurs, catalogue, commandes, facturation) au sein d'une seule base de code, déployée comme une seule unité. Cette approche reste pertinente pour de nombreux projets, en particulier au démarrage : simplicité de développement, de déploiement et de débogage, absence de complexité réseau interne. Elle atteint cependant des limites lorsque l'application grandit : couplage fort entre modules qui ralentit les évolutions, impossibilité de faire évoluer indépendamment des composants ayant des besoins très différents (ex. scalabilité), et risque qu'une défaillance localisée affecte l'application entière.
+
+Deux grandes familles d'architectures distribuées répondent, avec des philosophies différentes, à ces limites : la **SOA** (*Service-Oriented Architecture*) et les **microservices**.
+
+---
+
+## 2. SOA et microservices : convergences et différences
+
+| Aspect | SOA | Microservices |
+|---|---|---|
+| Granularité des services | Souvent plus large (services métier étendus) | Fine (un service par capacité métier restreinte) |
+| Mécanisme de communication central | Souvent un **bus de services d'entreprise** (ESB) centralisé | Communication directe entre services, sans intermédiaire centralisé obligatoire |
+| Gouvernance | Fréquemment centralisée (contrats, standards imposés à l'échelle de l'organisation) | Décentralisée (chaque équipe responsable de son service, y compris son choix technologique) |
+| Partage de base de données | Parfois partagée entre services | Une base de données par service, en principe (voir section 5) |
+| Contexte d'apparition | Grandes organisations, années 2000 | Popularisées à partir du milieu des années 2010, sous l'impulsion d'entreprises du numérique à forte échelle |
+
+Les microservices peuvent être vus comme une évolution des principes SOA, poussant plus loin la décentralisation et l'autonomie des équipes, avec une préférence marquée pour des mécanismes de communication simples (HTTP/REST — chapitres 1 et 2, ou gRPC — section 3) plutôt que pour un bus centralisé lourd à opérer et à faire évoluer.
+
+---
+
+## 3. Communication synchrone et asynchrone
+
+### Communication synchrone
+
+Dans un échange **synchrone**, l'appelant attend la réponse de l'appelé avant de poursuivre son traitement. REST sur HTTP (chapitres 1 et 2) en est l'exemple le plus courant entre microservices, aux côtés de **gRPC**, un cadre de communication développé par Google, reposant sur HTTP/2 et sur un format binaire compact (*Protocol Buffers*), généralement plus performant que JSON sur REST mais moins directement lisible par un humain et nécessitant une définition de contrat préalable stricte (fichier `.proto`), plus proche en cela de l'esprit de WSDL (chapitre 3) que de la flexibilité informelle de REST.
+
+```protobuf
+service ServiceCommandes {
+  rpc ObtenirCommande (RequeteCommande) returns (Commande);
+}
+
+message RequeteCommande {
+  int32 id = 1;
+}
+
+message Commande {
+  int32 id = 1;
+  string statut = 2;
+  double montant = 3;
+}
+```
+
+### Communication asynchrone
+
+Dans un échange **asynchrone**, l'appelant émet un message sans attendre de traitement immédiat par le destinataire, généralement via une **file de messages** (*message queue*) ou un système de diffusion d'événements (ex. Kafka, RabbitMQ pour ne citer que des technologies largement répandues dans l'industrie). Ce mode découple fortement l'émetteur du récepteur dans le temps : le récepteur peut être temporairement indisponible sans que l'émetteur échoue, et plusieurs récepteurs peuvent consommer le même événement.
+
+```python
+# Producteur : publie un événement sans attendre de traitement synchrone
+file_evenements.publier("commande.creee", {"id": 17, "montant": 45000})
+
+# Consommateur : traite l'événement de façon indépendante et asynchrone
+def sur_commande_creee(evenement):
+    envoyer_email_confirmation(evenement["id"])
+```
+
+| Aspect | Synchrone (REST, gRPC) | Asynchrone (file de messages) |
+|---|---|---|
+| Couplage temporel | Fort (l'appelé doit être disponible immédiatement) | Faible (traitement différé possible) |
+| Simplicité de raisonnement | Plus simple à suivre (un appel, une réponse) | Plus complexe (traçabilité, ordre de traitement) |
+| Cas d'usage typique | Requête nécessitant une réponse immédiate pour l'utilisateur | Traitement différé, notification, propagation d'un événement à plusieurs consommateurs |
+
+---
+
+## 4. API Gateway
+
+Une **API Gateway** (passerelle d'API) est un point d'entrée unique placé devant un ensemble de microservices, qui centralise des préoccupations transverses pour éviter de les dupliquer dans chaque service :
+
+- **Routage** des requêtes entrantes vers le microservice approprié.
+- **Authentification et autorisation** centralisées (chapitre 4), évitant de réimplémenter la vérification de jetons dans chaque service.
+- **Limitation de débit** (*rate limiting*) et protection contre les abus.
+- **Agrégation de réponses** lorsqu'une requête cliente nécessite des données provenant de plusieurs microservices.
+- **Observabilité** centralisée (journalisation, métriques) des requêtes entrantes.
+
+```
+                        ┌──────────────────┐
+Client  ───requête───►  │   API Gateway    │
+                        └──────────────────┘
+                          │        │        │
+                          ▼        ▼        ▼
+                    Service    Service   Service
+                  utilisateurs commandes  paiement
+```
+
+Ce modèle correspond directement à la contrainte « système en couches » du style REST (chapitre 2) : le client ignore, et n'a pas besoin de savoir, qu'il communique en réalité avec une passerelle plutôt qu'avec le microservice final.
+
+---
+
+## 5. Découverte de services
+
+Dans une architecture à microservices déployée à grande échelle, l'adresse réseau exacte d'une instance de service peut changer dynamiquement (redémarrage, montée en charge automatique, migration). La **découverte de services** (*service discovery*) résout ce problème : chaque service s'enregistre auprès d'un registre central (ex. Consul, ou les mécanismes intégrés d'un orchestrateur de conteneurs), et les autres services interrogent ce registre pour localiser dynamiquement une instance disponible, plutôt que de coder en dur une adresse réseau fixe.
+
+On distingue deux façons d'exploiter ce registre :
+
+- **Découverte côté client** (*client-side discovery*) : le service appelant interroge lui-même le registre puis choisit une instance (éventuellement en répartissant la charge entre plusieurs instances disponibles) avant d'émettre sa requête directement.
+- **Découverte côté serveur** (*server-side discovery*) : l'appelant envoie sa requête à un intermédiaire fixe (répartiteur de charge, ou l'API Gateway elle-même — section 4), qui consulte le registre et redirige la requête vers une instance disponible ; l'appelant n'a alors jamais connaissance du registre.
+
+```
+# Enregistrement au démarrage d'une instance du service « commandes »
+registre.enregistrer(service="commandes", adresse="10.0.4.12:8080")
+
+# Découverte côté client, avant l'appel
+instances = registre.rechercher(service="commandes")
+adresse = choisir_instance(instances)   # ex. répartition en tour de rôle
+requete_http(adresse, "/commandes/17")
+```
+
+Dans les environnements conteneurisés modernes, ce mécanisme est souvent transparent pour le développeur : l'orchestrateur (ex. Kubernetes, via ses objets *Service*) gère automatiquement l'enregistrement des instances et leur découverte par un simple nom logique, sans registre à interroger explicitement dans le code applicatif.
+
+---
+
+## 6. Défis propres aux architectures à microservices
+
+Le passage à une architecture à microservices n'est pas gratuit : il introduit des défis spécifiques que l'architecture monolithique ne connaît pas dans les mêmes proportions.
+
+- **Résilience** : un appel réseau vers un autre service peut échouer (indisponibilité temporaire, latence excessive) alors qu'un appel de fonction interne à un monolithe échoue rarement. Des mécanismes dédiés (délais d'expiration stricts, réessais avec attente progressive, disjoncteurs — *circuit breakers* — qui interrompent temporairement les appels vers un service en échec répété) deviennent nécessaires.
+- **Observabilité** : diagnostiquer un problème qui traverse plusieurs services nécessite des outils de traçabilité distribuée (identifiant de corrélation propagé de service en service), de journalisation centralisée, et de métriques agrégées — bien plus complexe qu'un simple examen des journaux d'un unique processus monolithique.
+- **Découpage des responsabilités** (*bounded contexts*) : déterminer où placer la frontière entre deux microservices est un exercice de conception difficile ; un découpage trop fin multiplie les appels réseau et la complexité opérationnelle, un découpage trop grossier reproduit les inconvénients du monolithe sous une forme distribuée.
+- **Cohérence des données** : chaque microservice possédant en principe sa propre base de données, une opération métier impliquant plusieurs services (ex. une commande qui doit débiter un stock et déclencher une facturation) ne peut plus s'appuyer sur une transaction de base de données unique classique, et nécessite des schémas de cohérence adaptés (ex. cohérence à terme, séquences d'événements compensatoires) plus complexes à raisonner qu'une transaction locale.
+
+### Quand préférer un monolithe
+
+Il n'existe pas de supériorité universelle des microservices : pour une petite équipe, un produit encore en phase de découverte de marché, ou un domaine métier dont les frontières ne sont pas encore stabilisées, un monolithe bien structuré en modules internes cohérents reste souvent un choix plus pragmatique, la complexité opérationnelle des microservices n'étant justifiée que lorsque les gains attendus (scalabilité différenciée, autonomie d'équipes multiples, déploiement indépendant de composants) dépassent clairement son coût.
+
+---
+
+## À retenir
+
+- SOA et microservices répondent tous deux aux limites du monolithe, avec une granularité et une gouvernance différentes ; les microservices privilégient une décentralisation plus poussée.
+- La communication synchrone (REST, gRPC) attend une réponse immédiate ; la communication asynchrone (files de messages) découple émetteur et récepteur dans le temps, au prix d'une complexité de raisonnement accrue.
+- Une API Gateway centralise le routage, l'authentification, la limitation de débit et l'observabilité devant un ensemble de microservices, conformément à la contrainte de système en couches du style REST.
+- La découverte de services permet de localiser dynamiquement des instances de service dont l'adresse réseau peut changer.
+- Résilience, observabilité, découpage des responsabilités et cohérence des données sont des défis spécifiques et non négligeables des architectures à microservices, qui doivent être mis en balance avec leurs bénéfices avant d'abandonner un monolithe fonctionnel.

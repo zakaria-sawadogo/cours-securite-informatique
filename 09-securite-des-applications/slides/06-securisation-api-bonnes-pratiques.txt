@@ -1,0 +1,91 @@
+# Chapitre 6 — Sécurisation des API et bonnes pratiques
+
+### Sécurité des applications
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Spécificités de la sécurité des API
+
+Les API (notamment REST et GraphQL — cf. module *Service web*) sont devenues le principal mode d'intégration entre applications, exposant souvent directement une logique métier et des données sensibles, avec une surface d'attaque distincte des applications web traditionnelles. La différence essentielle tient à l'absence d'interface graphique intermédiaire : une application web classique filtre implicitement une partie des usages possibles en ne proposant, via son interface, que certains parcours et certaines actions ; une API, elle, expose directement ses opérations à quiconque en connaît (ou en devine) le contrat, sans ce filtrage implicite. Un client mal intentionné peut appeler n'importe quel point de terminaison (*endpoint*) de l'API directement, dans n'importe quel ordre, avec n'importe quelle valeur de paramètre, sans passer par les contraintes qu'imposerait une interface utilisateur.
+
+Cette différence a une conséquence directe sur la posture de sécurité à adopter : toute règle de sécurité qui ne serait appliquée qu'au niveau de l'interface (masquer un bouton, désactiver un champ) est totalement inefficace pour une API, puisque rien n'oblige un client à passer par cette interface. La sécurité d'une API doit donc être entièrement portée par le serveur, à chaque appel, indépendamment de la façon dont ce serveur est habituellement consommé.
+
+---
+
+## 2. OWASP API Security Top 10 (panorama)
+
+Référentiel dédié, distinct du Top 10 applicatif général vu au chapitre 1, structurant les risques spécifiques aux architectures orientées API — sa nécessité vient précisément du fait que certains risques prennent une forme différente, ou une importance différente, dans une API par rapport à une application web classique :
+
+- **Contrôle d'accès défaillant au niveau des objets (BOLA — *Broken Object Level Authorization*)** : un utilisateur accède aux données d'un autre utilisateur en modifiant simplement un identifiant dans la requête (ex. `GET /api/commandes/1234` accessible en changeant l'identifiant, sans vérification que la commande appartient bien à l'utilisateur authentifié) — variante API de l'IDOR (*Insecure Direct Object Reference*) déjà vu, et l'une des catégories les plus fréquemment rencontrées en audit d'API, précisément parce que l'authentification (vérifier qui est l'appelant) est souvent implémentée correctement alors que l'autorisation fine sur chaque objet (vérifier que cet appelant a bien le droit d'accéder à *cet* objet précis) est oubliée.
+- **Authentification défaillante** : rappel du chapitre 3, appliqué spécifiquement aux jetons d'API (clés statiques mal protégées, jetons sans expiration, absence de révocation possible).
+- **Exposition excessive de données (excessive data exposure)** : l'API renvoie plus de champs que nécessaire dans sa réponse, en s'appuyant sur le client (l'application web ou mobile) pour filtrer ce qui est effectivement affiché à l'utilisateur — un attaquant inspectant directement la réponse brute de l'API, sans passer par l'interface qui filtre l'affichage, accède alors à des données qui n'auraient jamais dû être transmises en dehors de ce qui est strictement nécessaire à la fonctionnalité concernée.
+- **Absence de limitation de ressources et de débit (rate limiting)** : permet des attaques par force brute sur l'authentification, des attaques par déni de service applicatif, ou une extraction massive de données (scraping) à un rythme qu'aucun usage légitime ne justifierait.
+- **Contrôle d'accès défaillant au niveau des fonctions (BFLA — *Broken Function Level Authorization*)** : un utilisateur standard parvient à appeler un point de terminaison réservé aux administrateurs faute de vérification côté serveur — une restriction uniquement appliquée côté interface utilisateur (bouton non affiché pour un utilisateur standard) n'est jamais suffisante, puisque rien n'empêche un client d'appeler directement ce point de terminaison sans passer par l'interface.
+- **Mauvaise configuration de sécurité** : en-têtes de sécurité manquants, messages d'erreur trop verbeux révélant des détails d'implémentation (trace d'exécution complète, version exacte d'un composant), CORS mal configuré (autorisant des origines non nécessaires, détaillé à la section 5).
+
+| Risque BOLA/BFLA | Question de sécurité correspondante |
+|---|---|
+| BOLA | « Cet utilisateur a-t-il le droit d'accéder à *cet objet précis* ? » |
+| BFLA | « Cet utilisateur a-t-il le droit d'appeler *cette fonction précise* ? » |
+
+Ces deux catégories, bien que proches, portent sur des vérifications distinctes qu'une application doit effectuer indépendamment l'une de l'autre : vérifier qu'un utilisateur peut appeler une fonction (BFLA) ne dispense pas de vérifier, en plus, qu'il a le droit d'agir sur l'objet précis visé par cet appel (BOLA).
+
+---
+
+## 3. Authentification et autorisation des API
+
+Plusieurs mécanismes coexistent pour authentifier un appelant d'API, avec des compromis différents entre simplicité et granularité :
+
+- **Clés d'API** : simples à mettre en œuvre mais offrant peu de granularité (généralement une clé donne accès à l'ensemble de l'API, sans distinction fine d'opérations) ; à transmettre exclusivement via un en-tête HTTP (jamais dans l'URL, qui peut être journalisée par des intermédiaires réseau ou mise en cache par un navigateur ou un proxy, exposant la clé bien après la requête initiale) et sur une connexion chiffrée.
+- **OAuth 2.0** : cadre standard de délégation d'autorisation, permettant à une application tierce d'accéder à des ressources au nom d'un utilisateur sans jamais connaître son mot de passe — l'utilisateur autorise explicitement l'application tierce auprès du fournisseur d'identité, qui délivre ensuite un jeton d'accès limité en portée et en durée.
+- **JWT** : rappel du chapitre 3, avec vérification stricte de la signature et de l'expiration à chaque appel d'API, sans exception.
+- **Principe du moindre privilège appliqué aux portées (scopes)** : une clé ou un jeton d'API ne devrait donner accès qu'aux opérations et ressources strictement nécessaires à l'usage prévu, pas à l'ensemble de l'API par défaut — une intégration qui n'a besoin de lire que des données publiques ne devrait, par exemple, jamais recevoir un jeton disposant également de droits d'écriture ou d'administration.
+
+---
+
+## 4. Validation systématique côté serveur
+
+Principe absolu : **toute validation effectuée uniquement côté client (JavaScript) doit être considérée comme inexistante du point de vue de la sécurité**, car un attaquant peut appeler directement l'API en contournant totalement l'interface utilisateur — par exemple avec un simple client HTTP en ligne de commande, sans jamais charger la page web ni exécuter le moindre JavaScript associé. Toute règle de sécurité (autorisation, validation de format, limites métier telles qu'un montant maximal ou une quantité en stock) doit être appliquée et vérifiée côté serveur, la validation côté client n'étant qu'un confort d'expérience utilisateur (afficher un message d'erreur immédiat, sans attendre un aller-retour réseau), jamais un contrôle de sécurité à part entière. Ce principe rejoint directement celui du chapitre 1 : la source de la donnée (le client, potentiellement contrôlé entièrement par un attaquant) ne peut jamais être considérée comme fiable par le puits qui la reçoit (le serveur).
+
+---
+
+## 5. Configuration CORS (Cross-Origin Resource Sharing)
+
+Le mécanisme **CORS** définit quelles origines web sont autorisées, par le navigateur de l'utilisateur, à effectuer des requêtes cross-origin vers une API depuis une page chargée sur une autre origine. Le serveur déclare, via des en-têtes de réponse (`Access-Control-Allow-Origin` notamment), quelles origines sont autorisées à lire le résultat d'un tel appel ; le navigateur applique ensuite cette politique de son côté. Une configuration `Access-Control-Allow-Origin: *` (autorisant toute origine) combinée à l'autorisation d'envoi de cookies/identifiants (`Access-Control-Allow-Credentials: true`) est une mauvaise pratique fréquente et généralement incohérente — les spécifications interdisent d'ailleurs cette combinaison précise dans la plupart des navigateurs modernes — car elle peut faciliter des attaques exploitant le navigateur d'un utilisateur déjà authentifié depuis un site tiers malveillant, qui parviendrait alors à faire lire par sa propre page le résultat d'appels effectués avec les cookies de la victime. Une configuration CORS restrictive n'autorise explicitement que les origines réellement nécessaires à l'usage légitime de l'API, jamais un joker par défaut de facilité.
+
+---
+
+## 6. Limitation de débit et quotas (rate limiting)
+
+Mesure de défense en profondeur essentielle, souvent négligée lors de la conception initiale d'une API : limiter le nombre de requêtes qu'un client (identifié par clé d'API, jeton ou adresse IP) peut effectuer dans une fenêtre de temps donnée. Cette limitation contre à la fois les attaques par force brute sur l'authentification (un attaquant ne peut plus tester un grand nombre de combinaisons en un temps réduit), les attaques par déni de service applicatif visant à épuiser les ressources du serveur, et l'extraction massive de données (scraping) qui, sans limitation, permettrait de récupérer l'intégralité d'un jeu de données via des appels légitimes mais répétés à très haute fréquence. Une limite de débit bien conçue distingue généralement plusieurs granularités (par utilisateur, par clé d'API, par adresse IP) et prévoit une réponse explicite (code de statut HTTP dédié, en-têtes indiquant le quota restant) permettant à un client légitime d'adapter son comportement.
+
+---
+
+## 7. Journalisation et supervision des API
+
+Journaliser les tentatives d'accès refusées, les erreurs d'authentification répétées, et les schémas d'usage anormaux (rappel du module *Gouvernance*, chapitre 4, sur les indicateurs de sécurité), pour permettre la détection d'une exploitation en cours et alimenter une réponse à incident. Une journalisation utile pour la sécurité enregistre systématiquement l'identité de l'appelant (ou son adresse d'origine si non authentifié), le point de terminaison appelé, le résultat de la vérification d'autorisation, et l'horodatage — sans toutefois enregistrer en clair des données sensibles (mots de passe, jetons complets, données personnelles), qui ne devraient jamais apparaître directement dans un journal.
+
+---
+
+## 8. Synthèse : une checklist de sécurisation d'API
+
+1. Authentification forte et jetons correctement vérifiés (chapitre 3).
+2. Autorisation vérifiée systématiquement à chaque appel, au niveau objet et fonction (jamais déléguée au client) — cf. BOLA et BFLA (section 2).
+3. Validation stricte des entrées côté serveur, quelle que soit la validation déjà présente côté client (section 4).
+4. Exposition minimale des données (ne renvoyer que les champs nécessaires à l'usage prévu).
+5. Limitation de débit et quotas (section 6).
+6. Configuration CORS restrictive et justifiée, sans combinaison dangereuse origine-joker et identifiants (section 5).
+7. Chiffrement systématique des communications (TLS, module *Cryptographie*).
+8. Journalisation et supervision des accès et anomalies (section 7).
+
+Cette checklist n'est pas une simple liste de contrôles indépendants à cocher isolément : elle reprend, appliquée spécifiquement au contexte des API, l'ensemble des principes vus dans ce module — validation systématique des entrées non fiables (chapitres 1 et 2), authentification et gestion rigoureuse des sessions et jetons (chapitre 3), et défense en profondeur combinant plusieurs couches de contrôle indépendantes (chapitre 1).
+
+---
+
+## À retenir
+
+- L'OWASP API Security Top 10 recense des risques spécifiques aux API (BOLA, BFLA, exposition excessive de données, absence de rate limiting), complémentaires du Top 10 applicatif général.
+- Aucune validation ni autorisation effectuée uniquement côté client ne doit être considérée comme un contrôle de sécurité : tout doit être revérifié côté serveur.
+- La sécurisation d'une API repose sur la combinaison systématique de plusieurs contrôles (authentification, autorisation, validation, limitation de débit, configuration, journalisation), en cohérence directe avec la défense en profondeur vue au module *Security by design*.

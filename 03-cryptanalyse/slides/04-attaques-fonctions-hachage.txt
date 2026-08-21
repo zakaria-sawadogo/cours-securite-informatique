@@ -1,0 +1,80 @@
+# Chapitre 4 — Attaques sur les fonctions de hachage
+
+### Cryptanalyse
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Rappel des propriétés attendues
+
+Une fonction de hachage cryptographique transforme une entrée de taille arbitraire en une empreinte (ou condensat, *digest*) de taille fixe, et doit garantir trois propriétés de sécurité complémentaires, chacune correspondant à un scénario d'attaque distinct :
+
+- **La résistance à la préimage** : étant donné une empreinte *h*, il doit être calculatoirement impossible de retrouver un message *m* tel que `H(m) = h`. Cette propriété protège, par exemple, le stockage d'un mot de passe sous forme de son empreinte : un attaquant qui vole la base de données d'empreintes ne doit pas pouvoir en déduire directement les mots de passe d'origine.
+- **La résistance à la seconde préimage** : étant donné un message *m1* spécifique, il doit être calculatoirement impossible de trouver un second message *m2*, distinct de *m1*, tel que `H(m1) = H(m2)`. Cette propriété protège contre la substitution d'un document par un autre document ayant la même empreinte, dans un contexte où le document original *m1* est connu et fixé à l'avance.
+- **La résistance aux collisions** : il doit être calculatoirement impossible de trouver **deux messages distincts quelconques** *m1* et *m2* (sans qu'aucun des deux ne soit fixé à l'avance) tels que `H(m1) = H(m2)`. C'est la propriété la plus faible des trois à garantir en théorie (l'attaquant a plus de liberté), et c'est donc, en pratique, la première à céder lorsqu'une fonction de hachage commence à montrer des faiblesses — comme l'illustre l'histoire de MD5 et SHA-1 (section 3).
+
+Ces trois propriétés sont hiérarchisées : une fonction résistante aux collisions n'est pas automatiquement résistante à la préimage (ce sont des propriétés mathématiquement distinctes), mais en pratique, une attaque en collision découverte sur une fonction constitue toujours un signal d'alerte fort sur sa robustesse globale et précède souvent la découverte d'attaques plus fortes.
+
+---
+
+## 2. Le paradoxe des anniversaires et l'attaque par collision
+
+Pour une empreinte de *n* bits, une recherche naïve de collision par force brute — en calculant des empreintes de messages au hasard et en les comparant une à une à une empreinte cible fixée — coûterait en théorie jusqu'à 2^n essais dans le pire cas. Mais si l'objectif est simplement de trouver **une** collision quelconque entre deux messages, sans viser une empreinte cible précise, le coût réel est bien plus faible : c'est ce que révèle le **paradoxe des anniversaires**.
+
+Ce paradoxe, purement probabiliste, s'énonce classiquement ainsi : dans un groupe de seulement 23 personnes choisies au hasard, la probabilité qu'au moins deux d'entre elles partagent la même date d'anniversaire dépasse déjà 50 %, un résultat qui surprend l'intuition (on s'attendrait naïvement à avoir besoin de proche de 365 personnes). La raison mathématique est que le nombre de **paires** possibles parmi *k* éléments croît en k(k−1)/2, c'est-à-dire de façon quadratique et non linéaire : il ne faut donc pas comparer chaque nouvel élément à une seule cible, mais chaque nouvel élément à tous les éléments précédemment générés.
+
+Appliqué au hachage, ce même raisonnement montre qu'il suffit de générer environ **2^(n/2) messages** (et de comparer leurs empreintes entre elles, deux à deux) pour obtenir, avec une probabilité significative, une collision — un coût très inférieur aux 2^n essais qu'on pourrait naïvement attendre. La conséquence directe et fondamentale de ce résultat est qu'une **fonction de hachage de *n* bits de sortie n'offre, en réalité, qu'une sécurité de *n/2* bits contre les collisions** (bien qu'elle conserve, elle, une sécurité de *n* bits contre la préimage et la seconde préimage, des attaques qui restent ciblées sur un message précis). Cette division par deux explique pourquoi **MD5**, avec ses 128 bits de sortie, n'offre en réalité qu'environ 64 bits de sécurité en collision — un niveau aujourd'hui totalement insuffisant et concrètement atteint — et pourquoi **SHA-1**, avec ses 160 bits de sortie (soit environ 80 bits de sécurité théorique en collision), a été déconseillé après la démonstration d'une collision pratique en 2017 (l'attaque publiquement documentée « SHAttered »), qui a exploité des faiblesses structurelles de l'algorithme permettant d'atteindre une collision à un coût sensiblement inférieur même à cette borne théorique de 2^80.
+
+---
+
+## 3. Attaques historiques marquantes
+
+L'histoire récente des fonctions de hachage cryptographiques illustre concrètement la dynamique évoquée au chapitre 1 : un algorithme jugé sûr à sa conception peut être progressivement fragilisé, puis définitivement cassé, à mesure que la cryptanalyse publique progresse.
+
+- **MD5** (conçu en 1991) : des collisions pratiques ont été démontrées dès 2004-2005 par des équipes de recherche, exploitant des faiblesses structurelles dans la fonction de compression interne de l'algorithme. Ces techniques ont ensuite été affinées jusqu'à permettre la construction de collisions « à préfixe choisi » (permettant d'insérer une collision dans un contexte préparé par l'attaquant), exploitées notamment dans la conception du logiciel malveillant Flame (documenté publiquement en 2012), qui a utilisé une collision MD5 pour forger un faux certificat numérique paraissant signé par Microsoft.
+- **SHA-1** (conçu en 1995) : une collision pratique complète a été démontrée par une équipe de chercheurs de Google et du CWI (Centrum Wiskunde & Informatica, Pays-Bas) en 2017, sous le nom d'attaque « SHAttered », en produisant deux fichiers PDF distincts partageant la même empreinte SHA-1. Cette démonstration publique a fortement accéléré la migration généralisée des systèmes encore dépendants de SHA-1 (certificats numériques, systèmes de contrôle de version comme Git dans certains usages) vers des fonctions plus robustes.
+- **SHA-2 (incluant SHA-256, SHA-512) et SHA-3** : à ce jour, aucune attaque pratique publiée ne remet en cause la sécurité de ces familles de fonctions ; elles restent les standards recommandés pour tout usage cryptographique exigeant une résistance aux collisions et à la préimage. SHA-3, standardisé en 2015 à l'issue d'un concours public organisé par le NIST (à l'image du concours ayant abouti à AES), repose sur une construction interne (*sponge construction*, ou construction en éponge) structurellement différente de celle de SHA-2, ce qui offre une diversité de conception rassurante en cas de découverte future d'une faiblesse propre à une famille de construction donnée.
+
+---
+
+## 4. Attaque par extension de longueur (length extension attack)
+
+Les fonctions de hachage fondées sur la **construction de Merkle-Damgård** — c'est le cas de MD5, SHA-1 et SHA-2 — traitent le message d'entrée par blocs successifs, chaque bloc étant combiné à un état interne mis à jour progressivement, l'empreinte finale étant simplement l'état interne obtenu après traitement du dernier bloc. Cette construction, bien que suffisante pour garantir la résistance aux collisions dans certaines conditions, présente une propriété structurelle exploitable : l'**attaque par extension de longueur**.
+
+Le principe est le suivant : connaissant uniquement `H(message)` (l'empreinte) et la **longueur** du message d'origine (mais sans connaître le contenu exact de `message`), un attaquant peut calculer directement `H(message || padding || extension)` pour une extension de son choix qu'il ajoute à la suite — **sans jamais avoir eu connaissance du contenu du message original**. Ceci est possible car l'état interne de la fonction après traitement de `message` est exactement égal à `H(message)` lui-même : l'attaquant peut donc reprendre le calcul de hachage exactement là où il s'était arrêté, comme s'il connaissait le message, en repartant simplement de l'empreinte connue.
+
+La conséquence pratique la plus importante de cette propriété concerne l'authentification de messages : construire un code d'authentification de message (MAC) par simple concaténation, sous la forme `H(clé || message)`, est **dangereux**, car un attaquant qui observe `H(clé || message)` et la longueur du message (mais pas la clé) peut forger, grâce à l'extension de longueur, une empreinte valide pour `clé || message || padding || extension`, c'est-à-dire produire un MAC valide pour un message étendu de son choix, sans jamais avoir connu la clé secrète. C'est précisément pour neutraliser cette faille structurelle que la construction **HMAC** (*Hash-based Message Authentication Code*, étudiée en détail au module *Cryptographie*) a été spécifiquement conçue : en imbriquant la clé de part et d'autre du calcul de hachage selon un schéma précis, HMAC rend l'attaque par extension de longueur inopérante, quelle que soit la fonction de hachage sous-jacente utilisée.
+
+---
+
+## 5. Hachage de mots de passe : attaques et contre-mesures
+
+Le hachage de mots de passe constitue un cas d'usage particulier des fonctions de hachage, où les propriétés recherchées diffèrent sensiblement de celles requises pour, par exemple, vérifier l'intégrité d'un fichier téléchargé. Plusieurs classes d'attaques s'exercent spécifiquement contre ce cas d'usage, chacune appelant une contre-mesure dédiée.
+
+| Attaque | Principe | Contre-mesure |
+|---|---|---|
+| Force brute / attaque par dictionnaire | tester systématiquement des mots de passe candidats (issus d'un dictionnaire de mots de passe courants, ou générés exhaustivement) et comparer l'empreinte obtenue à celle stockée | politique de mots de passe suffisamment robustes (longueur, diversité), limitation du nombre de tentatives côté serveur, journalisation des essais infructueux |
+| Table arc-en-ciel | utilisation de tables précalculées reliant des empreintes courantes aux mots de passe correspondants, permettant une inversion quasi instantanée d'un hachage **non salé** connu | **salage** : ajout d'une valeur aléatoire unique (le sel), différente pour chaque utilisateur, combinée au mot de passe avant hachage ; une table précalculée pour un sel donné devient inutile pour tout autre utilisateur ayant un sel différent |
+| Calcul massivement parallèle (GPU/ASIC) | les fonctions de hachage génériques (SHA-256 par exemple) sont conçues pour être **rapides** à calculer (un avantage pour la vérification d'intégrité de fichiers, mais un inconvénient direct ici), ce qui permet à un attaquant disposant de matériel de calcul parallèle de tester des milliards de mots de passe candidats par seconde | recours à des fonctions **spécialement conçues pour être lentes et coûteuses en ressources** : bcrypt, scrypt, ou Argon2 (vainqueur de la compétition *Password Hashing Competition*), qui intègrent un **facteur de coût réglable**, permettant d'augmenter délibérément le temps et/ou la mémoire nécessaires à chaque calcul, y compris pour un attaquant disposant de matériel spécialisé |
+
+Le point commun de ces trois contre-mesures est qu'elles ne modifient en rien la sécurité mathématique intrinsèque de la fonction de hachage sous-jacente (en termes de résistance aux collisions ou à la préimage) : elles visent spécifiquement à **augmenter le coût pratique** d'une attaque exhaustive contre un espace de mots de passe réalistes, qui est structurellement bien plus restreint que l'espace complet des messages possibles pour lequel les fonctions de hachage génériques ont été conçues.
+
+---
+
+## 6. Méthodologie d'évaluation d'une fonction de hachage
+
+Face à une fonction de hachage donnée, dans un contexte d'usage particulier, une démarche d'évaluation rigoureuse suit les étapes suivantes :
+
+1. **Vérifier la taille de sortie** de la fonction, qui détermine la borne théorique de sécurité en collision (rappel : sécurité en collision = taille de sortie divisée par deux, d'après le paradoxe des anniversaires).
+2. **Vérifier l'absence d'attaques publiées** de préimage ou de collision pratiques contre la fonction considérée, en consultant l'état de l'art académique — une fonction jugée sûre aujourd'hui doit continuer d'être suivie dans le temps (principe de sécurité évolutive, chapitre 1).
+3. **Vérifier l'adéquation au contexte d'usage précis** : une fonction parfaitement sûre pour l'intégrité de fichiers ou la construction de signatures numériques (SHA-256) n'est **pas nécessairement adaptée**, sans adaptation supplémentaire, au hachage de mots de passe — sa rapidité de calcul, qui est un avantage dans le premier contexte, devient une faiblesse dans le second, d'où la nécessité d'un facteur de travail réglable et d'un salage systématique (section 5).
+
+---
+
+## À retenir
+
+- Le paradoxe des anniversaires divise par deux, en bits, la sécurité effective d'une fonction de hachage contre les collisions par rapport à sa sécurité contre la préimage.
+- MD5 et SHA-1 sont aujourd'hui cassés en pratique pour les collisions (attaques SHAttered pour SHA-1, exploitations documentées comme Flame pour MD5) et ne doivent plus être utilisés pour un usage sécuritaire ; SHA-2 et SHA-3 restent les standards recommandés.
+- La construction Merkle-Damgård (MD5, SHA-1, SHA-2) est vulnérable à l'attaque par extension de longueur, ce qui rend dangereuse la construction naïve d'un MAC par simple concaténation `H(clé || message)` — HMAC neutralise spécifiquement cette faiblesse.
+- Le hachage de mots de passe exige des fonctions dédiées, volontairement lentes et salées (bcrypt, scrypt, Argon2) — jamais une fonction générique rapide (SHA-256 brut) utilisée seule.

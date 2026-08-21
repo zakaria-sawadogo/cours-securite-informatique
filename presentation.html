@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Présentation — Programme Sécurité Informatique</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/zenburn.min.css">
+
+  <style>
+    :root {
+      --accent-a: #0e7c3f;
+      --accent-b: #2fa360;
+      --accent-c: #e3a92b;
+      --ink: #122a1c;
+      --r-background-color: #fdfdfb;
+      --r-main-color: var(--ink);
+      --r-main-font: "Inter", system-ui, sans-serif;
+      --r-heading-color: var(--ink);
+      --r-heading-font: "Inter", system-ui, sans-serif;
+      --r-code-font: "JetBrains Mono", ui-monospace, monospace;
+      --r-link-color: var(--accent-a);
+      --r-link-color-hover: var(--accent-c);
+      --r-selection-background-color: rgba(227, 169, 43, 0.3);
+    }
+
+    html, body { background: var(--r-background-color); }
+
+    .reveal .slides section {
+      text-align: left;
+      font-size: 0.62em;
+      max-height: 92vh;
+      overflow-y: auto;
+      font-family: var(--r-main-font);
+    }
+    .reveal .slides section h1,
+    .reveal .slides section h2 {
+      text-align: left;
+      color: var(--accent-a);
+      font-size: 1.4em;
+      font-weight: 700;
+      position: relative;
+      padding-left: 0.55em;
+    }
+    .reveal .slides section h2::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0.1em; bottom: 0.1em;
+      width: 0.14em;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--accent-a), var(--accent-c));
+    }
+    .reveal .slides section h3 { color: var(--accent-b); font-size: 1.1em; }
+
+    /* Diapositive de titre : carte hero pleine largeur, dégradé, texte blanc */
+    .reveal .slides section:first-child {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255,255,255,.15), transparent 45%),
+        linear-gradient(135deg, var(--accent-a) 0%, var(--accent-b) 55%, var(--accent-c) 100%);
+      box-shadow: 0 30px 60px -20px rgba(14,124,63,.5);
+      padding: 2em 2.4em;
+    }
+    .reveal .slides section:first-child::after {
+      content: "";
+      display: block;
+      width: 3.2em;
+      height: 0.16em;
+      margin: 0.9em auto 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,.75);
+    }
+    .reveal .slides section:first-child h1 {
+      text-align: center;
+      font-size: 1.9em;
+      color: #fff;
+      padding-left: 0;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .reveal .slides section:first-child h1::before { display: none; }
+    .reveal .slides section:first-child h3 {
+      text-align: center;
+      color: rgba(255,255,255,.92);
+      font-weight: 500;
+      font-size: 1.15em;
+    }
+    .reveal .slides section:first-child em {
+      color: rgba(255,255,255,.8);
+      font-style: normal;
+      font-size: 0.78em;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .reveal table { font-size: 0.85em; border-collapse: collapse; }
+    .reveal table th {
+      background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+      color: #fff;
+    }
+    .reveal table th, .reveal table td { border: 1px solid rgba(0,0,0,.08); padding: 0.35em 0.6em; }
+    .reveal table tr:nth-child(even) td { background: rgba(14,124,63,0.05); }
+
+    .reveal pre { border-radius: 10px; box-shadow: 0 10px 24px -10px rgba(0,0,0,.35); }
+    .reveal pre code { font-size: 0.75em; max-height: 55vh; font-family: var(--r-code-font); }
+    .reveal p, .reveal li { line-height: 1.35; }
+    .reveal .progress { color: var(--accent-a); height: 4px; }
+    .reveal .controls { color: var(--accent-a); }
+    .reveal .slide-number {
+      background: var(--accent-a); color: #fff; font-family: var(--r-code-font);
+      border-radius: 999px; padding: 0.1em 0.7em;
+    }
+
+    #loading-msg {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: "Inter", sans-serif; color: #666; font-size: 1.2em; z-index: 1000;
+    }
+    #top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 38px;
+      background: linear-gradient(90deg, #0f2117, #122a1c);
+      color: #fff; font-family: "Inter", sans-serif; font-size: 13px;
+      display: flex; align-items: center; padding: 0 14px; z-index: 2000; gap: 12px;
+      border-bottom: 2px solid var(--accent-c);
+    }
+    #top-bar a {
+      color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4em;
+      background: rgba(255,255,255,.08); padding: 0.3em 0.7em; border-radius: 999px;
+      transition: background .15s ease;
+    }
+    #top-bar a:hover { background: rgba(255,255,255,.18); }
+    #deck-title {
+      opacity: 0.85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-family: var(--r-code-font); font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+  <div id="top-bar">
+    <a href="index.html">&larr; Retour au site du cours</a>
+    <span id="deck-title"></span>
+  </div>
+  <div id="loading-msg">Chargement de la présentation…</div>
+
+  <div class="reveal" style="visibility:hidden;">
+    <div class="slides">
+      <section data-markdown data-separator-notes="^Note:">
+        <script type="text/template" id="md-content"></script>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/notes/notes.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/zoom/zoom.min.js"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const deck = params.get('deck');
+    const loadingEl = document.getElementById('loading-msg');
+    const revealEl = document.querySelector('.reveal');
+    const titleEl = document.getElementById('deck-title');
+
+    if (!deck) {
+      loadingEl.textContent = "Aucune présentation spécifiée. Ajoutez ?deck=chemin/vers/slides/fichier.md à l'URL, ou revenez au site du cours.";
+    } else {
+      titleEl.textContent = deck;
+      fetch(deck)
+        .then(r => {
+          if (!r.ok) throw new Error('Fichier introuvable : ' + deck);
+          return r.text();
+        })
+        .then(text => {
+          document.getElementById('md-content').textContent = text;
+          loadingEl.style.display = 'none';
+          revealEl.style.visibility = 'visible';
+          Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            controls: true,
+            progress: true,
+            center: false,
+            transition: 'slide',
+            width: 1100,
+            height: 700,
+            margin: 0.06,
+            plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealZoom ]
+          });
+        })
+        .catch(err => {
+          loadingEl.textContent = "Erreur de chargement : " + err.message;
+        });
+    }
+  </script>
+</body>
+</html>

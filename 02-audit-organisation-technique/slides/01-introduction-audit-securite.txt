@@ -1,0 +1,104 @@
+# Chapitre 1 — Introduction à l'audit de sécurité
+
+### Audit organisation et technique
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Définition
+
+Un **audit de sécurité** est une évaluation systématique et indépendante du niveau de sécurité d'un système d'information, visant à vérifier sa conformité à un référentiel (normatif, réglementaire ou contractuel) et à identifier les écarts entre l'état constaté et l'état attendu. Le mot « systématique » est important : un audit suit une méthodologie explicite et reproductible (checklist, référentiel, grille d'évaluation), à la différence d'un simple test ponctuel ou d'une impression subjective sur la sécurité d'un système.
+
+L'**indépendance** de l'auditeur, qu'elle soit interne (un service distinct de celui qui exploite le système) ou externe (un prestataire tiers), est ce qui donne sa crédibilité au constat : un audit réalisé par l'équipe qui a elle-même configuré le système manque structurellement d'objectivité, même si les auditeurs sont compétents et de bonne foi. C'est pour cette raison que la plupart des référentiels de certification (ISO 27001 en tête) exigent des audits menés par des personnes n'ayant pas de responsabilité directe dans la mise en œuvre des mesures évaluées.
+
+Il faut enfin distinguer l'audit de deux activités voisines mais différentes : le **contrôle** (vérification ponctuelle d'un point précis, sans démarche globale) et le **conseil** (accompagnement à l'amélioration, sans posture d'évaluation indépendante). Un auditeur peut, dans certains contextes, recommander des solutions, mais son rôle premier reste de constater un écart entre un état observé et un état de référence, pas de concevoir lui-même la solution technique.
+
+---
+
+## 2. Pourquoi auditer ?
+
+Les organisations n'auditent pas leur sécurité par pure vertu : l'audit répond en général à un ou plusieurs déclencheurs concrets, qu'il est utile de distinguer car ils orientent le périmètre, le référentiel et le niveau d'exigence attendu.
+
+- **Conformité réglementaire** : de nombreux secteurs sont soumis à des obligations légales de protection des données ou de sécurité des systèmes (secteur bancaire, santé, opérateurs d'importance vitale). L'audit permet de démontrer, preuves à l'appui, que ces obligations sont respectées, et constitue souvent une pièce du dossier en cas de contrôle par une autorité de régulation.
+- **Exigence contractuelle** : un client, un partenaire ou un assureur peut exiger un niveau de sécurité prouvé avant de signer un contrat ou de couvrir un risque cyber — par exemple une certification ISO 27001, ou une conformité PCI-DSS pour toute entité qui traite des données de cartes bancaires. Dans ce cas, l'audit n'est pas seulement un exercice interne : son résultat conditionne une relation d'affaires.
+- **Gestion des risques** : l'objectif le plus intuitif est d'identifier les vulnérabilités et les faiblesses organisationnelles avant qu'un attaquant ne les découvre et ne les exploite. L'audit joue ici un rôle préventif, complémentaire de la détection en temps réel (SOC, supervision) qui, elle, intervient une fois l'attaque déjà en cours.
+- **Amélioration continue** : réalisé de façon périodique, l'audit permet de mesurer objectivement les progrès (ou les régressions) entre deux évaluations successives, et de justifier ainsi des investissements en sécurité auprès de la direction avec des indicateurs concrets plutôt qu'avec un sentiment général.
+
+Ces motivations ne s'excluent pas : un même audit répond souvent simultanément à une exigence contractuelle et à un objectif de gestion des risques, par exemple.
+
+---
+
+## 3. Les grandes familles d'audit
+
+Le terme « audit de sécurité » recouvre en réalité plusieurs types d'exercices, dont l'objet, les méthodes et les livrables diffèrent sensiblement. Il est important de bien identifier de quel type d'audit on parle avant de définir un périmètre ou de choisir une méthodologie.
+
+| Type d'audit | Objet | Exemple de livrable |
+|---|---|---|
+| **Audit organisationnel** | politiques, procédures, gouvernance | rapport de conformité ISO 27001 |
+| **Audit technique** | configuration des systèmes, réseaux, applications | rapport de test d'intrusion |
+| **Audit de conformité** | respect d'une réglementation précise | rapport PCI-DSS, RGPD |
+| **Audit de code** | revue du code source | rapport SAST (analyse statique) |
+| **Audit physique** | sécurité des locaux, contrôle d'accès | rapport d'inspection physique |
+
+L'**audit organisationnel** s'intéresse à ce que l'organisation a décidé et documenté (politiques de sécurité, procédures de gestion des incidents, gouvernance) ainsi qu'à la manière dont ces décisions sont réellement appliquées au quotidien. L'**audit technique**, à l'inverse, examine directement l'état réel des systèmes : configuration d'un pare-feu, version d'un serveur, présence d'une faille exploitable. Ces deux familles se complètent nécessairement : un système peut être « techniquement » bien configuré à un instant donné mais dépourvu de toute procédure formalisée de gestion des correctifs (le bon état actuel risque alors de se dégrader avec le temps, faute de processus), ou au contraire disposer de procédures très détaillées sur le papier mais jamais appliquées en pratique par les équipes opérationnelles. Ce module se concentre principalement sur ces deux premières familles — l'audit organisationnel (chapitre 2) et l'audit technique (chapitres 3 à 5) — tout en gardant à l'esprit que l'audit de conformité, l'audit de code et l'audit physique en sont des déclinaisons ou des compléments spécialisés.
+
+---
+
+## 4. Les acteurs et postures
+
+Deux dimensions permettent de caractériser la posture adoptée pour un audit : la relation de l'auditeur à l'organisation auditée, et le niveau d'information dont il dispose au départ.
+
+**Selon la relation à l'organisation :**
+
+- **Auditeur interne** : appartient à l'organisation auditée (par exemple un service d'audit interne ou une équipe sécurité distincte des équipes d'exploitation). Il connaît bien le contexte, l'historique et les contraintes internes, ce qui accélère le travail, mais son indépendance reste relative — il évolue dans la même structure hiérarchique que les équipes auditées.
+- **Auditeur externe** : société tierce spécialisée, mandatée pour l'occasion. Elle apporte une indépendance plus forte et un regard neuf, souvent exigé explicitement par les référentiels de certification (un audit de certification ISO 27001 ne peut d'ailleurs pas être réalisé par l'organisation elle-même).
+
+**Selon le niveau d'information initial (particulièrement pertinent pour l'audit technique) :**
+
+- **Boîte noire (*black box*)** : l'auditeur ne dispose d'aucune information préalable sur le système, exactement comme un attaquant externe au premier jour de sa reconnaissance. Cette posture est la plus réaliste vis-à-vis d'une menace externe, mais aussi la plus longue et la moins exhaustive dans un temps donné.
+- **Boîte grise (*grey box*)** : l'auditeur dispose d'informations partielles (par exemple un compte utilisateur standard, une documentation d'architecture générale). Elle simule une menace interne, un partenaire malveillant, ou un attaquant externe ayant déjà obtenu un premier accès limité — un scénario très courant en pratique.
+- **Boîte blanche (*white box*)** : l'auditeur a accès à toutes les informations disponibles (code source, schémas d'architecture détaillés, comptes administrateurs). Cette posture maximise la couverture et la profondeur de l'audit dans le temps imparti, au prix d'un scénario moins réaliste vis-à-vis d'un attaquant externe qui, lui, ne dispose pas de ces informations au départ.
+
+Le choix de la posture n'est pas anodin : il conditionne directement ce que l'audit peut réellement démontrer, et doit donc être discuté et formalisé dès le cadrage.
+
+---
+
+## 5. Cadre légal et éthique
+
+Tout audit technique — en particulier un test d'intrusion — implique, par nature, des actions qui, réalisées sans autorisation, seraient qualifiées d'accès et de maintien frauduleux dans un système de traitement automatisé de données au regard de la plupart des législations sur la cybercriminalité. La frontière entre un audit légitime et une intrusion illégale ne tient donc pas à la technique employée (les mêmes outils et les mêmes commandes peuvent être utilisés dans les deux cas), mais uniquement à l'existence d'une **autorisation préalable, explicite et écrite**.
+
+Un audit ne peut être mené que dans le cadre d'un **mandat écrit** (parfois appelé lettre d'autorisation ou *rules of engagement*), qui précise notamment :
+
+- le **périmètre exact autorisé** : adresses IP, noms de domaine, applications précises, plages horaires pendant lesquelles les tests peuvent être menés — toute cible en dehors de ce périmètre est strictement hors mandat, même si elle appartient techniquement à la même organisation ;
+- les **techniques autorisées et interdites** : par exemple, les attaques par déni de service sont presque toujours exclues par défaut, car elles peuvent interrompre un service en production sans que cela apporte une information proportionnée au risque encouru ;
+- les **responsables à contacter** en cas d'incident pendant l'audit, afin de pouvoir interrompre rapidement les tests si un système se comporte de façon anormale ;
+- les **modalités de confidentialité et de destruction des données collectées** une fois l'audit terminé, car les preuves recueillies (identifiants extraits, données sensibles consultées) constituent elles-mêmes un risque si elles ne sont pas protégées puis détruites correctement.
+
+Au-delà du cadre strictement légal, l'auditeur est tenu à une **déontologie professionnelle** : confidentialité absolue sur les constats avant la remise du rapport officiel, absence de conflit d'intérêt, et proportionnalité des moyens employés par rapport à l'objectif de démonstration (ne pas exploiter une vulnérabilité au-delà de ce qui est nécessaire pour en prouver l'existence et l'impact).
+
+---
+
+## 6. Le cycle de vie d'un audit
+
+Un audit, qu'il soit organisationnel ou technique, suit généralement un cycle en plusieurs étapes qui structure l'ensemble de la démarche, du cadrage initial jusqu'au suivi de la remédiation :
+
+1. **Cadrage** : définition précise du périmètre, des objectifs, des contraintes de temps et de moyens, et rédaction du mandat écrit qui encadre juridiquement l'ensemble de la mission.
+2. **Collecte d'information / reconnaissance** : rassemblement de tout ce qui est nécessaire pour comprendre le système ou l'organisation auditée (documentation, entretiens, informations techniques publiquement accessibles).
+3. **Analyse** (organisationnelle et/ou technique) : confrontation méthodique de ce qui a été observé aux exigences du référentiel choisi, à l'aide de grilles d'évaluation, de tests et d'outils appropriés.
+4. **Identification et qualification des écarts/vulnérabilités** : chaque écart constaté est décrit précisément et évalué en termes de criticité, afin de pouvoir être priorisé.
+5. **Rédaction du rapport** : mise en forme des constats, de leur criticité et des recommandations associées, dans un document structuré et adapté à ses différents lecteurs (voir chapitre 6).
+6. **Restitution et plan d'action** : présentation des résultats aux parties prenantes (souvent en deux temps — synthèse pour la direction, détails pour les équipes techniques) et définition d'un plan de remédiation priorisé.
+7. **Suivi** (contre-audit / vérification de la remédiation) : un audit isolé ne garantit rien dans la durée ; un suivi ultérieur permet de vérifier que les corrections annoncées ont bien été mises en œuvre et sont efficaces.
+
+Ce cycle n'est pas purement linéaire dans la pratique : certaines phases (notamment la collecte d'information et l'analyse) s'enchaînent souvent de façon itérative, chaque nouvel élément découvert pouvant réorienter la recherche suivante.
+
+---
+
+## À retenir
+
+- Un audit combine une dimension organisationnelle et une dimension technique, et son indépendance vis-à-vis de l'entité auditée conditionne sa crédibilité.
+- Les motivations d'un audit (conformité réglementaire, exigence contractuelle, gestion des risques, amélioration continue) déterminent son périmètre et son niveau d'exigence.
+- Le mandat écrit est un prérequis non négociable à toute activité d'audit technique : sans autorisation explicite, les mêmes actions constituent une infraction.
+- Le mode d'accès (black/grey/white box) détermine la couverture et le réalisme de l'audit, et doit être choisi en fonction du scénario de menace que l'on souhaite évaluer.
+- Le cycle de vie d'un audit ne s'arrête pas au rapport : le suivi de la remédiation fait partie intégrante d'une démarche de sécurité mature.

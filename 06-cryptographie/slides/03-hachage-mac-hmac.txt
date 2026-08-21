@@ -1,0 +1,94 @@
+# Chapitre 3 — Fonctions de hachage et authentification de message (MAC/HMAC)
+
+### Cryptographie
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Fonctions de hachage cryptographiques
+
+Une fonction de hachage `H` transforme une entrée de taille arbitraire — un mot, un fichier de plusieurs gigaoctets, un flux de données — en une sortie de taille fixe, appelée **empreinte** ou **digest** (par exemple 256 bits pour SHA-256, quelle que soit la taille de l'entrée). Pour être utilisable en cryptographie, une telle fonction doit satisfaire trois propriétés de sécurité, dont les attaques correspondantes sont détaillées côté cryptanalyse au chapitre 4 du module *Cryptanalyse* :
+
+- **Résistance à la préimage** : étant donné une empreinte `h`, il doit être calculatoirement infaisable de retrouver une entrée `m` telle que `H(m) = h`. Cette propriété est ce qui rend un hachage de mot de passe utile : connaître l'empreinte stockée ne doit pas permettre de retrouver directement le mot de passe.
+- **Résistance à la seconde préimage** : étant donné une entrée `m1`, il doit être infaisable de trouver une entrée différente `m2 ≠ m1` telle que `H(m1) = H(m2)`.
+- **Résistance aux collisions** : il doit être infaisable de trouver, sans contrainte sur les entrées, une paire quelconque `(m1, m2)` avec `m1 ≠ m2` telle que `H(m1) = H(m2)`. Cette propriété est plus forte et plus difficile à garantir que les deux précédentes (le paradoxe des anniversaires implique qu'une collision devient statistiquement probable après environ `2^(n/2)` essais pour une sortie de `n` bits, contre `2^n` pour une préimage).
+
+Une fonction de hachage cryptographique n'a par ailleurs aucune clé : à la différence d'un chiffrement, `H` est une fonction publique et déterministe — la même entrée produit toujours la même sortie, pour n'importe qui.
+
+### Panorama des fonctions usuelles
+
+| Fonction | Taille de sortie | Statut |
+|---|---|---|
+| MD5 | 128 bits | **cassée** (collisions pratiques démontrées dès les années 2000), à ne plus jamais utiliser pour un usage sécuritaire, même si elle subsiste dans des contextes non sécuritaires (sommes de contrôle d'intégrité accidentelle) |
+| SHA-1 | 160 bits | **cassée** (collision pratique démontrée publiquement en 2017), dépréciée par tous les référentiels de sécurité actuels |
+| SHA-2 (SHA-256, SHA-384, SHA-512) | 256 à 512 bits | recommandée, aucune attaque pratique connue à ce jour ; construction de type Merkle-Damgård, comme MD5 et SHA-1, mais avec une fonction de compression bien plus robuste |
+| SHA-3 (Keccak) | 224 à 512 bits | recommandée, construction interne radicalement différente de SHA-2 (fonction éponge plutôt que Merkle-Damgård), ce qui **diversifie le risque** : une faille structurelle qui affecterait un jour la famille SHA-2 n'affecterait pas nécessairement SHA-3, et inversement |
+
+Le remplacement de MD5 puis de SHA-1 illustre un phénomène récurrent en cryptographie : une fonction jugée sûre à une époque donnée peut, avec l'avancée de la cryptanalyse et de la puissance de calcul disponible, cesser de l'être — d'où l'importance de suivre les recommandations à jour plutôt que de se fier à un choix figé une fois pour toutes.
+
+---
+
+## 2. Usages des fonctions de hachage
+
+Les fonctions de hachage sont l'une des briques les plus universellement utilisées de la cryptographie, bien au-delà du seul chiffrement :
+
+- **Vérification d'intégrité** : comparer l'empreinte d'un fichier téléchargé à une valeur de référence publiée par la source de confiance (souvent affichée à côté du lien de téléchargement) ; toute altération du fichier, même d'un seul bit, produit une empreinte totalement différente et donc détectable.
+- **Structures de données** : les **arbres de Merkle**, où chaque nœud interne est le hachage de ses enfants, permettent de vérifier efficacement l'intégrité d'un très grand ensemble de données sans devoir tout retélécharger (utilisés en blockchain, module suivant, et dans les systèmes de fichiers distribués) ; les **tables de hachage**, structure de données classique en informatique, pour un usage non nécessairement cryptographique.
+- **Brique de construction** : dérivation de clé (KDF), génération de nombres pseudo-aléatoires, signatures numériques où l'on signe l'empreinte d'un message plutôt que le message entier (chapitre 5), preuve de travail (*proof of work*) en blockchain.
+- **Hachage de mots de passe** : nécessite impérativement des fonctions dédiées et volontairement lentes — **bcrypt**, **scrypt**, **Argon2** — jamais une fonction générique rapide comme SHA-256 utilisée seule, qui permettrait à un attaquant disposant du matériel adapté de tester des milliards de mots de passe candidats par seconde (rappel du module *Cryptanalyse*, chapitre 4). La lenteur volontaire de ces fonctions est un choix de conception délibéré, symétrique à celui des KDF pour la dérivation de clé vu au chapitre 2.
+
+---
+
+## 3. Code d'authentification de message (MAC)
+
+Un MAC (*Message Authentication Code*) garantit simultanément **l'intégrité** d'un message et **l'authenticité** de son origine, pour deux parties qui partagent au préalable une clé secrète commune : `MAC = Fk(message)`, où seule une partie possédant la clé `k` peut produire un MAC valide, ou vérifier qu'un MAC reçu correspond effectivement au message et à la clé.
+
+Concrètement, l'émetteur calcule le MAC du message avec la clé partagée et l'envoie accolé au message ; le récepteur recalcule le MAC de son côté avec la même clé et vérifie qu'il correspond à celui reçu. Toute modification du message en transit — par un attaquant actif ou par une erreur de transmission — produit un MAC recalculé différent de celui reçu, révélant l'altération.
+
+À la différence d'une signature numérique fondée sur la cryptographie asymétrique (chapitre 5), un MAC **ne fournit pas la non-répudiation** : toute partie capable de vérifier un MAC est, par construction, également capable d'en produire un valide, puisqu'elle possède exactement la même clé secrète que l'émetteur. Un MAC prouve donc « ce message a été produit par quelqu'un connaissant la clé partagée », mais ne permet pas de distinguer, entre les deux parties qui partagent cette clé, laquelle a effectivement produit le message — une distinction sans importance dans un échange bilatéral de confiance, mais rédhibitoire dès qu'il faut convaincre un tiers.
+
+---
+
+## 4. HMAC (Hash-based MAC)
+
+**HMAC** est une construction générique standardisée permettant de bâtir un MAC robuste à partir de n'importe quelle fonction de hachage sous-jacente (HMAC-SHA256, HMAC-SHA512, etc.) :
+
+```
+HMAC(k, m) = H( (k' XOR opad) || H( (k' XOR ipad) || m ) )
+```
+
+où `k'` désigne la clé complétée (par des zéros si besoin) jusqu'à la taille de bloc interne de `H`, `||` la concaténation, et `ipad`/`opad` deux constantes fixes et distinctes, définies dans le standard, de la taille d'un bloc de `H`.
+
+Cette construction en **double application** de `H`, avec la clé combinée différemment de part et d'autre (via `ipad` puis `opad`), n'est pas un simple artifice : elle neutralise spécifiquement l'**attaque par extension de longueur** qui rend dangereuse une construction naïve du type `H(clé || message)` avec une fonction de hachage de type Merkle-Damgård (comme SHA-256). Dans une telle construction naïve, un attaquant qui connaît `H(clé || message)` peut, sans connaître la clé, calculer `H(clé || message || données_ajoutées)` pour des données de son choix appendues à la fin — une faille structurelle étudiée en détail au chapitre 4 du module *Cryptanalyse*. HMAC échappe entièrement à cette faille grâce à sa structure imbriquée en deux passes.
+
+HMAC-SHA256 est aujourd'hui l'un des mécanismes de MAC les plus utilisés en pratique : authentification de requêtes d'API (signature de requêtes AWS, par exemple), jetons **JWT** signés avec l'algorithme `HS256`, intégrité de sessions applicatives, authentification de messages dans de nombreux protocoles réseau.
+
+---
+
+## 5. MAC intégré : GMAC et Poly1305
+
+Les modes AEAD vus au chapitre précédent (AES-GCM, ChaCha20-Poly1305) n'ont pas besoin de HMAC : ils intègrent directement un mécanisme de MAC spécifique — **GMAC** pour AES-GCM (fondé sur une multiplication dans un corps de Galois), **Poly1305** pour ChaCha20 (fondé sur l'évaluation d'un polynôme modulo un grand nombre premier) — dans l'opération de chiffrement elle-même. Ce couplage évite d'avoir à composer manuellement une opération de chiffrement et une opération de MAC distinctes.
+
+Cette composition manuelle, lorsqu'elle est malgré tout nécessaire (parce qu'un mode AEAD n'est pas disponible dans l'environnement cible, par exemple), est une source d'erreurs classique, en particulier lorsque l'ordre entre chiffrement et authentification est mal choisi (authentifier le message avant de le chiffrer plutôt que l'inverse, voir section suivante) — un piège fréquent qui a historiquement conduit à des protocoles vulnérables, alors qu'un mode AEAD intégré élimine cette classe d'erreurs par construction en imposant le bon ordre en interne.
+
+---
+
+## 6. Ordre chiffrement/authentification (Encrypt-then-MAC)
+
+Lorsqu'un schéma AEAD intégré n'est pas utilisé et qu'il faut composer soi-même un chiffrement et un MAC, trois ordres sont possibles, et ils ne sont pas équivalents en sécurité :
+
+- **Encrypt-then-MAC** (chiffrer d'abord, puis calculer le MAC sur le texte chiffré) : approche **recommandée**. Le récepteur vérifie d'abord le MAC sur le texte chiffré reçu, et rejette immédiatement tout message dont le MAC est invalide, sans jamais tenter de le déchiffrer. Cela limite fortement la surface d'attaques par oracle (notamment le padding oracle sur CBC) : un attaquant qui modifie le texte chiffré est détecté avant que le système ne révèle la moindre information sur le résultat d'un déchiffrement tenté.
+- **MAC-then-Encrypt** : le MAC est calculé sur le clair puis l'ensemble (message + MAC) est chiffré. Le récepteur doit déchiffrer avant de pouvoir vérifier le MAC, ce qui expose potentiellement le système à des attaques exploitant le comportement du déchiffrement d'un texte chiffré invalide (attaques de type padding oracle notamment).
+- **Encrypt-and-MAC** : chiffrement et MAC sont calculés indépendamment sur le clair. Outre une exposition similaire à MAC-then-Encrypt, le MAC lui-même peut, selon la fonction utilisée, fuiter de l'information sur le clair puisqu'il porte directement sur celui-ci.
+
+Ce choix rejoint directement la conception des modes AEAD : GCM et ChaCha20-Poly1305 appliquent en interne une logique équivalente à Encrypt-then-MAC, ce qui est une des raisons pour lesquelles ils sont recommandés par défaut plutôt qu'une composition manuelle.
+
+---
+
+## À retenir
+
+- Une fonction de hachage cryptographique doit résister à la préimage, à la seconde préimage et aux collisions ; MD5 et SHA-1 sont cassées et dépréciées, SHA-2 et SHA-3 sont recommandées.
+- Un MAC garantit intégrité et authenticité pour des parties partageant une clé secrète, mais sans non-répudiation, contrairement à une signature numérique.
+- HMAC neutralise spécifiquement l'attaque par extension de longueur inhérente aux fonctions de hachage basées sur Merkle-Damgård, via sa construction en double application imbriquée.
+- Privilégier un mode AEAD intégré (GCM, Poly1305) plutôt que de composer manuellement chiffrement et MAC ; si une composition manuelle est nécessaire, appliquer impérativement le principe Encrypt-then-MAC.

@@ -1,0 +1,82 @@
+# Chapitre 3 — Détection d'anomalies et d'intrusions par ML
+
+### IA appliquée à la sécurité informatique
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Détection par signatures vs détection par anomalies
+
+Un système de détection d'intrusions (IDS) ou de prévention d'intrusions (IPS) peut reposer sur deux philosophies fondamentalement différentes, résumées dans le tableau ci-dessous.
+
+| Approche | Principe | Avantage | Limite |
+|---|---|---|---|
+| **Signatures** | comparaison à des motifs d'attaques connues | très faible taux de faux positifs sur les menaces connues | ne détecte pas les attaques inédites |
+| **Anomalies (ML)** | apprentissage du comportement « normal », alerte sur tout écart significatif | peut détecter des menaces nouvelles (zero-day) | taux de faux positifs souvent plus élevé, nécessite une phase d'apprentissage du « normal » |
+
+La **détection par signatures** fonctionne comme un antivirus classique : elle compare le trafic ou les événements observés à une base de motifs déjà connus et documentés comme malveillants (une séquence d'octets caractéristique, un motif de requête HTTP correspondant à une vulnérabilité connue, etc.). Tant que le motif recherché correspond exactement à une attaque déjà cataloguée, cette approche est très fiable et génère peu de fausses alertes. Sa faiblesse structurelle est symétrique : elle ne peut, par construction, détecter que ce qui a déjà été observé et ajouté à la base de signatures — une attaque totalement inédite passe inaperçue tant qu'aucune signature ne la couvre.
+
+La **détection par anomalies**, à l'inverse, ne cherche pas à reconnaître des attaques connues mais à modéliser ce à quoi ressemble un comportement « normal » (du trafic réseau habituel, une activité utilisateur typique), puis à signaler tout écart significatif par rapport à ce modèle. Cette approche peut en principe détecter des menaces jamais vues auparavant, y compris des attaques zero-day, précisément parce qu'elle ne dépend pas d'un catalogue préexistant. En contrepartie, elle génère généralement davantage de faux positifs, car tout ce qui est simplement inhabituel — sans être nécessairement malveillant — peut déclencher une alerte, et elle nécessite une phase d'apprentissage préalable du comportement normal, phase elle-même sensible : si des données d'entraînement contiennent déjà des comportements anormaux non détectés, le modèle risque de les considérer, à tort, comme faisant partie de la normalité.
+
+En pratique, les IDS/IPS modernes ne choisissent pas entre les deux approches : ils les **combinent**, en utilisant les signatures comme première ligne de défense rapide et fiable contre les menaces connues, et la détection par anomalies comme filet de sécurité complémentaire pour repérer ce que les signatures ne couvrent pas.
+
+---
+
+## 2. Sources de données pour un IDS basé ML
+
+Un système de détection basé ML a besoin de données représentatives de l'activité à surveiller. Trois grandes familles de sources sont couramment mobilisées, souvent en complément les unes des autres :
+
+- **Trafic réseau** : plutôt que d'analyser chaque paquet individuellement, on travaille généralement sur des caractéristiques dérivées des flux réseau (protocole standard NetFlow ou équivalent) : durée de la connexion, protocole utilisé, nombre d'octets échangés dans chaque direction, nombre de paquets, taux d'erreur observé. Cette agrégation par flux réduit considérablement le volume de données tout en conservant l'information pertinente pour la détection.
+- **Journaux systèmes/applicatifs** : les journaux produits par les systèmes d'exploitation et les applications (tentatives de connexion, commandes exécutées, accès aux fichiers) fournissent une autre source riche, notamment sous forme de séquences d'événements et de fréquences (par exemple, la fréquence de connexions échouées sur un compte donné peut signaler une tentative de force brute).
+- **Comportement utilisateur (UEBA)** : l'analyse du comportement des utilisateurs et des entités (*User and Entity Behavior Analytics*) s'appuie sur des indicateurs comme les horaires de connexion habituels d'un utilisateur, les ressources qu'il accède habituellement, ou le volume de données qu'il télécharge en temps normal — un écart marqué par rapport à ce profil habituel (connexion à 3h du matin, accès à des ressources jamais consultées auparavant, volume de téléchargement anormalement élevé) peut signaler un compte compromis ou une menace interne.
+
+---
+
+## 3. Ingénierie des caractéristiques pour le trafic réseau
+
+L'ingénierie des caractéristiques (*feature engineering*), déjà présentée de façon générale au chapitre 2, prend une forme concrète et bien documentée dans le domaine de la détection d'intrusions réseau. Le jeu de données **NSL-KDD**, réutilisé en TP1 de ce module, illustre bien les caractéristiques dérivées classiquement utilisées :
+
+- durée de la connexion ;
+- type de protocole (TCP, UDP, ICMP) ;
+- service ciblé (HTTP, FTP, SSH…) ;
+- nombre d'octets source→destination et destination→source ;
+- nombre de tentatives de connexion échouées récentes vers le même hôte ;
+- taux de connexions vers un même service dans une fenêtre temporelle glissante.
+
+Le passage de paquets réseau bruts à ce type de caractéristiques agrégées est une étape déterminante, et souvent sous-estimée : **un modèle ne peut jamais être meilleur que les caractéristiques qui lui sont fournies**. Un modèle sophistiqué entraîné sur des caractéristiques peu discriminantes obtiendra de moins bons résultats qu'un modèle simple entraîné sur des caractéristiques pertinentes bien choisies. C'est pourquoi, dans un projet réel, une part importante du temps est consacrée non pas au choix de l'algorithme, mais à la définition et à la validation de ces caractéristiques dérivées, en collaboration étroite avec des experts du domaine réseau.
+
+---
+
+## 4. Approches non supervisées de détection d'anomalies
+
+Lorsque des étiquettes fiables (trafic déjà catalogué « normal » ou « attaque ») ne sont pas disponibles — ce qui est fréquent pour les menaces nouvelles — on se tourne vers des approches non supervisées, qui ne nécessitent pas d'étiquettes préalables.
+
+- **Clustering (K-means, DBSCAN)** : ces algorithmes regroupent les observations similaires en clusters. L'hypothèse sous-jacente est que le comportement normal se regroupe naturellement en un ou plusieurs clusters denses, tandis que les comportements anormaux, plus rares et plus hétérogènes, se retrouvent isolés ou dans de petits clusters peu peuplés — ces points isolés sont alors considérés comme suspects.
+- **Isolation Forest** : cet algorithme construit un grand nombre d'arbres de décision aléatoires, en sélectionnant à chaque nœud une caractéristique et un seuil de séparation au hasard. L'intuition centrale est qu'une observation atypique, qui se distingue nettement du reste des données sur au moins une caractéristique, nécessite en moyenne beaucoup moins de séparations aléatoires pour être isolée du reste des points qu'une observation typique, noyée dans une région dense. Le nombre moyen de séparations nécessaires devient ainsi directement un score d'anomalie, sans qu'il soit besoin de définir explicitement ce qu'est une observation « normale ».
+- **Autoencodeurs (réseaux de neurones)** : un autoencodeur est un réseau de neurones entraîné à reconstruire ses propres entrées après les avoir compressées dans une représentation de dimension réduite. Entraîné uniquement sur du trafic normal, il apprend à bien reconstruire ce type de données ; face à une observation qui s'écarte fortement des motifs appris, l'erreur de reconstruction — l'écart entre l'entrée et sa reconstruction — devient élevée, ce qui constitue un signal d'anomalie potentielle.
+
+---
+
+## 5. Approches supervisées
+
+Lorsque des données étiquetées de qualité sont disponibles — c'est-à-dire du trafic déjà catalogué comme normal ou correspondant à des types d'attaques connus, à l'image des jeux de données de référence **NSL-KDD** ou **CICIDS** — une classification supervisée (Random Forest, SVM, réseaux de neurones) obtient généralement de meilleures performances qu'une approche purement non supervisée sur les catégories d'attaques représentées dans les données. Cette meilleure performance a cependant une contrepartie structurelle : un modèle supervisé reste, par construction, limité aux catégories d'attaques présentes dans son jeu d'entraînement, et ne pourra pas, en principe, reconnaître une famille d'attaque radicalement nouvelle qu'il n'a jamais rencontrée — un rôle qui reste alors dévolu aux approches non supervisées ou à une combinaison des deux, souvent utilisée en pratique.
+
+---
+
+## 6. Défis pratiques du déploiement en production
+
+Passer d'un modèle qui fonctionne bien sur un jeu de données de test à un système opérationnel en production soulève plusieurs défis pratiques, souvent sous-estimés lors de la conception initiale.
+
+- **Déséquilibre des classes** : les attaques représentent une infime fraction du trafic total observé en conditions réelles, un déséquilibre qui peut biaiser fortement l'apprentissage d'un modèle si rien n'est fait pour le corriger. Des techniques de rééquilibrage — sur-échantillonnage de la classe minoritaire, sous-échantillonnage de la classe majoritaire, ou génération synthétique d'exemples par la méthode SMOTE (*Synthetic Minority Over-sampling Technique*) — ainsi que le choix de métriques adaptées (précision, rappel, F1-score sur la classe minoritaire, comme vu au chapitre 2) sont nécessaires pour obtenir un modèle réellement utile.
+- **Dérive conceptuelle (concept drift)** : le trafic considéré comme « normal » évolue continuellement dans le temps — nouveaux usages, nouvelles applications déployées, nouveaux services ouverts — ce qui signifie qu'un modèle figé, entraîné une fois pour toutes, se dégrade progressivement. Un modèle en production doit donc être réentraîné périodiquement sur des données récentes pour rester pertinent.
+- **Volumétrie et latence** : un IDS doit souvent traiter des flux en temps réel ou quasi réel, ce qui contraint fortement le choix et la complexité du modèle utilisé : un modèle très sophistiqué mais lent à l'inférence peut être inutilisable si le volume de trafic à analyser dépasse sa capacité de traitement, créant un goulot d'étranglement critique en production.
+- **Intégration avec le SOC** : une alerte générée automatiquement n'a de valeur que si elle est réellement exploitable par un analyste humain — elle doit être accompagnée d'un contexte suffisant (quelle caractéristique a déclenché l'alerte, quel est le niveau de confiance du modèle), idéalement d'une explication compréhensible, et intégrée dans un processus de priorisation qui évite de noyer les analystes sous un flux d'alertes brutes et indifférenciées.
+
+---
+
+## À retenir
+
+- Les systèmes de détection combinent en général signatures (précis mais limités aux menaces connues) et ML par anomalies (couvre potentiellement les menaces nouvelles, au prix de plus de faux positifs).
+- La qualité des caractéristiques extraites du trafic brut conditionne fortement la performance du modèle.
+- Le déséquilibre des classes et la dérive conceptuelle sont deux défis pratiques majeurs, souvent sous-estimés lors du passage du prototype à la production.

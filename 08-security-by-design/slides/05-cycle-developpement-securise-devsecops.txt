@@ -1,0 +1,109 @@
+# Chapitre 5 — Cycle de développement sécurisé (DevSecOps)
+
+### Security by design
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Le cycle de développement sécurisé (Secure SDLC)
+
+Un **Secure SDLC** (*Software Development Life Cycle* sécurisé) consiste à intégrer des activités de sécurité à chaque phase du cycle de vie du développement logiciel, plutôt que de traiter la sécurité comme une étape de validation finale isolée, menée juste avant la mise en production par une équipe séparée du reste du projet. Cette approche transversale est l'application directe, au niveau du processus de développement lui-même, du principe de *security by design* introduit au chapitre 1.
+
+| Phase | Activités de sécurité |
+|---|---|
+| Exigences | Exigences de sécurité explicites formulées dès le cadrage, classification de la sensibilité des données traitées par le système |
+| Conception | Threat modeling (chapitre 2), revue d'architecture par des personnes compétentes en sécurité |
+| Développement | Bonnes pratiques de codage sécurisé, revue de code par les pairs, analyse statique du code (SAST) |
+| Tests | Tests de sécurité automatisés dérivés du threat modeling, analyse dynamique (DAST), tests d'intrusion ponctuels sur les composants critiques |
+| Déploiement | Durcissement de la configuration des environnements, gestion sécurisée des secrets d'authentification |
+| Exploitation | Supervision continue, gestion des correctifs de sécurité, procédure de réponse à incident |
+
+Chaque phase produit ainsi ses propres artefacts de sécurité, qui s'enchaînent logiquement : le threat modeling de la phase de conception alimente directement les cas de test de sécurité de la phase de tests, qui eux-mêmes s'appuient sur les exigences formulées en amont.
+
+---
+
+## 2. « Shift left » : déplacer la sécurité en amont
+
+Le principe du ***shift left*** consiste à déplacer les activités de sécurité le plus tôt possible dans le cycle de développement — littéralement « vers la gauche » d'une frise chronologique de projet, où les phases amont (exigences, conception) figurent à gauche et les phases avales (déploiement, exploitation) à droite.
+
+Ce principe découle directement de l'observation détaillée au chapitre 1 : plus une faille de sécurité est détectée tôt dans le cycle de développement, moins elle coûte à corriger, à la fois en effort technique et en risque opérationnel. Un test de sécurité automatisé exécuté à chaque *commit*, par exemple, détecte une régression de sécurité en quelques minutes, alors que la même régression découverte lors d'un audit externe annuel peut être restée exploitable en production pendant des mois.
+
+---
+
+## 3. DevSecOps : intégrer la sécurité dans DevOps
+
+**DevOps** vise à accélérer et fiabiliser le cycle développement-déploiement grâce à l'automatisation — notamment via l'intégration continue et le déploiement continu (CI/CD) — et une collaboration étroite entre équipes de développement et d'exploitation, historiquement souvent cloisonnées. **DevSecOps** étend cette approche en intégrant la sécurité comme une responsabilité **partagée et automatisée** tout au long du pipeline, plutôt que comme une porte de validation manuelle et tardive gérée par une équipe sécurité séparée, intervenant en fin de parcours et perçue comme un frein au rythme de livraison.
+
+### Contrôles de sécurité automatisables dans un pipeline CI/CD
+
+| Étape du pipeline | Contrôle de sécurité | Ce qu'il détecte |
+|---|---|---|
+| Commit / pre-commit | Détection de secrets codés en dur (clés d'API, mots de passe, jetons d'accès) | Empêche qu'un identifiant sensible entre dans l'historique du dépôt avant même le premier commit |
+| Build | Analyse statique du code (SAST) | Motifs de code dangereux détectables sans exécution (injection potentielle, gestion d'erreurs non sécurisée) |
+| Dépendances | Analyse de composition logicielle (SCA) | Vulnérabilités déjà connues et publiquement documentées dans les bibliothèques tierces utilisées |
+| Tests | Tests de sécurité automatisés | Cas de test dérivés directement du threat modeling mené en conception |
+| Déploiement en environnement de test | Analyse dynamique (DAST) | Vulnérabilités observables uniquement à l'exécution, contre l'application réellement en fonctionnement |
+| Image de conteneur | Analyse de vulnérabilités de l'image | Failles connues dans le système de base et les paquets inclus, avant publication de l'image |
+| Infrastructure as Code | Analyse de configuration | Règles de pare-feu trop permissives, stockage mal configuré (par exemple accessible publiquement par erreur), avant même le provisionnement effectif |
+
+L'intérêt de cette automatisation est double : elle rend les contrôles de sécurité **systématiques** (ils s'exécutent à chaque changement, sans dépendre de la disponibilité ou de la mémoire d'une personne) et elle les rend **rapides**, produisant un retour d'information en quelques minutes plutôt qu'après plusieurs semaines d'attente d'un audit manuel.
+
+---
+
+## 4. Gestion des secrets
+
+Les identifiants de connexion, clés d'API, jetons d'accès et certificats ne doivent **jamais** être codés en dur dans le code source, ni versionnés dans un dépôt Git — même privé. Un dépôt privé peut devenir public par erreur de configuration, et de toute façon son historique complet reste accessible à quiconque y a eu un accès légitime à un moment donné, y compris après une révocation d'accès si l'historique n'a pas été purgé.
+
+Un exemple de ce qu'il ne faut **jamais** écrire dans un fichier de configuration versionné :
+
+```python
+# À NE JAMAIS FAIRE : secret codé en dur dans le code source
+API_KEY = "<CLE_SECRETE_EN_CLAIR_A_NE_JAMAIS_VERSIONNER>"
+DATABASE_PASSWORD = "VOTRE_MOT_DE_PASSE_ICI"
+```
+
+La bonne pratique consiste à injecter ces valeurs au moment du déploiement, sans qu'elles transitent jamais par le dépôt de code :
+
+```python
+import os
+
+# Correct : le secret est lu depuis l'environnement d'exécution,
+# jamais stocké en clair dans le code source versionné
+api_key = os.environ["API_KEY"]
+```
+
+Plusieurs bonnes pratiques complémentaires renforcent cette gestion :
+
+- L'usage de **gestionnaires de secrets dédiés** (Vault et équivalents), qui centralisent le stockage chiffré des secrets et en contrôlent finement l'accès et la journalisation.
+- L'injection de **variables d'environnement** au moment du déploiement, plutôt que leur inclusion statique dans une image ou un artefact de build.
+- La **rotation régulière** des secrets, qui limite la fenêtre d'exploitation d'un secret qui aurait malgré tout fuité sans que cela soit détecté immédiatement.
+- Le **scan automatique** des dépôts (y compris de leur historique complet) pour détecter des secrets déjà exposés par le passé, souvent restés présents dans d'anciens commits longtemps après leur retrait apparent du code courant.
+
+---
+
+## 5. Gestion des vulnérabilités des dépendances tierces
+
+La majorité du code exécuté par une application moderne ne provient pas du code écrit directement par l'équipe de développement, mais de **dépendances tierces** — bibliothèques et paquets open source réutilisés pour éviter de réimplémenter des fonctionnalités courantes. Cette réutilisation massive apporte une productivité considérable, mais introduit également une surface de risque partagée : une vulnérabilité découverte dans une dépendance largement utilisée peut affecter simultanément un très grand nombre d'applications qui l'intègrent, souvent sans que leurs équipes de développement en aient conscience tant que la dépendance n'est pas explicitement auditée.
+
+L'**analyse de composition logicielle** (SCA, *Software Composition Analysis*) automatisée en continu permet de maintenir un inventaire à jour des dépendances utilisées et de leurs vulnérabilités connues, en s'appuyant sur des bases de données publiques de vulnérabilités régulièrement mises à jour. Couplée à une politique de mise à jour réactive — appliquer un correctif de sécurité disponible dans un délai raisonnable plutôt que de le reporter indéfiniment — cette analyse est devenue une pratique de sécurité de base incontournable pour tout projet logiciel moderne, quelle que soit sa taille.
+
+---
+
+## 6. Culture et organisation
+
+DevSecOps est autant une question de **culture** que d'outillage technique : l'automatisation seule ne suffit pas si les équipes ne s'approprient pas les résultats qu'elle produit.
+
+- La **formation des développeurs à la sécurité** est un investissement direct, souvent porté par des « *security champions* » identifiés au sein de chaque équipe de développement — des développeurs qui approfondissent leurs compétences en sécurité et servent de relais de bonnes pratiques auprès de leurs collègues, sans nécessiter la présence d'un expert sécurité dédié dans chaque équipe.
+- La **responsabilité partagée** remplace un modèle où la sécurité serait reportée entièrement sur une équipe sécurité séparée intervenant en fin de cycle : chaque développeur devient acteur de la sécurité du code qu'il écrit, plutôt que simple exécutant en attente d'une validation externe.
+- Le **retour d'information rapide** est un facteur déterminant d'efficacité : un développeur informé d'une faille immédiatement après son introduction — par exemple via une alerte automatisée dans son pipeline CI/CD — la corrige bien plus efficacement, avec le contexte encore frais en mémoire, qu'informé plusieurs mois plus tard lors d'un audit externe, où il doit d'abord reconstituer le contexte avant de pouvoir agir.
+
+---
+
+## À retenir
+
+- Le Secure SDLC intègre des activités de sécurité à chaque phase du développement (exigences, conception, développement, tests, déploiement, exploitation), pas uniquement en validation finale.
+- Le principe du « shift left » déplace ces activités le plus tôt possible dans le cycle, cohérent avec le constat que corriger tôt coûte nettement moins cher que corriger tard.
+- DevSecOps automatise ces contrôles directement dans le pipeline CI/CD (détection de secrets, SAST, SCA, tests de sécurité, DAST, scan d'image de conteneur, scan d'infrastructure as code).
+- La gestion des secrets (jamais codés en dur, gestionnaires dédiés, rotation) et des dépendances tierces vulnérables (SCA continue, mise à jour réactive) sont deux enjeux opérationnels majeurs et récurrents du développement logiciel moderne.
+- DevSecOps est autant une transformation culturelle (responsabilité partagée, security champions, retour d'information rapide) qu'une question d'outillage automatisé.

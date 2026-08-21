@@ -1,0 +1,116 @@
+# Chapitre 1 — Introduction à l'algorithmique et au langage C
+
+### Algorithmique et Programmation en C
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Qu'est-ce qu'un algorithme ?
+
+Un algorithme est une suite **finie** et **non ambiguë** d'instructions permettant de résoudre un problème ou d'accomplir une tâche à partir de données d'entrée, en produisant un résultat en un temps fini. Cette définition, en apparence simple, structure toute la démarche de programmation : avant même d'écrire une seule ligne de code, il faut être capable de décrire précisément *quoi faire, dans quel ordre, et jusqu'à quand*. Un algorithme n'est donc pas propre à un langage de programmation particulier — il précède le code et peut, en théorie, être traduit dans n'importe quel langage.
+
+Trois propriétés caractérisent formellement un algorithme :
+
+- **La finitude** : l'exécution doit se terminer après un nombre fini d'étapes. Un traitement qui ne s'arrête jamais (par exemple une boucle mal conçue) n'est pas, au sens strict, un algorithme — c'est un défaut de conception qui, en sécurité, peut se traduire par un déni de service.
+- **Le déterminisme** : chaque étape doit être définie de façon univoque, sans ambiguïté d'interprétation. Deux exécutions avec les mêmes données d'entrée doivent produire exactement le même résultat (sauf si l'algorithme intègre volontairement un élément aléatoire, auquel cas cela doit être explicite).
+- **L'effectivité** : chaque étape doit être suffisamment simple et concrète pour être réellement exécutable, que ce soit par un humain avec un crayon et du papier ou par une machine. « Trouver le mot de passe optimal » n'est pas une étape effective ; « comparer deux caractères » l'est.
+
+Avant d'écrire du code, il est vivement recommandé de décrire un algorithme en **pseudo-code** : une notation semi-formelle, indépendante de tout langage de programmation, qui permet de raisonner sur la logique du problème sans se soucier des détails de syntaxe. Cette étape de conception, souvent négligée par les débutants pressés d'ouvrir leur éditeur de code, évite une grande partie des erreurs de logique et facilite grandement le débogage ultérieur.
+
+```
+ALGORITHME Maximum
+ENTRÉE : a, b (deux entiers)
+SORTIE : le plus grand des deux
+DÉBUT
+    SI a > b ALORS
+        RETOURNER a
+    SINON
+        RETOURNER b
+    FIN SI
+FIN
+```
+
+Ce pseudo-code décrit sans ambiguïté la logique à suivre : comparer les deux valeurs et retourner la plus grande. Sa traduction en C, en Python ou en Java changera de syntaxe mais conservera exactement la même structure logique — c'est précisément l'intérêt de séparer la phase de conception algorithmique de la phase d'implémentation.
+
+---
+
+## 2. Pourquoi le langage C ?
+
+Le langage C, créé par Dennis Ritchie chez Bell Labs en 1972 pour réécrire le système Unix, reste aujourd'hui l'un des langages les plus enseignés et les plus utilisés au monde, en particulier dans les domaines proches du matériel et de la sécurité. Plusieurs raisons expliquent ce choix pédagogique pour un cursus en sécurité informatique :
+
+- **Accès direct à la mémoire** : le C offre un contrôle explicite sur l'allocation, l'organisation et la manipulation de la mémoire via les pointeurs (chapitre 6). Ce contrôle, absent ou fortement encadré dans des langages comme Python ou Java, est indispensable pour comprendre en profondeur des classes entières de vulnérabilités — débordement de tampon (*buffer overflow*), utilisation après libération (*use-after-free*), fuite mémoire — qui restent parmi les causes les plus fréquentes de failles critiques dans les logiciels réels.
+- **Omniprésence dans les systèmes bas niveau** : une part considérable des systèmes d'exploitation (le noyau Linux, une grande partie de Windows), des pilotes matériels, des systèmes embarqués et des outils réseau est écrite en C. Comprendre le C est donc un prérequis pour analyser, auditer ou sécuriser ces composants critiques de l'infrastructure numérique.
+- **Passerelle vers l'analyse bas niveau** : la maîtrise du C facilite considérablement la lecture de code assembleur, de code décompilé ou désassemblé — des compétences centrales en analyse de vulnérabilités, en rétro-ingénierie (*reverse engineering*) et en cryptanalyse appliquée, matières abordées plus loin dans le cursus.
+- **Performance et prévisibilité** : le C ne masque pas ce qui se passe « sous le capot ». Le code compilé correspond de façon relativement directe à ce que fait le processeur, ce qui en fait un excellent langage pour apprendre à raisonner sur le coût réel (temps, mémoire) d'un programme — une compétence qui reste utile même lorsqu'on programme ensuite dans des langages de plus haut niveau.
+
+Ce contrôle bas niveau a une contrepartie : le C ne protège presque jamais le programmeur contre ses propres erreurs. Contrairement à des langages managés qui vérifient automatiquement les débordements de tableau ou gèrent la mémoire à la place du développeur, le C considère que c'est au programmeur d'assurer la correction et la sécurité de son code. C'est précisément cette absence de filet de sécurité qui rend le C si pertinent pour un cours de sécurité informatique : comprendre où et pourquoi le langage laisse la porte ouverte à des erreurs, c'est comprendre l'origine d'une grande partie des vulnérabilités logicielles rencontrées dans le monde réel.
+
+---
+
+## 3. De l'algorithme au programme exécutable
+
+Un fichier source C (`.c`) n'est pas directement exécutable : il doit passer par une chaîne de transformations, appelée **chaîne de compilation**, avant de devenir un programme que le système d'exploitation peut lancer. Comprendre ces étapes aide à situer où et comment certaines erreurs (de syntaxe, de type, ou de liaison) sont détectées.
+
+1. **Préprocesseur** : avant toute analyse du langage C proprement dit, le préprocesseur traite les directives qui commencent par `#` — `#include` (incorporation textuelle du contenu d'un autre fichier, typiquement un en-tête `.h`), `#define` (définition de macros et de constantes symboliques), `#ifdef`/`#ifndef` (compilation conditionnelle, utile par exemple pour adapter le code à différentes plateformes). Le résultat de cette étape est un fichier source « étendu », purement textuel, sans encore aucune notion de type ni de syntaxe C validée.
+2. **Compilation** : le compilateur analyse la syntaxe du code C, vérifie la cohérence des types, puis traduit le programme en code assembleur, propre au processeur cible, avant de le convertir en **code objet** (fichier `.o`) — un format binaire contenant des instructions machine mais pas encore un programme complet et autonome.
+3. **Édition de liens (*linking*)** : l'éditeur de liens assemble un ou plusieurs fichiers objets ainsi que les bibliothèques nécessaires (par exemple la bibliothèque standard C, qui fournit `printf`, `malloc`, etc.) pour produire un unique fichier exécutable. C'est à cette étape que sont résolues les références à des fonctions définies dans d'autres fichiers ou bibliothèques ; une fonction déclarée mais jamais définie provoque une erreur de liaison (« *undefined reference* »).
+
+```bash
+gcc -Wall -Wextra -std=c11 -o programme programme.c
+./programme
+```
+
+Dans cette commande, `gcc` est le compilateur GNU pour le C ; `-Wall -Wextra` active un ensemble étendu d'avertissements (variables inutilisées, comparaisons suspectes, types incompatibles…) qui ne sont pas des erreurs bloquantes mais signalent presque toujours un problème réel dans le code ; `-std=c11` fixe la version du standard C utilisée pour la compilation (ici C11) ; `-o programme` nomme le fichier exécutable produit. La seconde ligne, `./programme`, exécute le programme ainsi compilé. Prendre l'habitude de toujours compiler avec les avertissements activés est l'une des pratiques les plus rentables qu'un futur professionnel de la sécurité puisse adopter : une part importante des bugs — y compris des bugs de sécurité — sont détectables dès cette étape, avant même l'exécution du programme.
+
+---
+
+## 4. Premier programme
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    printf("Bonjour, monde !\n");
+    return 0;
+}
+```
+
+Ce programme minimal, bien que trivial, contient déjà tous les éléments structurels d'un programme C :
+
+- `#include <stdio.h>` : cette directive de préprocesseur incorpore le contenu de l'en-tête `stdio.h` (*standard input/output*), qui déclare les fonctions d'entrées-sorties standard telles que `printf` et `scanf`. Sans cette inclusion, le compilateur ne connaîtrait pas la signature de `printf` et refuserait de compiler le programme (ou, selon le compilateur, émettrait un avertissement puis un comportement indéfini).
+- `int main(void)` : `main` est le **point d'entrée** obligatoire de tout programme C — c'est la première fonction appelée par le système d'exploitation au lancement du programme. Le type de retour `int` indique qu'elle renvoie un entier au système d'exploitation, appelé **code de sortie** (*exit code*) : par convention, `0` signale un succès, toute autre valeur signale une erreur (souvent utilisée par des scripts pour détecter automatiquement un échec). Le mot-clé `void` entre parenthèses précise explicitement que cette version de `main` ne prend aucun paramètre (il existe une autre forme, `int main(int argc, char *argv[])`, qui permet de récupérer les arguments passés en ligne de commande, vue dans les TP).
+- `printf("Bonjour, monde !\n")` : cette fonction affiche du texte formaté sur la **sortie standard** (généralement le terminal). La séquence `\n` est un caractère spécial représentant un saut de ligne.
+- `return 0;` : termine l'exécution de `main` et renvoie le code de sortie `0` (succès) au système d'exploitation.
+
+Ce programme, une fois compilé avec la commande de la section précédente puis exécuté, affiche simplement `Bonjour, monde !` suivi d'un retour à la ligne, puis se termine.
+
+---
+
+## 5. Structure générale d'un programme C
+
+Au-delà de cet exemple minimal, un programme C plus réaliste suit une organisation générale récurrente, qu'il est utile de mémoriser dès le départ pour structurer correctement ses propres fichiers sources :
+
+```
+directives de préprocesseur
+déclarations globales (constantes, prototypes de fonctions)
+int main(void) {
+    déclarations locales
+    instructions
+    return code;
+}
+définitions des autres fonctions
+```
+
+Les **directives de préprocesseur** (essentiellement des `#include`) figurent en tête de fichier, car elles doivent être traitées avant tout le reste. Viennent ensuite les **déclarations globales** : constantes partagées par tout le fichier (souvent définies avec `#define` ou `const`), et **prototypes** de fonctions — c'est-à-dire leur signature (nom, type de retour, types des paramètres) sans leur corps — qui permettent d'utiliser une fonction avant sa définition complète plus bas dans le fichier (ce mécanisme sera détaillé au chapitre 4). La fonction `main` constitue le cœur exécutable du programme, avec ses **déclarations locales** (variables utilisées uniquement dans cette fonction) et ses **instructions**. Enfin, les **définitions des autres fonctions** — le corps complet des fonctions auxiliaires — apparaissent généralement après `main`, bien que l'ordre exact importe peu tant que les prototypes ont été déclarés au préalable.
+
+Respecter cette organisation, même sur de petits programmes, prend une importance croissante à mesure que les projets grandissent : elle rend le code prévisible à lire, ce qui facilite aussi bien la maintenance que la relecture de sécurité (*code review*).
+
+---
+
+## À retenir
+
+- Un algorithme se conçoit avant de se coder : il est défini par sa finitude, son déterminisme et son effectivité, et peut se décrire en pseudo-code indépendamment de tout langage.
+- Le C est un langage compilé, statiquement typé, proche de la machine ; son absence de garde-fous automatiques en fait un excellent terrain pour comprendre l'origine des vulnérabilités mémoire.
+- La chaîne de compilation (préprocesseur, compilation, édition de liens) transforme un fichier source en exécutable ; chaque étape peut révéler des erreurs différentes.
+- Toujours compiler avec les avertissements activés (`-Wall -Wextra`) : la majorité des bugs de sécurité en C sont détectables dès la compilation ou l'analyse statique.

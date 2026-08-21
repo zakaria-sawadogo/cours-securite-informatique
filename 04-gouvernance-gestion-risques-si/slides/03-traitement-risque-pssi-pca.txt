@@ -1,0 +1,109 @@
+# Chapitre 3 — Traitement du risque, PSSI et continuité d'activité
+
+### Gouvernance et gestion des risques SI
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Les quatre stratégies de traitement du risque
+
+Une fois un risque identifié et évalué selon les méthodes présentées au chapitre 2, l'organisation doit décider comment le traiter. La littérature de gestion des risques distingue classiquement quatre stratégies, qui ne sont pas mutuellement exclusives et peuvent d'ailleurs se combiner pour un même risque (par exemple réduire un risque tout en transférant une partie résiduelle de son impact) :
+
+| Stratégie | Principe | Exemple |
+|---|---|---|
+| **Éviter** | supprimer purement et simplement l'activité ou l'actif qui génère le risque, lorsque le risque encouru est jugé disproportionné par rapport au bénéfice attendu | ne pas exposer un service inutile sur Internet, renoncer à un projet dont le profil de risque est jugé inacceptable |
+| **Réduire (atténuer)** | mettre en œuvre des mesures de sécurité, techniques ou organisationnelles, pour diminuer la probabilité d'occurrence et/ou l'impact du risque | déployer un pare-feu, chiffrer les données sensibles, former les utilisateurs, mettre en place une authentification à plusieurs facteurs |
+| **Transférer (partager)** | déplacer une partie de la charge de l'impact vers un tiers, sans pour autant faire disparaître le risque lui-même | souscrire une cyber-assurance, externaliser une activité à un prestataire avec des obligations contractuelles précises (clauses de sécurité, garanties de service) |
+| **Accepter** | assumer consciemment le risque en l'état, en général lorsque le coût du traitement dépasse l'impact potentiel estimé, ou lorsque le risque résiduel après traitement est jugé suffisamment faible | accepter un risque résiduel faible après mise en œuvre des mesures de sécurité principales jugées prioritaires |
+
+Un point essentiel, souvent négligé par les organisations peu matures : le **transfert** ne fait jamais disparaître totalement le risque. Une cyber-assurance peut compenser une perte financière, mais elle ne restaure ni la confiance des clients, ni la disponibilité immédiate d'un service interrompu, ni la conformité réglementaire en cas de manquement constaté. De même, externaliser une activité à un prestataire déplace la responsabilité opérationnelle mais laisse en général subsister, aux yeux du régulateur ou des clients, une part de responsabilité pour l'organisation donneuse d'ordre.
+
+Le choix entre ces quatre stratégies résulte toujours d'un **arbitrage coût/bénéfice**, qui doit être validé par le niveau de gouvernance approprié au regard de l'ampleur du risque considéré : une décision d'accepter un risque mineur peut relever d'un responsable opérationnel, tandis qu'une décision d'accepter un risque majeur, susceptible de menacer la continuité de l'organisation, doit impérativement remonter jusqu'à la direction générale, conformément aux principes de gouvernance présentés au chapitre 1.
+
+---
+
+## 2. La Politique de Sécurité des Systèmes d'Information (PSSI)
+
+La **PSSI** (Politique de Sécurité des Systèmes d'Information) est le document de référence qui formalise les orientations stratégiques et les règles de sécurité applicables à l'ensemble de l'organisation. Elle traduit, en engagements écrits et opposables, les décisions prises au niveau de la gouvernance. Une PSSI complète se décline généralement en plusieurs niveaux, du plus stratégique au plus opérationnel :
+
+1. **Politique générale** : document court (quelques pages), stable dans le temps, qui fixe les grands principes, l'engagement formel de la direction et le périmètre d'application de la politique de sécurité.
+2. **Politiques thématiques** : documents plus détaillés, couvrant chacun un domaine précis — contrôle d'accès, gestion des mots de passe, usage des équipements mobiles, télétravail, gestion des relations avec les tiers et prestataires, entre autres.
+3. **Procédures opérationnelles** : instructions détaillées, destinées aux équipes opérationnelles, précisant très concrètement comment appliquer les règles définies aux niveaux précédents (par exemple, la procédure exacte de gestion d'un incident de sécurité, ou la procédure de réalisation des sauvegardes).
+
+Cette structuration en niveaux permet de concilier deux besoins a priori contradictoires : la stabilité de la politique générale, qui ne doit pas être révisée trop fréquemment pour conserver son autorité, et l'agilité des procédures opérationnelles, qui doivent pouvoir évoluer rapidement au gré des évolutions techniques et organisationnelles, sans nécessiter à chaque fois une validation lourde par la direction.
+
+### Structure type d'une politique générale
+
+Une politique générale de sécurité comprend typiquement les rubriques suivantes :
+
+- **Objet et périmètre** : ce que couvre la politique, et ce qu'elle ne couvre pas.
+- **Engagement de la direction** : signature ou validation formelle par la direction générale, condition essentielle de sa légitimité.
+- **Organisation et responsabilités** : rappel des rôles définis au chapitre 1 (direction, RSSI, DSI, propriétaires métier, correspondants sécurité).
+- **Principes directeurs** : principes structurants tels que le moindre privilège (n'accorder que les droits strictement nécessaires), la défense en profondeur (superposer plusieurs couches de protection indépendantes) et la séparation des tâches (éviter qu'une même personne cumule des pouvoirs qui, combinés, créeraient un risque de fraude ou d'erreur non détectée).
+- **Gestion des risques et conformité** : rappel du processus de gestion des risques retenu (cf. chapitre 2) et des obligations de conformité applicables.
+- **Sanctions en cas de non-respect** : conséquences prévues en cas de manquement, qu'il s'agisse d'un manquement individuel ou organisationnel.
+- **Modalités de révision** : fréquence et déclencheurs de mise à jour de la politique.
+
+Une PSSI efficace est **connue, appliquée et révisée régulièrement**. Une politique rédigée avec soin, mais jamais diffusée auprès des collaborateurs concernés, jamais expliquée, ni jamais actualisée pour tenir compte des évolutions de l'organisation, est un signe classique d'immaturité fréquemment relevé lors d'un audit organisationnel : le document existe, mais il ne produit aucun effet réel sur les comportements ni sur le niveau de sécurité effectif.
+
+---
+
+## 3. Plan de Continuité d'Activité (PCA) et Plan de Reprise d'Activité (PRA)
+
+- **PCA** (Plan de Continuité d'Activité) : ensemble des dispositions organisationnelles et techniques visant à assurer, en cas de crise majeure (sinistre, cyberattaque de grande ampleur, indisponibilité prolongée d'un site), le maintien — éventuellement en mode dégradé — des activités jugées essentielles à la survie de l'organisation.
+- **PRA** (Plan de Reprise d'Activité) : volet plus spécifiquement technique du PCA, centré sur la reprise des systèmes d'information après un sinistre. Le PRA peut être vu comme le sous-ensemble informatique du PCA, dont le périmètre est plus large et englobe également les aspects humains, logistiques et organisationnels de la reprise.
+
+### Notions clés
+
+Deux indicateurs structurent la conception de tout PCA/PRA :
+
+| Indicateur | Définition |
+|---|---|
+| **RTO** (Recovery Time Objective) | durée maximale d'interruption acceptable avant reprise du service, mesurée depuis le moment de l'incident |
+| **RPO** (Recovery Point Objective) | perte de données maximale acceptable, exprimée en temps écoulé depuis la dernière sauvegarde exploitable (ex. un RPO de 4 heures signifie que l'organisation accepte de perdre, au maximum, les 4 dernières heures de données produites) |
+
+Ces deux indicateurs, qui doivent être définis processus par processus (tous les processus métier ne partagent pas la même criticité), déterminent directement l'architecture de résilience à mettre en œuvre. Un RTO très court impose, par exemple, un site de secours actif en permanence (bascule quasi immédiate), tandis qu'un RTO plus long peut se satisfaire d'un site de secours passif, activé seulement en cas de besoin, à moindre coût. De même, un RPO très court impose une réplication des données en temps réel ou quasi réel, tandis qu'un RPO plus tolérant peut se contenter de sauvegardes périodiques classiques.
+
+| Exigence | RTO/RPO court | RTO/RPO long |
+|---|---|---|
+| Architecture typique | site de secours actif, réplication temps réel | site de secours passif, sauvegardes périodiques |
+| Coût | élevé | plus modéré |
+| Processus concernés | processus critiques (ex. paiement, production) | processus support, moins sensibles au temps |
+
+### Étapes d'élaboration d'un PCA
+
+L'élaboration d'un PCA suit un enchaînement logique en cinq étapes :
+
+1. **Analyse d'impact sur l'activité** (BIA — *Business Impact Analysis*) : cette étape, réalisée en amont avec les propriétaires métier, identifie les processus critiques de l'organisation et détermine, pour chacun, un RTO et un RPO cible, en fonction de la gravité des conséquences d'une interruption.
+2. **Définition des stratégies de continuité** : choix des solutions permettant de tenir les objectifs fixés (site de secours, télétravail de crise, procédures dégradées permettant de maintenir un service minimal).
+3. **Rédaction des plans opérationnels** : formalisation précise de qui fait quoi, avec quelles ressources, dans quel ordre, en cas de déclenchement effectif du plan.
+4. **Tests réguliers** : organisation d'exercices de crise (simulations impliquant les équipes concernées) et de tests techniques de bascule (vérification effective que le site de secours fonctionne réellement).
+5. **Mise à jour continue** : révision du plan à chaque évolution significative de l'organisation, de ses systèmes ou de son environnement de risque.
+
+Un principe essentiel à retenir : **un PCA non testé est un PCA dont l'efficacité réelle est inconnue**. Un plan peut sembler complet sur le papier tout en s'avérant inapplicable en situation réelle (procédure obsolète, personne-clé indisponible, site de secours mal dimensionné). Les tests réguliers sont donc, en pratique, au moins aussi importants que la rédaction initiale du plan, et constituent souvent le point faible des dispositifs de continuité les moins matures.
+
+---
+
+## 4. Gestion de crise cyber
+
+La gestion de crise cyber est une démarche distincte du PCA/PRA, mais qui lui est étroitement complémentaire. Alors que le PCA/PRA prépare la continuité et la reprise des activités et des systèmes, la gestion de crise organise la **prise de décision** pendant l'incident lui-même, dans un contexte souvent marqué par l'incertitude, l'urgence et une forte pression médiatique ou réglementaire potentielle.
+
+Concrètement, une organisation mature met en place une **cellule de crise dédiée**, réunissant généralement le RSSI, la DSI, la direction de la communication, la direction juridique et la direction générale, capable d'être activée rapidement en cas d'incident majeur (par exemple une attaque par rançongiciel bloquant une partie significative du système d'information). Cette cellule s'appuie sur des procédures de décision pré-établies, préparées à froid avant toute crise, afin d'éviter d'avoir à improviser des choix critiques sous forte pression :
+
+- **Isoler** : contenir la propagation de l'incident (déconnecter les systèmes compromis, couper certains accès réseau).
+- **Communiquer** : gérer la communication interne (personnel) et externe (clients, partenaires, médias le cas échéant) de façon cohérente et maîtrisée.
+- **Notifier** : le cas échéant, informer les autorités compétentes conformément aux obligations réglementaires applicables (protection des données, réglementations sectorielles de cybersécurité).
+
+La préparation en amont de cette cellule de crise — par des exercices réguliers, au même titre que les tests du PCA — conditionne largement la capacité réelle de l'organisation à réagir efficacement le jour où un incident survient effectivement.
+
+---
+
+## À retenir
+
+- Quatre stratégies de traitement du risque : éviter, réduire, transférer, accepter — le choix relève d'un arbitrage coût/bénéfice validé par le niveau de gouvernance approprié à l'ampleur du risque.
+- Le transfert du risque (assurance, externalisation) ne fait jamais disparaître totalement le risque ni la responsabilité de l'organisation.
+- La PSSI se décline en plusieurs niveaux, de la politique générale aux procédures opérationnelles, et doit être vivante : connue, diffusée, appliquée et révisée régulièrement.
+- RTO et RPO traduisent en exigences techniques concrètes la criticité de chaque processus métier, et dimensionnent directement l'architecture de résilience (site de secours, fréquence de réplication).
+- Un PCA/PRA non testé reste théorique : les exercices réguliers sont aussi essentiels que la rédaction du plan lui-même.
+- La gestion de crise cyber organise la prise de décision pendant l'incident (isoler, communiquer, notifier), en complément — et non en substitution — du PCA/PRA.

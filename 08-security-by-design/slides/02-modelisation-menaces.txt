@@ -1,0 +1,109 @@
+# Chapitre 2 — Modélisation des menaces (threat modeling)
+
+### Security by design
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Qu'est-ce que le threat modeling ?
+
+Le threat modeling est une démarche structurée visant à identifier, de façon systématique et le plus en amont possible, les menaces plausibles pesant sur un système, afin de concevoir des mesures de sécurité proportionnées avant même l'implémentation. C'est l'un des outils centraux de *security by design* : là où un test d'intrusion cherche des vulnérabilités dans un système déjà construit, le threat modeling cherche à anticiper les faiblesses potentielles pendant que le système est encore sur le papier, quand les corriger coûte le moins cher (chapitre 1).
+
+L'objectif n'est pas de produire une liste exhaustive et théorique de toutes les attaques imaginables — un exercice qui deviendrait vite ingérable et peu actionnable — mais de raisonner de façon structurée sur les menaces les plus pertinentes pour le système concret étudié, afin d'en tirer des décisions de conception concrètes. Un threat model n'est donc pas un document figé produit une fois pour toutes : c'est un outil de travail vivant, révisé à mesure que le système évolue.
+
+---
+
+## 2. La démarche générale en quatre questions (Adam Shostack)
+
+Adam Shostack, référence reconnue du domaine, résume la démarche de threat modeling en quatre questions simples mais structurantes, à se poser dans cet ordre :
+
+1. **Sur quoi travaillons-nous ?** Il s'agit de modéliser le système avant de chercher des menaces : produire un diagramme de flux de données, identifier les composants, les magasins de données et les frontières de confiance. Sans cette étape préalable, l'identification des menaces devient impressionniste et incomplète.
+2. **Qu'est-ce qui peut mal tourner ?** C'est l'étape d'identification systématique des menaces proprement dite, appuyée sur des méthodes structurantes comme STRIDE (section 4) pour éviter les oublis.
+3. **Que faisons-nous à ce sujet ?** Pour chaque menace retenue comme pertinente, il faut définir une contre-mesure concrète : un contrôle technique, un changement d'architecture, ou une décision explicite d'accepter le risque si sa probabilité et son impact le justifient.
+4. **Avons-nous fait du bon travail ?** La démarche se termine par une validation : le threat model a-t-il été mené avec la rigueur nécessaire, les contre-mesures identifiées ont-elles réellement été mises en œuvre, et la démarche doit-elle être répétée à la prochaine évolution significative du système ?
+
+Cette structuration en quatre questions a l'avantage d'être facilement mémorisable et transposable à des contextes très variés, du threat modeling formel en atelier à une réflexion plus légère menée par une petite équipe de développement.
+
+---
+
+## 3. Diagramme de flux de données (DFD) et frontières de confiance
+
+Avant d'identifier des menaces, il faut représenter le système de façon suffisamment précise pour raisonner dessus. Un **diagramme de flux de données (DFD)** représente typiquement quatre types d'éléments : les **processus** (composants qui traitent des données, ex. un service applicatif), les **flux de données** (échanges entre composants), les **magasins de données** (bases de données, fichiers, caches) et les **entités externes** (utilisateurs, systèmes tiers avec lesquels le système interagit).
+
+L'élément le plus important de ce diagramme, du point de vue de la sécurité, est la **frontière de confiance** (*trust boundary*) : un point du diagramme où le niveau de confiance accordé aux données ou à l'entité change. Par exemple, la frontière entre un client non authentifié sur Internet et un serveur applicatif interne, ou la frontière entre une zone démilitarisée (DMZ) exposée publiquement et un réseau interne considéré plus sensible.
+
+Les menaces se concentrent typiquement sur ces frontières, car c'est précisément à ces points que des données ou des requêtes passent d'un niveau de confiance à un autre sans garantie automatique de leur légitimité. Un threat modeling efficace porte donc une attention particulière à chaque frontière représentée sur le diagramme, bien plus qu'au contenu interne d'un composant qui ne franchit aucune frontière.
+
+---
+
+## 4. STRIDE : classification des menaces
+
+**STRIDE** est un modèle de classification des menaces développé par Microsoft, structuré en six catégories à examiner systématiquement pour chaque composant et chaque flux du diagramme de flux de données. Son intérêt principal est de servir d'aide-mémoire structurée, garantissant qu'aucune grande catégorie de menace n'est oubliée lors de la revue d'un composant.
+
+| Lettre | Menace | Propriété de sécurité visée | Exemple |
+|---|---|---|---|
+| **S** | Spoofing (usurpation d'identité) | Authenticité | Se faire passer pour un autre utilisateur, par exemple en réutilisant un jeton de session volé |
+| **T** | Tampering (falsification) | Intégrité | Modifier des données en transit (interception d'une requête non protégée) ou au repos (modification directe d'un enregistrement en base) |
+| **R** | Repudiation (répudiation) | Non-répudiation | Nier avoir effectué une action, en l'absence de journalisation suffisamment fiable pour la démontrer a posteriori |
+| **I** | Information disclosure (divulgation d'information) | Confidentialité | Accéder à des données sans autorisation, par exemple via un message d'erreur trop verbeux révélant des détails internes |
+| **D** | Denial of Service (déni de service) | Disponibilité | Rendre un service indisponible, par exemple en saturant volontairement une ressource limitée (bande passante, connexions, calcul) |
+| **E** | Elevation of Privilege (élévation de privilège) | Autorisation | Obtenir des droits supérieurs à ceux normalement accordés, par exemple en exploitant une vérification d'autorisation incomplète |
+
+Pour chaque flux et chaque composant du diagramme, la méthode consiste à se poser systématiquement la question : « ce composant est-il vulnérable à S ? à T ? à R ? » et ainsi de suite pour les six lettres. Un magasin de données, par exemple, est rarement concerné par le spoofing en tant que tel, mais reste très concerné par la falsification et la divulgation d'information — l'exercice aide justement à raisonner composant par composant plutôt que de façon globale et vague.
+
+---
+
+## 5. DREAD : évaluation de la sévérité
+
+Une fois des menaces identifiées via STRIDE, toutes ne présentent pas le même niveau de risque : il devient nécessaire de les prioriser pour concentrer l'effort de correction sur les plus critiques. **DREAD** est un modèle complémentaire, historiquement associé à STRIDE, permettant de scorer une menace identifiée selon cinq critères indépendants :
+
+- **D**amage (dommage potentiel) : quelle serait l'ampleur des dégâts si la menace se concrétisait ?
+- **R**eproducibility (reproductibilité) : l'attaque est-elle facile à reproduire de façon fiable ?
+- **E**xploitability (facilité d'exploitation) : quel niveau de compétence ou d'outillage est requis pour l'exploiter ?
+- **A**ffected users (utilisateurs affectés) : quelle proportion des utilisateurs serait touchée ?
+- **D**iscoverability (facilité de découverte) : la vulnérabilité est-elle facile à découvrir par un attaquant, y compris un attaquant peu qualifié ?
+
+DREAD est aujourd'hui moins utilisé de façon isolée qu'à ses débuts, en partie à cause de la subjectivité de certains critères d'un évaluateur à l'autre ; il est souvent remplacé en pratique par une matrice de risque classique (probabilité × impact, cf. module *Gouvernance*) ou par le score **CVSS** (Common Vulnerability Scoring System) lorsque la menace correspond à une vulnérabilité déjà cataloguée et publiquement documentée.
+
+---
+
+## 6. Arbres d'attaque (attack trees)
+
+Un **arbre d'attaque** offre une représentation hiérarchique et visuelle des chemins qu'un attaquant pourrait emprunter pour atteindre un objectif donné. Le nœud racine de l'arbre représente l'objectif final de l'attaquant (par exemple « compromettre le compte administrateur »), décomposé en sous-objectifs représentés par des nœuds enfants, reliés entre eux par des relations logiques **ET** (tous les sous-objectifs doivent être atteints) ou **OU** (un seul suffit), jusqu'à atteindre des actions concrètes et réalisables au niveau des feuilles de l'arbre.
+
+Cette structure présente un double intérêt pédagogique et opérationnel. D'une part, elle aide à visualiser l'ensemble des chemins d'attaque possibles vers un objectif donné, plutôt que de se limiter au premier scénario venu à l'esprit. D'autre part, elle permet d'identifier des points de contrôle stratégiques : une contre-mesure placée à un nœud partagé par plusieurs branches de l'arbre peut bloquer simultanément plusieurs chemins d'attaque distincts, ce qui en fait un investissement de sécurité particulièrement rentable.
+
+---
+
+## 7. PASTA et autres méthodologies
+
+Au-delà de STRIDE, d'autres méthodologies de threat modeling existent, avec des orientations différentes selon le contexte et les priorités de l'organisation :
+
+| Méthodologie | Orientation | Cas d'usage typique |
+|---|---|---|
+| **STRIDE** | Technique, par catégorie de propriété de sécurité | Revue systématique d'une architecture ou d'un composant |
+| **PASTA** (Process for Attack Simulation and Threat Analysis) | Centrée sur le risque métier, simule des scénarios d'attaque complets de bout en bout | Contextes où l'alignement avec les enjeux métier est prioritaire |
+| **LINDDUN** | Spécifiquement dédiée aux menaces sur la vie privée | Systèmes traitant des données personnelles sensibles (cf. chapitre 6, *privacy by design*) |
+
+**PASTA** adopte une démarche en plusieurs étapes qui part des objectifs métier et des exigences de conformité pour remonter progressivement vers les vulnérabilités techniques, ce qui la rend particulièrement adaptée lorsque la priorisation des efforts de sécurité doit être justifiée auprès de décideurs non techniques. **LINDDUN**, elle, applique une logique similaire à STRIDE mais tournée vers les atteintes à la vie privée plutôt que vers les propriétés de sécurité classiques — elle sera reprise en détail au chapitre 6.
+
+---
+
+## 8. Quand et comment mener un threat modeling
+
+Le threat modeling produit le plus de valeur lorsqu'il est mené selon quelques principes pratiques éprouvés :
+
+- **Au bon moment** : idéalement en phase de conception, avant l'écriture du code, quand les modifications restent peu coûteuses (chapitre 1). Il doit ensuite être **révisé** à chaque évolution architecturale significative — l'ajout d'un nouveau composant, l'ouverture d'une nouvelle intégration externe, ou un changement de modèle de déploiement justifient chacun une révision, même partielle.
+- **En atelier collaboratif** : le threat modeling gagne à associer développeurs, architectes et personnel sécurité dans une session de travail commune, plutôt que d'être l'exercice isolé d'un seul expert sécurité déconnecté de l'équipe de développement. Les développeurs connaissent le fonctionnement réel du système bien mieux que quiconque, et leur participation directe augmente à la fois la qualité de l'analyse et l'appropriation des contre-mesures qui en découlent.
+- **Documenté et priorisé** : les menaces identifiées et les contre-mesures associées doivent être consignées et priorisées, pour alimenter directement le backlog de développement — chaque contre-mesure devient une user story ou une tâche technique traçable, plutôt qu'une recommandation qui reste sans suite dans un rapport jamais relu.
+
+---
+
+## À retenir
+
+- Le threat modeling identifie systématiquement les menaces à partir d'une représentation du système (diagramme de flux de données) et de ses frontières de confiance, avant l'implémentation, en suivant les quatre questions de Shostack.
+- STRIDE structure l'identification des menaces par catégorie (spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege), en miroir des propriétés de sécurité visées ; DREAD ou une matrice de risque classique aident ensuite à prioriser.
+- Les arbres d'attaque offrent une vue hiérarchique des chemins d'attaque possibles vers un objectif, utile pour identifier des contre-mesures à fort effet de levier.
+- Les méthodologies alternatives (PASTA, LINDDUN) offrent des perspectives complémentaires selon le contexte (risque métier, vie privée).
+- Un threat modeling efficace est mené en amont, collaborativement, et débouche sur des contre-mesures documentées et intégrées au backlog — ce n'est pas un exercice isolé et sans suite.

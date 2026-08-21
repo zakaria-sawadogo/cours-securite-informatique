@@ -1,0 +1,5776 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Support de cours, présentations et travaux pratiques — Dr Zakaria Sawadogo, École Polytechnique de Ouagadougou">
+      
+      
+        <meta name="author" content="Dr Zakaria Sawadogo">
+      
+      
+        <link rel="canonical" href="https://zakaria-sawadogo.github.io/cours-securite-informatique/07-technologie-blockchain/cours/05-securite-smart-contracts.html">
+      
+      
+        <link rel="prev" href="04-smart-contracts-ethereum.html">
+      
+      
+        <link rel="next" href="06-applications-enjeux-limites.html">
+      
+      
+      <link rel="icon" href="../../assets/img/epo-favicon-v2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>5. Sécurité et vulnérabilités des smart contracts - Les Cours du Dr. Zakaria Sawadogo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css?v=2">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapitre-5-securite-et-vulnerabilites-des-smart-contracts" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../../index.html" title="Les Cours du Dr. Zakaria Sawadogo" class="md-header__button md-logo" aria-label="Les Cours du Dr. Zakaria Sawadogo" data-md-component="logo">
+      
+  <img src="../../assets/img/epo-emblem-v2.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Les Cours du Dr. Zakaria Sawadogo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              5. Sécurité et vulnérabilités des smart contracts
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="amber"  aria-label="Passer en mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Passer en mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="green" data-md-color-accent="amber"  aria-label="Passer en mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Passer en mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.html" class="md-tabs__link">
+        
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../cours/index.html" class="md-tabs__link">
+          
+  
+    
+  
+  Cours
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Les Cours du Dr. Zakaria Sawadogo" class="md-nav__button md-logo" aria-label="Les Cours du Dr. Zakaria Sawadogo" data-md-component="logo">
+      
+  <img src="../../assets/img/epo-emblem-v2.png" alt="logo">
+
+    </a>
+    Les Cours du Dr. Zakaria Sawadogo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Accueil
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../cours/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cours/telechargements.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Téléchargements
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../01-algorithmique-programmation-c/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    1. Algorithmique et Programmation en C
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            1. Algorithmique et Programmation en C
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_2" id="__nav_2_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/01-introduction-algorithmique-et-c.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à l'algorithmique et au langage C
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/02-variables-types-operateurs-es.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Variables, types, opérateurs et entrées-sorties
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/03-structures-de-controle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Structures de contrôle
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/04-fonctions-portee.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Fonctions et portée des variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/05-tableaux-chaines.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Tableaux et chaînes de caractères
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/06-pointeurs-memoire.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Pointeurs et gestion mémoire
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/cours/07-structures-fichiers.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    7. Structures (`struct`) et fichiers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_4" id="__nav_2_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp1-prise-en-main.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Prise en main : compilation et premiers programmes (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp2-structures-controle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Structures de contrôle (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp3-fonctions.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Fonctions (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp4-tableaux.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Tableaux (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp5-chaines.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP5 — Chaînes de caractères (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp6-pointeurs.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP6 — Pointeurs et allocation dynamique (3h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-algorithmique-programmation-c/tp/tp7-mini-projet.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP7 — Mini-projet : gestionnaire de contacts (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../02-audit-organisation-technique/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    2. Audit organisation et technique
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            2. Audit organisation et technique
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4_2" id="__nav_2_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/01-introduction-audit-securite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à l'audit de sécurité
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/02-audit-organisationnel-referentiels.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Audit organisationnel : normes et référentiels
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/03-audit-technique-methodologie.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Audit technique : méthodologie des tests d'intrusion
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/04-audit-infrastructures.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Audit des infrastructures réseau et systèmes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/05-audit-applications.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Audit des applications et du code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/cours/06-rapport-audit-remediation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Rapport d'audit et plan de remédiation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4_4" id="__nav_2_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp1-audit-organisationnel.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Audit organisationnel sur cas d'étude (ISO 27001) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp2-reconnaissance-scan.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Reconnaissance et scan réseau (Nmap) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp3-pentest-applicatif.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Test d'intrusion applicatif (OWASP Top 10) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-audit-organisation-technique/tp/tp4-rapport-audit.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Rédaction d'un rapport d'audit complet (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../03-cryptanalyse/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    3. Cryptanalyse
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_5" id="__nav_2_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            3. Cryptanalyse
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_5_2" id="__nav_2_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/01-introduction-cryptanalyse.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à la cryptanalyse : histoire et classification des attaques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/02-cryptanalyse-chiffrements-classiques.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Cryptanalyse des chiffrements classiques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/03-cryptanalyse-symetrique-moderne.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Cryptanalyse des chiffrements symétriques modernes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/04-attaques-fonctions-hachage.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Attaques sur les fonctions de hachage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/05-cryptanalyse-asymetrique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Cryptanalyse des systèmes asymétriques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/cours/06-attaques-canaux-auxiliaires.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Attaques par canaux auxiliaires et attaques pratiques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_5_4" id="__nav_2_5_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp1-analyse-frequentielle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Cryptanalyse par analyse fréquentielle (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp2-attaques-hachage.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Attaques par force brute et dictionnaire sur hachages (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp3-ecb-padding-oracle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Attaque sur le mode ECB et padding oracle (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-cryptanalyse/tp/tp4-cryptanalyse-rsa.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Cryptanalyse de RSA mal implémenté (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../04-gouvernance-gestion-risques-si/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    4. Gouvernance et gestion des risques SI
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_6" id="__nav_2_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            4. Gouvernance et gestion des risques SI
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_6_2" id="__nav_2_6_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/01-introduction-gouvernance-si.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à la gouvernance de la sécurité de l'information
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/02-methodologies-analyse-risques.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Méthodologies d'analyse de risques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/03-traitement-risque-pssi-pca.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Traitement du risque, PSSI et continuité d'activité
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/cours/04-pilotage-indicateurs-conformite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Pilotage, indicateurs et conformité réglementaire
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_6_4" id="__nav_2_6_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp1-cartographie-actifs.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Cartographie des actifs et identification des menaces (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp2-analyse-risque-ebios.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Analyse de risque EBIOS RM sur cas d'étude (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp3-elaboration-pssi.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Élaboration d'une politique de sécurité (PSSI) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-gouvernance-gestion-risques-si/tp/tp4-tableau-bord-ssi.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Construction d'un tableau de bord SSI (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../05-ia-appliquee-securite-informatique/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    5. IA appliquée à la sécurité informatique
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_7" id="__nav_2_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_7">
+            <span class="md-nav__icon md-icon"></span>
+            5. IA appliquée à la sécurité informatique
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_7_2" id="__nav_2_7_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_7_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_7_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/01-introduction-ia-cybersecurite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction : IA et cybersécurité, panorama
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/02-rappels-machine-learning.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Rappels de machine learning
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/03-detection-anomalies-intrusions.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Détection d'anomalies et d'intrusions par ML
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/04-detection-malwares-ml.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Détection de malwares par machine learning
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/05-nlp-securite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. NLP appliqué à la sécurité (phishing, analyse de logs)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/cours/06-securite-de-lia.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Sécurité de l'IA : attaques adversariales et IA offensive
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_7_4" id="__nav_2_7_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_7_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_7_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp1-classification-trafic-reseau.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Classification de trafic réseau (NSL-KDD) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp2-detection-anomalies.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Détection d'anomalies non supervisée (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp3-detection-phishing-nlp.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Détection de phishing par NLP (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-ia-appliquee-securite-informatique/tp/tp4-attaque-adversariale.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Attaque adversariale sur un classifieur (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../06-cryptographie/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    6. Cryptographie
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_8" id="__nav_2_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_8">
+            <span class="md-nav__icon md-icon"></span>
+            6. Cryptographie
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_8_2" id="__nav_2_8_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/01-introduction-principes-fondamentaux.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction et principes fondamentaux
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/02-cryptographie-symetrique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Cryptographie symétrique : chiffrement par bloc et par flux
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/03-hachage-mac-hmac.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Fonctions de hachage et authentification de message (MAC/HMAC)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/04-cryptographie-asymetrique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Cryptographie asymétrique : RSA, Diffie-Hellman, ECC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/05-signatures-pki.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Signatures numériques et infrastructures à clés publiques (PKI)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/cours/06-protocoles-appliques-tls-pqc.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Protocoles appliqués : TLS et cryptographie post-quantique
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_8_4" id="__nav_2_8_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_8_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp1-chiffrement-symetrique-openssl.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Chiffrement symétrique avec OpenSSL (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp2-hachage-hmac-integrite.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Hachage, HMAC et intégrité de fichiers (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp3-rsa-cles-signature.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — RSA : génération de clés, chiffrement et signature (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-cryptographie/tp/tp4-analyse-tls-certificats.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Analyse d'une négociation TLS et des certificats (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    7. Technologie Blockchain
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_9" id="__nav_2_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_9">
+            <span class="md-nav__icon md-icon"></span>
+            7. Technologie Blockchain
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_9_2" id="__nav_2_9_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_9_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_9_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="01-introduction-principes-blockchain.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction : principes fondamentaux de la blockchain
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="02-structures-donnees-merkle.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Structures de données : chaînage cryptographique et arbres de Merkle
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-mecanismes-consensus.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Mécanismes de consensus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-smart-contracts-ethereum.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Smart contracts et Ethereum
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    5. Sécurité et vulnérabilités des smart contracts
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="05-securite-smart-contracts.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    5. Sécurité et vulnérabilités des smart contracts
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Sur cette page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Sur cette page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-pourquoi-la-securite-des-smart-contracts-est-particulierement-critique" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Pourquoi la sécurité des smart contracts est particulièrement critique
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Pourquoi la sécurité des smart contracts est particulièrement critique">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mecanismes-devolutivite-et-leurs-propres-risques" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mécanismes d'évolutivité et leurs propres risques
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-reentrance-reentrancy" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Réentrance (reentrancy)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Réentrance (reentrancy)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pourquoi-transfer-ne-suffit-pas-toujours-le-role-du-verrou-de-reentrance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pourquoi transfer ne suffit pas toujours : le rôle du verrou de réentrance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reentrance-inter-fonctions-et-reentrance-en-lecture-seule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Réentrance inter-fonctions et réentrance en lecture seule
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-debordementsoupassement-dentier-overflowunderflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Débordement/soupassement d'entier (overflow/underflow)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-controle-dacces-defaillant" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Contrôle d'accès défaillant
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Contrôle d'accès défaillant">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fonctions-non-initialisees-et-visibilite-par-defaut" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fonctions non initialisées et visibilité par défaut
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-attaques-par-manipulation-doracle-de-prix" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Attaques par manipulation d'oracle de prix
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Attaques par manipulation d'oracle de prix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anatomie-dun-scenario-pedagogique-de-manipulation-par-pret-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anatomie d'un scénario pédagogique de manipulation par prêt flash
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-attaques-par-deni-de-service-et-boucles-couteuses-en-gas" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Attaques par déni de service et boucles coûteuses en gas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-demarche-daudit-dun-smart-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Démarche d'audit d'un smart contract
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Démarche d'audit d'un smart contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#les-limites-propres-a-chaque-outil-daudit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Les limites propres à chaque outil d'audit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#un-rappel-historique-lattaque-de-the-dao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Un rappel historique : l'attaque de The DAO
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-retenir" class="md-nav__link">
+    <span class="md-ellipsis">
+      À retenir
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-applications-enjeux-limites.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Applications, enjeux et limites
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_9_4" id="__nav_2_9_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_9_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_9_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp1-mini-blockchain-python.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Implémentation d'une mini-blockchain en Python (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp2-simulation-consensus-pow.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Simulation d'un consensus par preuve de travail (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp3-smart-contract-solidity.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Développement d'un smart contract simple (Solidity) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tp/tp4-audit-smart-contract.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Audit de vulnérabilités d'un smart contract (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_10" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../08-security-by-design/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    8. Security by design
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_10" id="__nav_2_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_10">
+            <span class="md-nav__icon md-icon"></span>
+            8. Security by design
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_10_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_10_2" id="__nav_2_10_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_10_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_10_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/01-introduction-security-by-design.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction : principes de security by design et privacy by design
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/02-modelisation-menaces.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Modélisation des menaces (threat modeling)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/03-principes-conception-securisee.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Principes de conception sécurisée
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/04-architecture-securisee-zero-trust.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Architecture sécurisée : segmentation et zero trust
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/05-cycle-developpement-securise-devsecops.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Cycle de développement sécurisé (DevSecOps)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/cours/06-privacy-by-design.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Privacy by design
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_10_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_10_4" id="__nav_2_10_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_10_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_10_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp1-threat-modeling-stride.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Threat modeling STRIDE sur une application (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp2-principes-conception-securisee.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Application des principes de conception sécurisée (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp3-architecture-zero-trust.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Conception d'une architecture zero trust (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-security-by-design/tp/tp4-devsecops-cicd.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Intégration de contrôles de sécurité en CI/CD (DevSecOps) (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../09-securite-des-applications/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    9. Sécurité des applications
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            9. Sécurité des applications
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11_2" id="__nav_2_11_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_11_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/01-introduction-owasp-top10.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction et panorama OWASP Top 10
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/02-vulnerabilites-injection.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Vulnérabilités d'injection
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/03-authentification-gestion-sessions.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Authentification et gestion de sessions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/04-vulnerabilites-cote-client.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Vulnérabilités côté client : XSS, CSRF, clickjacking
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/05-vulnerabilites-memoire-exploitation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Vulnérabilités mémoire bas niveau et exploitation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/cours/06-securisation-api-bonnes-pratiques.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Sécurisation des API et bonnes pratiques
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11_4" id="__nav_2_11_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_11_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp1-injection-sql.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Injection SQL et contre-mesures (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp2-xss-csrf.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — XSS et CSRF sur application vulnérable (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp3-buffer-overflow-c.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Exploitation contrôlée d'un buffer overflow en C (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-securite-des-applications/tp/tp4-securisation-api-rest.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Sécurisation d'une API REST (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_12" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../10-service-web/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    10. Service web
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_12" id="__nav_2_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            10. Service web
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_12_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_12_2" id="__nav_2_12_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_12_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/01-introduction-services-web-http.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction aux services web et au protocole HTTP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/02-architecture-rest-conception-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Architecture REST et conception d'API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/03-formats-echange-json-xml-soap.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Formats d'échange : JSON, XML et SOAP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/04-authentification-autorisation-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Authentification et autorisation des services web
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/05-documentation-test-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Documentation et test des API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/cours/06-architectures-orientees-services-microservices.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Architectures orientées services et microservices
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_12_4" id="__nav_2_12_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp1-decouverte-http-api-rest.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Découverte du protocole HTTP et d'une API REST (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp2-conception-implementation-api-rest.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Conception et implémentation d'une API REST (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp3-authentification-jwt-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Authentification par JWT d'une API (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-service-web/tp/tp4-documentation-tests-api.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Documentation et tests automatisés d'une API (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_13" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../11-analyse-malwares-securisation-donnees/index.html" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    11. Analyse de malwares et sécurisation des données
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_13" id="__nav_2_13_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13">
+            <span class="md-nav__icon md-icon"></span>
+            11. Analyse de malwares et sécurisation des données
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_13_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_13_2" id="__nav_2_13_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cours
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_13_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cours
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/01-introduction-taxonomie-malwares.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Introduction à l'analyse de malwares : taxonomie et cycle de vie
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/02-analyse-statique.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Analyse statique de malwares
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/03-analyse-dynamique-sandboxing.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Analyse dynamique et sandboxing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/04-retro-ingenierie-base.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Techniques de rétro-ingénierie de base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/05-detection-reponse.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Détection et réponse
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/cours/06-securisation-donnees.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Sécurisation des données
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/slides/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Présentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_13_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_13_4" id="__nav_2_13_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Travaux pratiques
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_13_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13_4">
+            <span class="md-nav__icon md-icon"></span>
+            Travaux pratiques
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp1-identification-taxonomie-echantillons.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP1 — Identification et taxonomie d'échantillons pédagogiques (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp2-analyse-statique-outils.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP2 — Analyse statique avec des outils standards (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp3-sandbox-analyse-comportementale.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP3 — Sandbox et analyse comportementale (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-analyse-malwares-securisation-donnees/tp/tp4-chiffrement-classification-donnees.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TP4 — Chiffrement et classification des données (2h)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Sur cette page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Sur cette page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-pourquoi-la-securite-des-smart-contracts-est-particulierement-critique" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Pourquoi la sécurité des smart contracts est particulièrement critique
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Pourquoi la sécurité des smart contracts est particulièrement critique">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mecanismes-devolutivite-et-leurs-propres-risques" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mécanismes d'évolutivité et leurs propres risques
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-reentrance-reentrancy" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Réentrance (reentrancy)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Réentrance (reentrancy)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pourquoi-transfer-ne-suffit-pas-toujours-le-role-du-verrou-de-reentrance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pourquoi transfer ne suffit pas toujours : le rôle du verrou de réentrance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reentrance-inter-fonctions-et-reentrance-en-lecture-seule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Réentrance inter-fonctions et réentrance en lecture seule
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-debordementsoupassement-dentier-overflowunderflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Débordement/soupassement d'entier (overflow/underflow)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-controle-dacces-defaillant" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Contrôle d'accès défaillant
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Contrôle d'accès défaillant">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fonctions-non-initialisees-et-visibilite-par-defaut" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fonctions non initialisées et visibilité par défaut
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-attaques-par-manipulation-doracle-de-prix" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Attaques par manipulation d'oracle de prix
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Attaques par manipulation d'oracle de prix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anatomie-dun-scenario-pedagogique-de-manipulation-par-pret-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anatomie d'un scénario pédagogique de manipulation par prêt flash
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-attaques-par-deni-de-service-et-boucles-couteuses-en-gas" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Attaques par déni de service et boucles coûteuses en gas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-demarche-daudit-dun-smart-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Démarche d'audit d'un smart contract
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Démarche d'audit d'un smart contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#les-limites-propres-a-chaque-outil-daudit" class="md-nav__link">
+    <span class="md-ellipsis">
+      Les limites propres à chaque outil d'audit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#un-rappel-historique-lattaque-de-the-dao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Un rappel historique : l'attaque de The DAO
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-retenir" class="md-nav__link">
+    <span class="md-ellipsis">
+      À retenir
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="chapitre-5-securite-et-vulnerabilites-des-smart-contracts">Chapitre 5 — Sécurité et vulnérabilités des smart contracts<a class="headerlink" href="#chapitre-5-securite-et-vulnerabilites-des-smart-contracts" title="Permanent link">&para;</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Présentation de ce chapitre</p>
+<p><a href="../../presentation.html?deck=07-technologie-blockchain/slides/05-securite-smart-contracts.txt" target="_blank">🖥 Ouvrir les diapositives</a></p>
+</div>
+<h2 id="1-pourquoi-la-securite-des-smart-contracts-est-particulierement-critique">1. Pourquoi la sécurité des smart contracts est particulièrement critique<a class="headerlink" href="#1-pourquoi-la-securite-des-smart-contracts-est-particulierement-critique" title="Permanent link">&para;</a></h2>
+<p>Un smart contract déployé sur une blockchain publique est, par construction, <strong>immuable et son code est public</strong> : contrairement à une application classique, il n'est généralement pas possible de corriger une faille par un simple correctif déployé discrètement — le code vulnérable reste actif et visible de tous jusqu'à une migration complexe. De plus, les contrats manipulent souvent directement des fonds réels, ce qui en fait des cibles à forte valeur immédiate pour un attaquant.</p>
+<p>Cette combinaison de facteurs — code public, immutabilité, valeur financière directe, exécution automatique sans intervention humaine possible pour interrompre une transaction en cours — distingue nettement le modèle de menace des smart contracts de celui d'une application web classique étudiée dans les modules précédents de ce cours. Il est utile de comparer explicitement ces deux contextes :</p>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Application web classique</th>
+<th>Smart contract déployé</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visibilité du code source</td>
+<td>généralement non public (code compilé côté serveur)</td>
+<td>bytecode public par construction ; code source souvent publié volontairement pour la transparence</td>
+</tr>
+<tr>
+<td>Correction après découverte d'une faille</td>
+<td>correctif déployé rapidement, souvent de façon transparente pour l'utilisateur</td>
+<td>migration complexe, souvent impossible sans mécanisme d'évolutivité prévu à l'avance</td>
+</tr>
+<tr>
+<td>Réversibilité d'une transaction frauduleuse</td>
+<td>souvent possible (annulation, remboursement, intervention d'un administrateur)</td>
+<td>généralement impossible une fois la transaction confirmée (chapitre 2)</td>
+</tr>
+<tr>
+<td>Fenêtre d'exploitation</td>
+<td>limitée par les capacités de détection et réaction de l'équipe opérationnelle</td>
+<td>potentiellement illimitée tant que le contrat reste actif et non corrigé</td>
+</tr>
+</tbody>
+</table>
+<p>Cette comparaison justifie pourquoi la démarche d'audit <strong>avant</strong> déploiement (section 7 de ce chapitre) occupe une place centrale dans la sécurité des smart contracts, alors qu'une application web classique peut davantage s'appuyer sur une détection et une réaction rapides après incident (modules <em>Détection d'intrusion</em> et <em>Réponse aux incidents</em>).</p>
+<h3 id="mecanismes-devolutivite-et-leurs-propres-risques">Mécanismes d'évolutivité et leurs propres risques<a class="headerlink" href="#mecanismes-devolutivite-et-leurs-propres-risques" title="Permanent link">&para;</a></h3>
+<p>Face à la rigidité de l'immutabilité, plusieurs patrons de conception permettent de prévoir, dès le déploiement initial, une possibilité de mise à jour ultérieure du code — au prix d'une complexité et d'une surface d'attaque supplémentaires :</p>
+<ul>
+<li><strong>contrats proxy (délégation)</strong> : un contrat « proxy », dont l'adresse est celle communiquée aux utilisateurs, délègue l'exécution de sa logique à un second contrat d'implémentation dont l'adresse peut être changée par un administrateur autorisé ; cela permet de faire évoluer la logique métier sans changer l'adresse publique du contrat, mais concentre un pouvoir important (et donc un risque) entre les mains de qui contrôle le changement d'implémentation ;</li>
+<li><strong>pause d'urgence (circuit breaker)</strong> : une fonction, protégée par un contrôle d'accès strict, permettant de suspendre temporairement certaines opérations sensibles du contrat en cas de détection d'une attaque en cours, limitant les pertes le temps d'une analyse approfondie ;</li>
+<li><strong>limites de montant et listes blanches</strong> : contraindre dès la conception les montants manipulables ou les adresses autorisées à interagir avec les fonctions les plus sensibles, réduisant l'impact maximal d'une faille non encore découverte.</li>
+</ul>
+<p>Chacun de ces mécanismes introduit lui-même une nouvelle surface d'attaque potentielle (par exemple, un contrôle d'accès défaillant sur la fonction de changement d'implémentation d'un proxy annule tout l'intérêt du mécanisme) — un rappel que la sécurité d'un système complexe se raisonne toujours de façon globale, jamais mécanisme par mécanisme isolément.</p>
+<h2 id="2-reentrance-reentrancy">2. Réentrance (reentrancy)<a class="headerlink" href="#2-reentrance-reentrancy" title="Permanent link">&para;</a></h2>
+<p>Vulnérabilité historique majeure (à l'origine du piratage « The DAO » en 2016, environ 60 millions de dollars de l'époque). Principe : un contrat appelle un contrat externe (ex. pour transférer des fonds) <strong>avant</strong> d'avoir mis à jour son propre état interne ; le contrat externe malveillant peut alors rappeler la fonction d'origine de façon récursive, exploitant le fait que l'état (le solde) n'a pas encore été mis à jour.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Version vulnérable</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">function</span><span class="w"> </span><span class="nv">retirer</span><span class="p">(</span><span class="kt">uint256</span><span class="w"> </span><span class="nv">montant</span><span class="p">)</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">require</span><span class="p">(</span>soldes<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span>montant<span class="p">,</span><span class="w"> </span><span class="s2">&quot;Solde insuffisant&quot;</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="kt">payable</span><span class="p">(</span><span class="k">msg.sender</span><span class="p">).</span>transfer<span class="p">(</span>montant<span class="p">);</span><span class="w"> </span><span class="c1">// appel externe AVANT la mise à jour de l&#39;état</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span>soldes<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span>montant<span class="p">;</span><span class="w">          </span><span class="c1">// trop tard : un contrat malveillant a pu rappeler retirer() entre-temps</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Contre-mesure</strong> : appliquer le patron <strong>checks-effects-interactions</strong> (vérifications, puis mise à jour de l'état interne, puis seulement interaction externe) — c'est exactement l'ordre correct déjà utilisé dans l'exemple du chapitre 4.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Version corrigée, appliquant le patron checks-effects-interactions</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kt">function</span><span class="w"> </span><span class="nv">retirer</span><span class="p">(</span><span class="kt">uint256</span><span class="w"> </span><span class="nv">montant</span><span class="p">)</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="kt">require</span><span class="p">(</span>soldes<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span>montant<span class="p">,</span><span class="w"> </span><span class="s2">&quot;Solde insuffisant&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// 1. vérifications (checks)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span>soldes<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span>montant<span class="p">;</span><span class="w">                                </span><span class="c1">// 2. mise à jour de l&#39;état (effects)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="kt">payable</span><span class="p">(</span><span class="k">msg.sender</span><span class="p">).</span>transfer<span class="p">(</span>montant<span class="p">);</span><span class="w">                        </span><span class="c1">// 3. interaction externe, en dernier (interactions)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="pourquoi-transfer-ne-suffit-pas-toujours-le-role-du-verrou-de-reentrance">Pourquoi <code>transfer</code> ne suffit pas toujours : le rôle du verrou de réentrance<a class="headerlink" href="#pourquoi-transfer-ne-suffit-pas-toujours-le-role-du-verrou-de-reentrance" title="Permanent link">&para;</a></h3>
+<p>Historiquement, une contre-mesure complémentaire consistait à utiliser la fonction <code>transfer</code> (plutôt que <code>call</code>) pour envoyer des fonds, car elle limite le gas transmis à l'appel externe (2300 unités à l'époque), rendant impossible l'exécution d'une logique complexe — dont un rappel récursif — dans le contrat destinataire. Cette contre-mesure est aujourd'hui considérée comme fragile et insuffisante à elle seule (le coût de certaines opérations EVM a évolué, et de nombreux contrats destinataires légitimes, comme les portefeuilles multi-signatures, ont eux-mêmes besoin de plus de gas que cette limite pour fonctionner correctement) ; le patron checks-effects-interactions reste la contre-mesure de référence, indépendante des variations de coût du gas. Une seconde contre-mesure complémentaire, souvent utilisée en défense en profondeur, consiste à ajouter un <strong>verrou de réentrance</strong> (<em>reentrancy guard</em>) explicite :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">contract</span><span class="w"> </span><span class="ni">CompteProtege</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="kt">mapping</span><span class="p">(</span><span class="kt">address</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="kt">uint256</span><span class="p">)</span><span class="w"> </span><span class="kt">public</span><span class="w"> </span>soldes<span class="p">;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="k">private </span><span class="nv">enCoursDExecution</span><span class="p">;</span><span class="w">   </span><span class="c1">// verrou de réentrance</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kt">modifier</span><span class="w"> </span>nonReentrant<span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="kt">require</span><span class="p">(</span><span class="o">!</span>enCoursDExecution<span class="p">,</span><span class="w"> </span><span class="s2">&quot;Appel reentrant detecte&quot;</span><span class="p">);</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span>enCoursDExecution<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">true</span><span class="p">;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span>_<span class="p">;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span>enCoursDExecution<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">false</span><span class="p">;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="kt">function</span><span class="w"> </span><span class="nv">retirer</span><span class="p">(</span><span class="kt">uint256</span><span class="w"> </span><span class="nv">montant</span><span class="p">)</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span>nonReentrant<span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">        </span><span class="kt">require</span><span class="p">(</span>soldes<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span>montant<span class="p">,</span><span class="w"> </span><span class="s2">&quot;Solde insuffisant&quot;</span><span class="p">);</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">        </span>soldes<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span>montant<span class="p">;</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">        </span><span class="kt">payable</span><span class="p">(</span><span class="k">msg.sender</span><span class="p">).</span>transfer<span class="p">(</span>montant<span class="p">);</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="p">}</span>
+</code></pre></div>
+<p>Ce modificateur <code>nonReentrant</code> empêche explicitement qu'un même appel « en cours » soit rappelé récursivement, quelle que soit la fonction externe utilisée pour transférer les fonds — une défense indépendante et complémentaire au patron checks-effects-interactions, la combinaison des deux étant considérée comme une bonne pratique robuste.</p>
+<h3 id="reentrance-inter-fonctions-et-reentrance-en-lecture-seule">Réentrance inter-fonctions et réentrance en lecture seule<a class="headerlink" href="#reentrance-inter-fonctions-et-reentrance-en-lecture-seule" title="Permanent link">&para;</a></h3>
+<p>Un piège pédagogique fréquent consiste à croire qu'un verrou de réentrance appliqué à une seule fonction protège l'ensemble du contrat. En réalité, si deux fonctions distinctes partagent un état commun et qu'une seule des deux est protégée par le patron checks-effects-interactions ou par un verrou de réentrance, un attaquant peut parfois exploiter la fonction non protégée pendant l'exécution suspendue de la première — une variante dite <strong>réentrance inter-fonctions</strong>. Une variante plus subtile encore, la <strong>réentrance en lecture seule</strong> (<em>read-only reentrancy</em>), exploite le fait qu'une fonction externe rappelée pendant un appel en cours peut lire un état temporairement incohérent (par exemple, un solde déjà débité mais un transfert pas encore confirmé) via une fonction de lecture (<code>view</code>) d'un tout autre contrat qui se fie à cet état pour son propre calcul — illustrant que le raisonnement de sécurité doit porter sur l'ensemble des contrats en interaction, pas uniquement sur celui contenant la fonction vulnérable la plus évidente.</p>
+<h2 id="3-debordementsoupassement-dentier-overflowunderflow">3. Débordement/soupassement d'entier (overflow/underflow)<a class="headerlink" href="#3-debordementsoupassement-dentier-overflowunderflow" title="Permanent link">&para;</a></h2>
+<p>Historiquement, un compteur non signé en Solidity pouvait « déborder » silencieusement (revenir à zéro après le maximum, ou à une valeur maximale après une soustraction sous zéro), exploité pour créer des soldes ou des quantités de jetons artificiellement énormes. Depuis Solidity 0.8, ces vérifications sont effectuées automatiquement par défaut (le compilateur annule la transaction en cas de dépassement), mais le risque reste réel pour du code utilisant des versions antérieures ou des blocs <code>unchecked</code> mal justifiés.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Exemple pédagogique illustrant le risque historique (avant Solidity 0.8, ou dans un bloc unchecked)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kt">uint8</span><span class="w"> </span><span class="nv">compteur</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m m-Decimal">255</span><span class="p">;</span><span class="w">       </span><span class="c1">// uint8 : valeur maximale représentable = 255</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>unchecked<span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span>compteur<span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="m m-Decimal">1</span><span class="p">;</span><span class="w">           </span><span class="c1">// débordement silencieux : compteur devient 0, sans erreur levée</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1">// Depuis Solidity &gt;= 0.8, sans le mot-clé `unchecked`, la même opération</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1">// provoquerait automatiquement l&#39;annulation de la transaction (revert).</span>
+</code></pre></div>
+<p>Le mot-clé <code>unchecked</code> reste disponible depuis Solidity 0.8 pour des raisons d'optimisation du coût en gas dans des cas où le développeur peut prouver, par la logique du programme, qu'un dépassement est impossible (par exemple un compteur de boucle borné par une valeur elle-même petite) ; son usage doit néanmoins être systématiquement justifié et documenté lors d'un audit, car il réintroduit délibérément le risque historique dans le seul segment de code qu'il englobe.</p>
+<h2 id="4-controle-dacces-defaillant">4. Contrôle d'accès défaillant<a class="headerlink" href="#4-controle-dacces-defaillant" title="Permanent link">&para;</a></h2>
+<p>Une fonction sensible (ex. modification du propriétaire du contrat, retrait de fonds réservés à l'administrateur) sans vérification appropriée des droits de l'appelant (<code>require(msg.sender == proprietaire)</code>) permet à n'importe quel utilisateur de l'exécuter. C'est l'équivalent, dans le monde des smart contracts, du contrôle d'accès défaillant classé numéro un de l'OWASP Top 10 (module <em>Audit organisation et technique</em>).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Version vulnérable : n&#39;importe qui peut devenir propriétaire du contrat</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">contract</span><span class="w"> </span><span class="ni">GestionVulnerable</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="kt">address</span><span class="w"> </span><span class="k">public </span><span class="nv">proprietaire</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="kt">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span>proprietaire<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">msg.sender</span><span class="p">;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="kt">function</span><span class="w"> </span><span class="nv">changerProprietaire</span><span class="p">(</span><span class="kt">address</span><span class="w"> </span><span class="nv">nouveauProprietaire</span><span class="p">)</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span>proprietaire<span class="w"> </span><span class="o">=</span><span class="w"> </span>nouveauProprietaire<span class="p">;</span><span class="w">   </span><span class="c1">// aucune vérification de l&#39;appelant !</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1">// Version corrigée</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="k">contract</span><span class="w"> </span><span class="ni">GestionSecurisee</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="kt">address</span><span class="w"> </span><span class="k">public </span><span class="nv">proprietaire</span><span class="p">;</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="kt">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">        </span>proprietaire<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">msg.sender</span><span class="p">;</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">    </span><span class="kt">modifier</span><span class="w"> </span>seulementProprietaire<span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">        </span><span class="kt">require</span><span class="p">(</span><span class="k">msg.sender</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>proprietaire<span class="p">,</span><span class="w"> </span><span class="s2">&quot;Reserve au proprietaire&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">        </span>_<span class="p">;</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">    </span><span class="kt">function</span><span class="w"> </span><span class="nv">changerProprietaire</span><span class="p">(</span><span class="kt">address</span><span class="w"> </span><span class="nv">nouveauProprietaire</span><span class="p">)</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span>seulementProprietaire<span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">        </span><span class="kt">require</span><span class="p">(</span>nouveauProprietaire<span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kt">address</span><span class="p">(</span><span class="m m-Decimal">0</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Adresse invalide&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">        </span>proprietaire<span class="w"> </span><span class="o">=</span><span class="w"> </span>nouveauProprietaire<span class="p">;</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="p">}</span>
+</code></pre></div>
+<p>Cet exemple illustre également une bonne pratique complémentaire : vérifier que l'adresse fournie n'est pas l'adresse nulle (<code>address(0)</code>), une erreur de saisie ou de logique qui, dans un contrat mal protégé, peut rendre définitivement inaccessibles des fonctions administratives (aucune clé privée ne correspond à l'adresse nulle).</p>
+<h3 id="fonctions-non-initialisees-et-visibilite-par-defaut">Fonctions non initialisées et visibilité par défaut<a class="headerlink" href="#fonctions-non-initialisees-et-visibilite-par-defaut" title="Permanent link">&para;</a></h3>
+<p>Une variante historique de cette classe de vulnérabilité, moins fréquente avec les versions récentes du compilateur qui imposent une visibilité explicite, mérite d'être connue à titre pédagogique : dans d'anciennes versions de Solidity, une fonction sans mot-clé de visibilité explicite était <code>public</code> par défaut, ce qui pouvait rendre accessible depuis l'extérieur une fonction destinée à un usage strictement interne (par exemple une fonction d'initialisation censée n'être appelée qu'une seule fois par le déploiement lui-même). Ce type d'erreur illustre un principe de sécurité plus général, déjà rencontré dans d'autres modules de ce cours : préférer systématiquement une <strong>politique de refus par défaut</strong> (<em>deny by default</em>, restreindre explicitement l'accès et n'ouvrir que ce qui est nécessaire) à une politique d'autorisation par défaut.</p>
+<h2 id="5-attaques-par-manipulation-doracle-de-prix">5. Attaques par manipulation d'oracle de prix<a class="headerlink" href="#5-attaques-par-manipulation-doracle-de-prix" title="Permanent link">&para;</a></h2>
+<p>Un contrat DeFi qui détermine un prix d'actif à partir d'une source manipulable (ex. la liquidité instantanée d'un seul échange décentralisé) peut être trompé par un attaquant qui manipule temporairement ce prix (souvent via un <strong>prêt flash</strong>, un emprunt sans garantie remboursé dans la même transaction) pour déclencher des conditions favorables artificielles dans le contrat cible.</p>
+<h3 id="anatomie-dun-scenario-pedagogique-de-manipulation-par-pret-flash">Anatomie d'un scénario pédagogique de manipulation par prêt flash<a class="headerlink" href="#anatomie-dun-scenario-pedagogique-de-manipulation-par-pret-flash" title="Permanent link">&para;</a></h3>
+<p>Afin de rendre ce mécanisme concret, considérons un scénario entièrement fictif, à but pédagogique uniquement (les montants et le nom du protocole sont inventés) :</p>
+<ol>
+<li>Un protocole fictif « PrêtDeFi » permet d'emprunter un actif en garantissant un autre actif, en évaluant la valeur de la garantie à partir du prix instantané observé sur un unique échange décentralisé de faible liquidité.</li>
+<li>Un attaquant contracte un prêt flash important dans un autre actif, sans garantie, remboursable obligatoirement avant la fin de la même transaction.</li>
+<li>Il utilise ces fonds empruntés pour acheter massivement, en une seule opération, l'actif utilisé comme garantie sur ce petit échange décentralisé, en faisant artificiellement grimper son prix instantané sur cet échange précis.</li>
+<li>Toujours dans la même transaction, il dépose ce même actif (dont le prix affiché est maintenant artificiellement élevé) en garantie sur le protocole « PrêtDeFi », et emprunte un montant excessif, disproportionné par rapport à la valeur réelle de sa garantie.</li>
+<li>Il rembourse le prêt flash initial (obligatoire dans la même transaction), et conserve la différence empruntée en excès — une perte nette pour les autres utilisateurs du protocole « PrêtDeFi ».</li>
+</ol>
+<p>Ce scénario, bien que fictif dans ses détails numériques, correspond à une classe d'attaques réellement documentée dans l'écosystème DeFi et illustre pourquoi la conception d'un oracle de prix robuste (agrégation de plusieurs sources, moyennes temporelles, cf. chapitre 4) est une décision de sécurité de premier ordre, et non un détail d'implémentation secondaire, pour tout contrat manipulant des montants financiers déterminés par un prix externe.</p>
+<h2 id="6-attaques-par-deni-de-service-et-boucles-couteuses-en-gas">6. Attaques par déni de service et boucles coûteuses en gas<a class="headerlink" href="#6-attaques-par-deni-de-service-et-boucles-couteuses-en-gas" title="Permanent link">&para;</a></h2>
+<p>Une fonction itérant sur une structure de données dont la taille peut être manipulée par un attaquant (ex. une liste d'utilisateurs qu'il peut faire croître) peut consommer plus de gas que le maximum autorisé par bloc, rendant la fonction définitivement inexécutable — un déni de service permanent et non corrigible sans migration du contrat.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Version vulnérable : la boucle grandit avec le nombre d&#39;inscrits, sans limite</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">contract</span><span class="w"> </span><span class="ni">DistributionVulnerable</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="kt">address</span><span class="p">[]</span><span class="w"> </span><span class="kt">public</span><span class="w"> </span>inscrits<span class="p">;</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="kt">function</span><span class="w"> </span><span class="nv">sInscrire</span><span class="p">()</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span>inscrits<span class="p">.</span>push<span class="p">(</span><span class="k">msg.sender</span><span class="p">);</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="kt">function</span><span class="w"> </span><span class="nv">distribuerRecompense</span><span class="p">()</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">        </span><span class="kt">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint256</span><span class="w"> </span><span class="nv">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m m-Decimal">0</span><span class="p">;</span><span class="w"> </span>i<span class="w"> </span><span class="o">&lt;</span><span class="w"> </span>inscrits<span class="p">.</span>length<span class="p">;</span><span class="w"> </span>i<span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">            </span><span class="kt">payable</span><span class="p">(</span>inscrits<span class="p">[</span>i<span class="p">]).</span>transfer<span class="p">(</span><span class="m m-Decimal">1</span><span class="w"> </span>ether<span class="p">);</span><span class="w"> </span><span class="c1">// coûte de plus en plus de gas à mesure que la liste grandit</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="c1">// Au-delà d&#39;un certain nombre d&#39;inscrits, cette boucle dépasse la limite de gas</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="c1">// autorisée par bloc et la fonction devient définitivement inexécutable.</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="p">}</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="c1">// Version corrigée : modèle &quot;pull&quot; plutôt que &quot;push&quot; — chaque utilisateur retire lui-même sa part</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="k">contract</span><span class="w"> </span><span class="ni">DistributionCorrigee</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">    </span><span class="kt">mapping</span><span class="p">(</span><span class="kt">address</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="kt">public</span><span class="w"> </span>inscrits<span class="p">;</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">    </span><span class="kt">mapping</span><span class="p">(</span><span class="kt">address</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="kt">uint256</span><span class="p">)</span><span class="w"> </span><span class="kt">public</span><span class="w"> </span>recompensesDisponibles<span class="p">;</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">    </span><span class="kt">function</span><span class="w"> </span><span class="nv">sInscrire</span><span class="p">()</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">        </span>inscrits<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">true</span><span class="p">;</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">        </span>recompensesDisponibles<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m m-Decimal">1</span><span class="w"> </span>ether<span class="p">;</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="kt">function</span><span class="w"> </span><span class="nv">retirerRecompense</span><span class="p">()</span><span class="w"> </span><span class="kt">external</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="w">        </span><span class="kt">uint256</span><span class="w"> </span><span class="nv">montant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>recompensesDisponibles<span class="p">[</span><span class="k">msg.sender</span><span class="p">];</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="w">        </span><span class="kt">require</span><span class="p">(</span>montant<span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m m-Decimal">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Aucune recompense disponible&quot;</span><span class="p">);</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="w">        </span>recompensesDisponibles<span class="p">[</span><span class="k">msg.sender</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m m-Decimal">0</span><span class="p">;</span><span class="w">   </span><span class="c1">// état mis à jour avant l&#39;interaction externe (checks-effects-interactions)</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="w">        </span><span class="kt">payable</span><span class="p">(</span><span class="k">msg.sender</span><span class="p">).</span>transfer<span class="p">(</span>montant<span class="p">);</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a><span class="p">}</span>
+</code></pre></div>
+<p>Ce couple d'exemples illustre un principe de conception plus général, connu sous le nom de <strong>patron pull-over-push</strong> : plutôt que pour un contrat de pousser proactivement des fonds vers une liste potentiellement non bornée de destinataires (coût cumulé porté par une seule transaction, donc un seul appelant), il est préférable de laisser chaque bénéficiaire retirer lui-même sa part dans sa propre transaction (coût réparti, chaque appelant ne payant que pour sa propre opération). Ce principe réapparaît fréquemment dans la conception de contrats DeFi robustes.</p>
+<h2 id="7-demarche-daudit-dun-smart-contract">7. Démarche d'audit d'un smart contract<a class="headerlink" href="#7-demarche-daudit-dun-smart-contract" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Revue manuelle du code, en confrontant systématiquement chaque fonction sensible aux classes de vulnérabilités ci-dessus.</li>
+<li>Analyse statique automatisée (outils dédiés type Slither, MythX).</li>
+<li>Tests unitaires et de fuzzing (génération automatique d'entrées pour détecter des comportements inattendus).</li>
+<li>Vérification formelle pour les contrats à très haute valeur (preuve mathématique de propriétés de sécurité).</li>
+<li>Programme de récompense pour la découverte de vulnérabilités (<em>bug bounty</em>) avant et après déploiement.</li>
+</ol>
+<h3 id="les-limites-propres-a-chaque-outil-daudit">Les limites propres à chaque outil d'audit<a class="headerlink" href="#les-limites-propres-a-chaque-outil-daudit" title="Permanent link">&para;</a></h3>
+<p>Il est pédagogiquement important de ne présenter aucun de ces outils comme une garantie absolue, mais bien comme des instruments complémentaires, chacun avec ses angles morts caractéristiques :</p>
+<ul>
+<li>l'<strong>analyse statique automatisée</strong> détecte efficacement les classes de vulnérabilités déjà connues et « signées » dans ses règles (réentrance simple, visibilité incorrecte, usages dangereux de primitives connues), mais peut manquer des failles logiques propres au métier du contrat (par exemple une condition d'éligibilité mal pensée sur le plan économique) et génère parfois de faux positifs à trier manuellement ;</li>
+<li>le <strong>fuzzing</strong> (génération automatique d'entrées, y compris de séquences d'appels de fonctions) est efficace pour découvrir des combinaisons d'entrées non anticipées par les développeurs, mais son efficacité dépend directement de la qualité des invariants définis par l'auditeur (les propriétés que le fuzzer doit essayer de violer) ;</li>
+<li>la <strong>vérification formelle</strong> offre la garantie la plus forte (une preuve mathématique qu'une propriété précisément spécifiée est respectée dans tous les cas), mais est coûteuse en temps d'ingénierie, ne couvre que les propriétés explicitement formalisées (une propriété oubliée dans la spécification reste un angle mort), et reste réservée en pratique aux contrats à très haute valeur ou à très fort risque systémique ;</li>
+<li>la <strong>revue manuelle</strong> reste irremplaçable pour évaluer la cohérence globale de la logique métier et repérer des vulnérabilités inédites, mais dépend fortement de l'expertise et de la disponibilité en temps de l'auditeur, et ne passe pas à l'échelle sur de très gros codebases sans être combinée aux approches automatisées.</li>
+</ul>
+<p>Un audit rigoureux combine typiquement plusieurs de ces approches plutôt que de s'appuyer sur une seule, exactement comme un test de pénétration classique (module <em>Sécurité offensive</em>) combine différentes techniques complémentaires plutôt qu'un unique outil automatisé.</p>
+<h3 id="un-rappel-historique-lattaque-de-the-dao">Un rappel historique : l'attaque de The DAO<a class="headerlink" href="#un-rappel-historique-lattaque-de-the-dao" title="Permanent link">&para;</a></h3>
+<p>L'attaque de The DAO (2016), déjà mentionnée en introduction de ce chapitre comme illustration de la vulnérabilité de réentrance, mérite un rappel de son importance historique pour le domaine : au-delà de la perte financière directe, cet incident a provoqué un débat de gouvernance majeur au sein de la communauté Ethereum sur la conduite à tenir face à une exploitation manifeste d'une faille de code — fallait-il considérer que « le code fait loi » (<em>code is law</em>) et laisser les fonds détournés à l'attaquant, puisque son action respectait strictement les règles du code déployé, ou bien intervenir pour annuler les conséquences de l'attaque au nom de l'intention originelle des utilisateurs lésés ? Ce débat a conduit à un hard fork du réseau (chapitre 3) et à la coexistence, depuis lors, de deux chaînes distinctes issues de ce désaccord. Cet épisode reste, encore aujourd'hui, une référence pédagogique incontournable pour illustrer à la fois la criticité technique de la réentrance et la dimension de gouvernance propre aux blockchains publiques, qui dépasse la seule question technique de la sécurité du code.</p>
+<h2 id="a-retenir">À retenir<a class="headerlink" href="#a-retenir" title="Permanent link">&para;</a></h2>
+<ul>
+<li>La réentrance, le contrôle d'accès défaillant, la manipulation d'oracle de prix et les attaques par déni de service via consommation excessive de gas sont des classes de vulnérabilités récurrentes, à l'origine de pertes financières réelles considérables dans l'écosystème des smart contracts.</li>
+<li>L'immutabilité des smart contracts déployés rend la prévention (audit avant déploiement) bien plus critique que pour une application web classique corrigible a posteriori ; des mécanismes d'évolutivité (proxy, pause d'urgence) existent mais introduisent leur propre surface d'attaque.</li>
+<li>Le patron checks-effects-interactions, éventuellement complété par un verrou de réentrance explicite, est la contre-mesure de référence contre la réentrance (y compris ses variantes inter-fonctions et en lecture seule), illustrant l'importance de l'ordre des opérations dans le code.</li>
+<li>Le patron pull-over-push (laisser chaque bénéficiaire retirer ses fonds plutôt que de les distribuer en boucle) prévient les attaques par déni de service liées à une consommation de gas non bornée.</li>
+<li>Aucun outil d'audit (analyse statique, fuzzing, vérification formelle, revue manuelle) n'est suffisant isolément : une démarche d'audit rigoureuse combine plusieurs approches complémentaires, exactement comme un test de pénétration classique.</li>
+</ul>
+<hr />
+<p><em>Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Pied de page" >
+        
+          
+          <a href="04-smart-contracts-ethereum.html" class="md-footer__link md-footer__link--prev" aria-label="Précédent: 4. Smart contracts et Ethereum">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Précédent
+              </span>
+              <div class="md-ellipsis">
+                4. Smart contracts et Ethereum
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="06-applications-enjeux-limites.html" class="md-footer__link md-footer__link--next" aria-label="Suivant: 6. Applications, enjeux et limites">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Suivant
+              </span>
+              <div class="md-ellipsis">
+                6. Applications, enjeux et limites
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.instant", "navigation.tracking", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>

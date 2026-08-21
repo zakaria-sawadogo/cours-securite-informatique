@@ -1,0 +1,94 @@
+# Chapitre 5 — Audit des applications et du code
+
+### Audit organisation et technique
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Pourquoi auditer les applications spécifiquement
+
+Les applications web et métier constituent, dans la grande majorité des organisations modernes, la **surface d'attaque la plus exposée et la plus évolutive**. Contrairement à un équipement réseau qui reste configuré de façon relativement stable dans le temps, une application fait l'objet de déploiements fréquents (parfois plusieurs fois par jour dans une démarche DevOps), s'appuie sur du code sur mesure écrit par des équipes internes, et intègre de nombreuses dépendances tierces dont la sécurité échappe en partie à l'organisation elle-même. Cette combinaison — évolution rapide, code spécifique difficile à généraliser d'une application à l'autre, dépendances externes — rend l'audit applicatif à la fois plus délicat et plus nécessaire que l'audit d'une infrastructure statique.
+
+Ce chapitre a une vocation volontairement introductive : il pose les bases méthodologiques de l'audit applicatif (référentiels, approches, méthodologie générale) et prépare directement le cours *Sécurité des applications*, qui approfondira chaque catégorie de vulnérabilité (injection, XSS, IDOR, etc.) avec le niveau de détail technique nécessaire pour les comprendre et les exploiter en profondeur.
+
+---
+
+## 2. OWASP Top 10 comme grille d'audit
+
+L'**OWASP** (*Open Web Application Security Project*) est une organisation à but non lucratif qui produit, entre autres travaux, le classement **OWASP Top 10** : une liste des dix catégories de vulnérabilités applicatives jugées les plus critiques, régulièrement mise à jour pour refléter l'évolution des menaces. Ce classement n'est pas une liste exhaustive de toutes les vulnérabilités possibles, mais une **checklist minimale** largement reconnue dans l'industrie, qui sert de point de départ à tout audit applicatif digne de ce nom :
+
+1. Contrôle d'accès défaillant (*broken access control*)
+2. Défaillances cryptographiques
+3. Injection (SQL, commande, etc.)
+4. Conception non sécurisée (*insecure design*)
+5. Mauvaise configuration de sécurité
+6. Composants vulnérables et obsolètes
+7. Défaillances d'identification et d'authentification
+8. Défaillances d'intégrité des données et logiciels
+9. Journalisation et surveillance insuffisantes
+10. Falsification de requête côté serveur (SSRF)
+
+Il est utile de noter que ce classement combine des catégories très techniques (l'injection, par exemple, se manifeste par des lignes de code précises et identifiables) et des catégories plus transverses, presque organisationnelles (la journalisation et surveillance insuffisantes rejoint directement les préoccupations vues en audit organisationnel au chapitre 2, et la conception non sécurisée renvoie à des choix d'architecture faits bien en amont de l'écriture du code). Un audit applicatif efficace ne se limite donc pas à chercher des lignes de code fautives : il interroge aussi les choix de conception et les pratiques de l'équipe de développement.
+
+---
+
+## 3. Approches d'audit applicatif
+
+Plusieurs approches techniques permettent d'auditer une application, chacune avec sa portée, ses forces et ses limites propres. Une démarche mature ne choisit pas une seule approche mais les combine, en les positionnant à des moments différents du cycle de développement :
+
+| Approche | Description | Outils typiques |
+|---|---|---|
+| **DAST** (Dynamic Application Security Testing) | tests en boîte noire sur l'application en fonctionnement | OWASP ZAP, Burp Suite |
+| **SAST** (Static Application Security Testing) | analyse du code source sans exécution | SonarQube, Semgrep, Bandit (Python), Cppcheck (C/C++) |
+| **SCA** (Software Composition Analysis) | analyse des dépendances tierces et de leurs vulnérabilités connues | OWASP Dependency-Check, `npm audit` |
+| **Revue manuelle de code** | lecture experte, notamment pour la logique métier | — |
+
+Le **DAST** teste l'application « de l'extérieur », exactement comme le ferait un attaquant qui n'a pas accès au code source : il envoie des requêtes à l'application en fonctionnement et observe ses réponses pour détecter un comportement anormal (par exemple une erreur SQL révélée dans une page d'erreur). Le **SAST**, à l'inverse, analyse directement le code source sans jamais exécuter l'application, ce qui lui permet de détecter des failles potentielles avant même la mise en production, mais au prix d'un taux de faux positifs souvent plus élevé (le SAST signale un usage de fonction dangereuse même lorsque le contexte rend l'exploitation impossible en pratique). Le **SCA** répond à un problème spécifique et de plus en plus critique : la quasi-totalité des applications modernes s'appuient sur un grand nombre de bibliothèques tierces, dont certaines peuvent contenir des vulnérabilités connues (référencées par des CVE) que l'équipe de développement n'a pas nécessairement suivies — le SCA automatise cette veille en confrontant la liste des dépendances utilisées aux bases de vulnérabilités publiques. Enfin, la **revue manuelle de code** reste irremplaçable pour évaluer la logique métier de l'application : aucun outil automatisé ne peut, par exemple, déterminer si la règle « un utilisateur ne peut valider une commande que si son solde est suffisant » est correctement implémentée dans tous les cas, y compris les cas limites.
+
+Une démarche mature combine ces approches en les positionnant différemment dans le temps : le SAST et le SCA s'intègrent naturellement au pipeline CI/CD pour un contrôle continu et automatique à chaque modification du code, tandis que le DAST et la revue manuelle, plus coûteux en temps humain, interviennent plutôt à intervalles réguliers ou avant une mise en production majeure.
+
+---
+
+## 4. Méthodologie d'un pentest applicatif
+
+Un test d'intrusion applicatif suit une progression logique, qui va de la compréhension globale de l'application vers des tests de plus en plus ciblés :
+
+1. **Cartographie** de l'application : recensement systématique des pages, fonctionnalités, rôles utilisateurs et points d'entrée de données (formulaires, paramètres d'URL, en-têtes HTTP, API exposées) — cette étape construit la carte complète sur laquelle s'appuieront tous les tests suivants.
+2. **Tests d'authentification et de gestion de session** : robustesse de la politique de mot de passe, comportement en cas de tentatives répétées (protection contre le *brute force*), expiration correcte des sessions après déconnexion ou inactivité.
+3. **Tests de contrôle d'accès** : la question centrale est de vérifier si un utilisateur standard peut accéder à des ressources appartenant à un autre utilisateur, voire à un administrateur, simplement en modifiant un identifiant dans l'URL ou dans une requête (une faille connue sous le nom d'**IDOR**, *Insecure Direct Object Reference*) — un exemple typique consiste à changer `/commandes/42` en `/commandes/43` et observer si l'application vérifie réellement que la commande 43 appartient bien à l'utilisateur connecté.
+4. **Tests d'injection** (SQL, commande système, LDAP) sur chaque point de saisie de l'application : chaque champ où l'utilisateur peut fournir une donnée est un point d'entrée potentiel où une entrée malveillante pourrait être interprétée comme une instruction par le système sous-jacent plutôt que comme une simple donnée.
+5. **Tests côté client** : XSS (*Cross-Site Scripting*) stocké ou réfléchi, qui permet d'injecter du code exécuté dans le navigateur d'autres utilisateurs, et CSRF (*Cross-Site Request Forgery*), qui exploite la confiance d'un site envers le navigateur authentifié d'un utilisateur pour lui faire exécuter une action à son insu.
+6. **Tests de configuration** : présence des en-têtes de sécurité HTTP recommandés, gestion propre des erreurs (une page d'erreur qui révèle la structure interne du code ou de la base de données facilite considérablement le travail d'un attaquant), absence d'informations sensibles exposées par erreur (clés d'API, commentaires de débogage laissés dans le code source livré au client).
+
+---
+
+## 5. Audit de code : exemple de grille (langage C, en lien avec le module Algorithmique)
+
+Certaines catégories de vulnérabilités sont spécifiques à des langages de bas niveau comme le C, où la gestion manuelle de la mémoire ouvre des risques qui n'existent tout simplement pas dans des langages gérant la mémoire automatiquement. Cette grille illustre les points de contrôle les plus classiques d'un audit de code C, en écho direct au module Algorithmique :
+
+| Point de contrôle | Risque associé |
+|---|---|
+| Utilisation de `strcpy`, `gets`, `sprintf` sans borne | débordement de tampon |
+| Absence de vérification du retour de `malloc` | déréférencement de pointeur nul |
+| `free` sans remise à `NULL` | use-after-free |
+| Chaîne de format non constante passée à `printf` | vulnérabilité format string |
+| Calculs de taille non vérifiés (multiplication avant `malloc`) | débordement d'entier |
+
+L'usage de fonctions comme `strcpy` ou `gets` sans vérification explicite de la taille du tampon de destination permet d'écrire au-delà de l'espace mémoire alloué (**débordement de tampon**), ce qui peut, dans le pire des cas, permettre à un attaquant de modifier le comportement du programme jusqu'à y exécuter son propre code. L'oubli de vérifier le retour de `malloc` expose le programme à un **déréférencement de pointeur nul** dès que l'allocation échoue (mémoire insuffisante), provoquant un plantage exploitable pour un déni de service. Ne pas remettre un pointeur à `NULL` après un `free` crée un risque de **use-after-free** : le programme continue à utiliser une zone mémoire libérée, potentiellement réattribuée entre-temps à une autre donnée, ce qui peut être exploité pour corrompre l'état interne du programme. Une chaîne de format non constante passée directement à `printf` (par exemple `printf(entree_utilisateur)` au lieu de `printf("%s", entree_utilisateur)`) ouvre la porte à une **vulnérabilité de format string**, qui permet de lire, voire d'écrire, à des emplacements arbitraires de la mémoire. Enfin, un calcul de taille non vérifié avant un `malloc` (par exemple `malloc(n * taille_element)` sans vérifier que la multiplication ne dépasse pas la capacité du type entier utilisé) peut provoquer un **débordement d'entier**, aboutissant à une allocation beaucoup plus petite que prévu et donc, de nouveau, à un débordement de tampon lors de l'écriture ultérieure.
+
+---
+
+## 6. Limites
+
+Un audit applicatif ponctuel, aussi rigoureux soit-il, ne couvre que l'état du code à un instant donné. Toute évolution ultérieure — un nouveau développeur qui réintroduit sans le savoir un motif de code déjà identifié comme vulnérable, une dépendance mise à jour qui introduit une nouvelle faille, une fonctionnalité ajoutée en urgence sans revue de sécurité — peut réintroduire des vulnérabilités déjà corrigées lors de l'audit précédent, ou en introduire de nouvelles. C'est précisément pour cette raison qu'il est recommandé d'intégrer des contrôles automatisés (SAST, SCA) en continu dans le pipeline de développement, plutôt que de se reposer uniquement sur un audit annuel ou ponctuel qui, entre deux occurrences, laisse une fenêtre de risque potentiellement longue et invisible.
+
+---
+
+## À retenir
+
+- L'OWASP Top 10 est la référence minimale pour structurer un audit applicatif, en combinant des catégories techniques précises et des préoccupations plus transverses (conception, journalisation).
+- SAST, DAST et SCA sont complémentaires, pas substituables l'un à l'autre : chacun couvre un angle différent (code source, comportement en exécution, dépendances tierces) et se positionne différemment dans le cycle de développement.
+- La méthodologie d'un pentest applicatif progresse de la cartographie globale vers des tests ciblés (authentification, contrôle d'accès, injection, XSS/CSRF, configuration).
+- L'audit de code bas niveau (C/C++) cible spécifiquement les erreurs de gestion mémoire et de validation des entrées, des risques propres aux langages sans gestion automatique de la mémoire.
+- Un audit ponctuel ne suffit pas dans la durée : l'intégration de contrôles automatisés en continu (CI/CD) réduit la fenêtre de risque entre deux audits formels.

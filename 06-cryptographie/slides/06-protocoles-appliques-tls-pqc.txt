@@ -1,0 +1,74 @@
+# Chapitre 6 — Protocoles appliqués : TLS et cryptographie post-quantique
+
+### Cryptographie
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. TLS (Transport Layer Security) : rôle et positionnement
+
+TLS sécurise les communications entre un client et un serveur — l'exemple le plus visible étant HTTPS (HTTP sur TLS), mais aussi de nombreux autres protocoles applicatifs (messagerie, bases de données distantes, VPN applicatifs) — en fournissant trois garanties combinées : la **confidentialité** du trafic échangé, son **intégrité** (toute altération est détectée) et l'**authentification** du serveur (et, optionnellement mais plus rarement en pratique, du client également, via un certificat client). TLS n'est pas une nouvelle primitive cryptographique : c'est un **protocole d'orchestration** qui assemble, dans un ordre précis et standardisé, l'ensemble des briques cryptographiques étudiées dans les chapitres précédents de ce module — échange de clé asymétrique, certificats et signatures, chiffrement symétrique authentifié, fonctions de hachage. À ce titre, TLS constitue une synthèse pratique particulièrement instructive de tout ce qui précède.
+
+---
+
+## 2. La poignée de main TLS 1.3 (simplifiée)
+
+La **poignée de main** (*handshake*) est la phase initiale d'une connexion TLS, durant laquelle client et serveur négocient les paramètres cryptographiques et établissent les clés de session, avant que le trafic applicatif proprement dit ne commence :
+
+1. **ClientHello** : le client propose la liste des suites cryptographiques qu'il supporte, ainsi que des paramètres pour un échange de clé — notamment une clé publique éphémère pour un échange Diffie-Hellman sur courbe elliptique (chapitre 4), envoyée dès ce premier message pour accélérer la négociation par rapport aux versions antérieures de TLS.
+2. **ServerHello** : le serveur choisit, parmi les propositions du client, la suite cryptographique retenue, complète l'échange de clé de son côté et transmet son **certificat** numérique.
+3. **Vérification du certificat** : le client valide la chaîne de confiance présentée par le serveur jusqu'à une AC racine reconnue et préinstallée (ancre de confiance, chapitre 5), et vérifie que le certificat correspond bien au nom de domaine visité, qu'il est dans sa période de validité, et qu'il n'a pas été révoqué.
+4. **Dérivation des clés de session** : à partir du secret partagé obtenu par l'échange de clé Diffie-Hellman éphémère, une fonction de dérivation de clé (HKDF, fondée sur HMAC — chapitre 3) produit l'ensemble des clés symétriques distinctes utilisées pour le reste de la session (généralement une clé pour chaque sens de communication).
+5. **Communication chiffrée** : l'ensemble du trafic applicatif qui suit est protégé par un chiffrement symétrique **authentifié** (mode AEAD — AES-GCM ou ChaCha20-Poly1305, chapitre 2), garantissant à la fois confidentialité et intégrité de chaque message échangé.
+
+TLS 1.3, standardisé en 2018, a significativement simplifié cette poignée de main par rapport à TLS 1.2 (réduisant le nombre d'allers-retours réseau nécessaires avant que le trafic chiffré ne puisse commencer), et a surtout **supprimé du protocole** l'ensemble des suites cryptographiques jugées faibles ou obsolètes — le chiffrement RC4, les modes CBC insuffisamment protégés contre les attaques de padding oracle, et l'échange de clé via RSA statique (qui ne fournit pas de confidentialité persistante, voir section suivante). TLS 1.3 impose désormais, par défaut et sans possibilité de repli, un échange de clé Diffie-Hellman **éphémère**.
+
+---
+
+## 3. Confidentialité persistante (Perfect Forward Secrecy)
+
+La **confidentialité persistante** (ou *Perfect Forward Secrecy*, PFS) est la propriété garantissant que la compromission ultérieure de la clé privée à long terme d'un serveur (celle associée à son certificat) ne permet **pas** de déchiffrer rétroactivement des sessions passées qui auraient été interceptées et enregistrées par un adversaire des années auparavant.
+
+Cette propriété s'obtient en utilisant, pour chaque session, des clés d'échange **éphémères** — générées spécifiquement pour cette session, utilisées le temps de dériver les clés symétriques, puis immédiatement détruites — typiquement via un échange **Diffie-Hellman éphémère sur courbe elliptique** (noté **ECDHE**). Dans ce schéma, la clé privée à long terme du serveur (celle du certificat) ne sert **qu'à signer** l'échange de clé éphémère pour en authentifier l'origine, mais n'intervient jamais directement dans le calcul du secret partagé lui-même. Ainsi, même si cette clé privée à long terme venait à être compromise ultérieurement, l'attaquant ne pourrait pas reconstituer, a posteriori, les secrets éphémères de sessions déjà terminées et détruites. C'est précisément l'une des raisons pour lesquelles TLS 1.3 impose ce mécanisme par défaut, en abandonnant l'ancien échange par RSA statique qui ne l'offrait pas.
+
+---
+
+## 4. Suites cryptographiques et obsolescence
+
+Une **suite cryptographique** (*cipher suite*) combine, en un seul identifiant négocié durant la poignée de main, un mécanisme d'échange de clé, un algorithme de signature pour l'authentification, un algorithme de chiffrement symétrique et une fonction de hachage utilisée pour la dérivation de clé et l'intégrité. Les recommandations concernant les suites jugées acceptables évoluent dans le temps, à mesure que la cryptanalyse progresse et que des faiblesses sont découvertes dans des algorithmes ou des tailles de clé auparavant considérés comme sûrs (rappel du module *Cryptanalyse*).
+
+Plusieurs versions et composants sont aujourd'hui déconseillés, voire explicitement interdits, par les référentiels de sécurité de référence (comme les recommandations de l'ANSSI ou les exigences du standard PCI-DSS pour les environnements traitant des données de paiement) : les versions de protocole **SSL 2.0 et 3.0**, **TLS 1.0 et 1.1**, l'algorithme de chiffrement par flux **RC4**, ainsi que les suites historiques dites « **EXPORT** » (issues d'anciennes restrictions réglementaires américaines sur l'exportation de cryptographie forte, qui imposaient des clés artificiellement affaiblies). Le maintien de telles suites activées côté serveur, même en simple option de repli, constitue une non-conformité relevée systématiquement lors d'un audit de configuration TLS.
+
+---
+
+## 5. Erreurs d'implémentation TLS fréquentes (audit)
+
+Au-delà du choix du protocole et des suites cryptographiques elles-mêmes, la sécurité effective d'un déploiement TLS dépend fortement de la rigueur de son implémentation côté client comme côté serveur. Les erreurs les plus fréquemment relevées lors d'un audit incluent :
+
+- **Ne pas vérifier le nom de domaine du certificat** : accepter un certificat valide mais délivré pour un domaine différent de celui effectivement contacté, ce qui annule la protection contre l'usurpation de serveur.
+- **Accepter des certificats auto-signés ou expirés en production** : une pratique parfois tolérée en développement pour simplifier les tests, mais qui ne doit jamais subsister en environnement de production, où elle prive le client de toute garantie d'authenticité du serveur.
+- **Désactiver la vérification de certificat pendant le développement, avec un oubli de réactivation en production** : une erreur classique et récurrente, où un indicateur de configuration destiné à faciliter les tests locaux (par exemple avec des certificats auto-signés) reste actif après le déploiement, exposant l'application entière à une attaque de l'homme du milieu sans qu'aucune alerte ne soit levée.
+- **Utiliser des suites cryptographiques obsolètes non désactivées côté serveur** : conserver, par défaut ou par excès de prudence vis-à-vis d'anciens clients, la possibilité de négocier des suites faibles ou dépréciées mentionnées à la section précédente.
+
+Ces points recoupent directement la grille d'audit applicatif vue dans le module *Audit organisation et technique*, et illustrent une fois de plus le constat déjà rencontré au chapitre 5 : une cryptographie mathématiquement solide ne protège rien si son implémentation ou sa configuration comporte une faille.
+
+---
+
+## 6. La menace post-quantique et la migration en cours
+
+L'**algorithme de Shor** (rappel : module *Cryptanalyse*, chapitre 5), s'il était exécuté sur un ordinateur quantique disposant d'un nombre suffisant de qubits stables et corrigés d'erreurs, permettrait de résoudre efficacement à la fois le problème de factorisation (cassant RSA) et le problème du logarithme discret, classique ou sur courbe elliptique (cassant Diffie-Hellman et ECC). Un tel ordinateur, à l'échelle nécessaire pour menacer les tailles de clé utilisées aujourd'hui, n'est pas disponible à ce jour. Deux considérations motivent néanmoins une action de migration dès maintenant, plutôt que d'attendre qu'un tel ordinateur existe réellement :
+
+- **« Harvest now, decrypt later »** (« récolter maintenant, déchiffrer plus tard ») : un adversaire disposant de capacités d'interception peut enregistrer dès aujourd'hui du trafic chiffré, dans l'espoir de le déchiffrer ultérieurement une fois l'informatique quantique devenue suffisamment mature. Cette stratégie représente un risque réel et concret pour toute donnée dont la **confidentialité doit être préservée sur une longue durée** (secrets d'État, données médicales, secrets industriels de long terme), même si le déchiffrement effectif n'interviendrait que dans plusieurs années.
+- **Délai de migration** : le déploiement d'une nouvelle famille cryptographique à l'échelle d'Internet — mise à jour des bibliothèques, des protocoles, des équipements matériels, des certificats — prend typiquement plusieurs années, ce qui justifie d'anticiper la transition bien avant qu'elle ne devienne urgente, plutôt que d'attendre l'apparition effective de la menace.
+
+Le NIST a standardisé en 2024 un ensemble d'algorithmes post-quantiques issus de son concours international : **ML-KEM** (anciennement connu sous le nom **Kyber** durant le processus de standardisation), destiné à l'échange de clé, fondé sur la difficulté de problèmes issus des réseaux euclidiens (*lattice-based cryptography*) plutôt que sur la factorisation ou le logarithme discret ; et **ML-DSA** (anciennement **Dilithium**), destiné à la signature numérique, fondé sur une famille de problèmes mathématiques similaire. L'intégration progressive de ces algorithmes dans TLS et d'autres protocoles est actuellement en cours, le plus souvent sous forme **hybride** : l'échange de clé combine simultanément un mécanisme classique (par exemple ECDHE) et un mécanisme post-quantique (par exemple ML-KEM), la sécurité globale de l'échange dépendant alors de la robustesse d'au moins l'un des deux mécanismes. Cette approche hybride reflète une prudence délibérée : elle évite de dépendre uniquement de la maturité encore relativement récente de ces nouveaux algorithmes, dont la résistance à long terme à la cryptanalyse n'a pas encore été éprouvée sur la même durée que RSA ou ECC.
+
+---
+
+## À retenir
+
+- TLS combine, de façon opérationnelle et standardisée, échange de clé asymétrique éphémère, authentification par certificat et chiffrement symétrique authentifié — la synthèse pratique de tout ce module.
+- La confidentialité persistante (clés éphémères, ECDHE) protège les échanges passés même en cas de compromission future d'une clé privée long terme du serveur.
+- Une implémentation ou une configuration TLS défaillante (vérification de certificat désactivée, suites obsolètes maintenues) annule la protection apportée par une cryptographie par ailleurs solide.
+- La transition post-quantique (ML-KEM, ML-DSA) est engagée par anticipation, notamment face au risque « harvest now, decrypt later » sur des données sensibles à confidentialité de longue durée, et déployée le plus souvent sous forme hybride avec les mécanismes classiques.

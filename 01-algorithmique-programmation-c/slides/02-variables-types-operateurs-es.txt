@@ -1,0 +1,121 @@
+# Chapitre 2 — Variables, types, opérateurs et entrées-sorties
+
+### Algorithmique et Programmation en C
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Variables et types de base
+
+Une **variable** est un emplacement mémoire nommé, réservé pour stocker une valeur pendant l'exécution du programme. En C, contrairement à des langages comme Python, une variable doit être déclarée avec un **type explicite** avant d'être utilisée : ce type détermine à la fois la taille (en octets) de l'emplacement mémoire réservé, la manière dont les bits qui s'y trouvent doivent être interprétés (entier, caractère, flottant…), et l'ensemble des opérations valides sur cette variable. C'est ce qu'on appelle le **typage statique** : le type d'une variable est fixé une fois pour toutes à la compilation et ne change jamais au cours de l'exécution.
+
+| Type | Taille usuelle | Exemple | Rôle |
+|---|---|---|---|
+| `int` | 4 octets | `int age = 25;` | entier signé |
+| `unsigned int` | 4 octets | `unsigned int compteur = 0;` | entier non signé |
+| `char` | 1 octet | `char lettre = 'A';` | caractère / petit entier |
+| `float` | 4 octets | `float prix = 19.99f;` | flottant simple précision |
+| `double` | 8 octets | `double pi = 3.14159265;` | flottant double précision |
+| `long`, `short` | variable | `long total;` | variantes de taille de `int` |
+
+Il est essentiel de comprendre que le standard C ne garantit **pas** de taille fixe pour la plupart de ces types : il garantit uniquement des relations d'ordre entre eux (`short <= int <= long <= long long`) et une taille minimale. La taille réelle dépend de l'architecture matérielle (32 ou 64 bits) et des choix du compilateur. On ne doit donc jamais supposer, par exemple, qu'un `int` fait toujours 4 octets sur toutes les plateformes : on vérifie sa taille réelle avec l'opérateur `sizeof(type)`, évalué à la compilation. Pour les cas où une taille garantie et portable est nécessaire — ce qui est fréquent dès qu'on manipule des formats de données binaires, des protocoles réseau ou du code cryptographique — le standard C99 introduit l'en-tête `stdint.h`, qui fournit des types de taille fixe explicite comme `int32_t` (entier signé de 32 bits garantis), `uint8_t` (entier non signé de 8 bits, souvent utilisé pour manipuler des octets bruts) ou `uint64_t`. Cette précision n'est pas un détail académique : un calcul de taille de buffer qui suppose implicitement une taille de type erronée est une source classique de débordement d'entier (*integer overflow*), une catégorie de vulnérabilité à part entière qui sera approfondie dans le cours *Sécurité des applications*.
+
+```c
+#include <stdio.h>
+printf("Taille d'un int : %zu octets\n", sizeof(int));
+printf("Taille d'un long : %zu octets\n", sizeof(long));
+```
+
+---
+
+## 2. Déclaration, initialisation, portée
+
+Déclarer une variable réserve l'espace mémoire correspondant à son type, mais ne lui donne **aucune valeur définie** tant qu'elle n'est pas explicitement initialisée. C'est une différence fondamentale avec des langages qui initialisent automatiquement les variables à une valeur par défaut (zéro, `null`, etc.) : en C, une variable locale non initialisée contient simplement ce qui se trouvait déjà à cet emplacement mémoire — une valeur imprévisible, communément appelée « valeur poubelle » (*garbage value*).
+
+```c
+int x;                 // déclarée, valeur indéterminée (danger !)
+int y = 0;              // déclarée et initialisée
+const int MAX = 100;    // constante, non modifiable après initialisation
+```
+
+Utiliser la valeur de `x` avant de lui avoir affecté quelque chose (par exemple `printf("%d\n", x);` juste après sa déclaration) est un comportement indéfini en C : le programme peut afficher n'importe quelle valeur, différente à chaque exécution, voire un comportement encore plus surprenant selon les optimisations du compilateur. Ce défaut, anodin en apparence, est une source classique de bugs difficiles à reproduire et, dans certains contextes, une véritable vulnérabilité de sécurité : si la mémoire non initialisée provient d'une zone précédemment utilisée par une autre partie du programme (voire par un autre processus, dans certains cas d'allocation), elle peut contenir des données sensibles — mots de passe, clés, fragments de données utilisateur — qu'un attaquant pourrait exploiter pour les faire fuiter. Le mot-clé `const`, quant à lui, indique au compilateur qu'une variable ne doit plus être modifiée après son initialisation ; toute tentative de modification ultérieure (`MAX = 200;`) est détectée et rejetée à la compilation, ce qui en fait un outil simple mais efficace pour exprimer une intention et laisser le compilateur vérifier qu'elle est respectée.
+
+**Bonne pratique** : initialiser systématiquement toute variable au moment de sa déclaration, même avec une valeur « neutre » (`0`, `NULL`, chaîne vide), sauf si elle est immédiatement écrasée par la suite (par exemple en tout premier paramètre de sortie d'une fonction).
+
+---
+
+## 3. Opérateurs
+
+Le C fournit un ensemble d'opérateurs qui, combinés aux types vus plus haut, permettent d'exprimer tous les calculs et comparaisons nécessaires à un algorithme.
+
+- **Arithmétiques** : `+ - * /` effectuent respectivement addition, soustraction, multiplication et division ; `%` calcule le **reste** de la division entière (le modulo) et n'existe que pour les types entiers — l'appliquer à des `float` ou `double` est une erreur de compilation. Attention également à la division entre deux entiers : `7 / 2` vaut `3` en C (division entière, la partie décimale est tronquée), et non `3.5` ; pour obtenir un résultat flottant, il faut qu'au moins un des deux opérandes soit de type flottant (voir la section sur les conversions).
+- **Relationnels** : `== != < > <= >=` comparent deux valeurs et renvoient un entier valant `0` (faux) ou `1` (vrai) — en C, il n'existe pas de type booléen distinct dans le standard historique (avant `stdbool.h`, introduit en C99, qui fournit `bool`, `true`, `false` comme alias pratiques sur ce même mécanisme entier).
+- **Logiques** : `&&` (ET logique), `||` (OU logique), `!` (négation) combinent des expressions booléennes. Le C applique une **évaluation en court-circuit** : dans `a() && b()`, si `a()` renvoie faux, `b()` n'est jamais évaluée, car le résultat global est déjà déterminé. Ce comportement est souvent exploité volontairement, par exemple pour vérifier qu'un pointeur n'est pas nul avant de le déréférencer : `if (p != NULL && p->valeur > 0)`.
+- **Bit à bit** : `&` (ET), `|` (OU), `^` (OU exclusif, XOR), `~` (complément à un), `<<` (décalage à gauche), `>>` (décalage à droite) opèrent directement sur la représentation binaire des entiers, bit par bit. Ces opérateurs sont fondamentaux en cryptographie (le XOR, en particulier, est à la base du chiffrement de Vernam et de nombreux algorithmes symétriques), en manipulation de masques de bits (drapeaux combinés dans un seul entier) et en manipulation bas niveau de protocoles réseau ; ils seront repris en profondeur dans le chapitre *Cryptographie*.
+- **Affectation composée** : `+= -= *= /= %=` combinent une opération et une affectation (`a += 5;` équivaut à `a = a + 5;`), ce qui rend le code plus concis et parfois plus lisible.
+- **Incrémentation/décrémentation** : `++` et `--` augmentent ou diminuent une variable de 1. Utilisés en **préfixe** (`++i`), l'opération est effectuée avant que la valeur ne soit utilisée dans l'expression englobante ; en **postfixe** (`i++`), la valeur d'origine est utilisée dans l'expression, puis l'incrémentation a lieu. La différence est subtile mais peut avoir un effet observable, par exemple dans `tableau[i++] = 0;` (utilise l'ancienne valeur de `i` comme indice, puis l'incrémente) contre `tableau[++i] = 0;` (incrémente d'abord, puis utilise la nouvelle valeur).
+
+```c
+int a = 5, b = 3;
+int somme = a + b;      // 8
+int reste = a % b;      // 2
+int masque = a & b;     // ET bit à bit : 0101 & 0011 -> 0001, soit 1
+int i = 0;
+int x = tableau[i++];   // utilise tableau[0], puis i vaut 1
+```
+
+---
+
+## 4. Conversions de type (casting)
+
+Lorsqu'une expression mélange plusieurs types (par exemple un `int` et un `double`), le compilateur applique des règles de **conversion implicite** pour ramener les opérandes à un type commun avant d'effectuer l'opération — c'est ce qu'on appelle la **promotion** ou la **conversion arithmétique usuelle**. Le programmeur peut aussi forcer une conversion explicitement, via l'opérateur de **cast** `(type)`, pour indiquer clairement son intention.
+
+```c
+int i = 7;
+double d = (double) i / 2;   // conversion explicite de i en double avant division : 3.5
+int tronque = (int) 3.9;     // conversion explicite : 3 (troncature, pas d'arrondi)
+```
+
+Dans le premier exemple, sans le cast explicite, `i / 2` serait évalué comme une division entière (`3`) avant même d'être affecté à `d` — le cast est donc indispensable pour obtenir le résultat flottant attendu. Le second exemple illustre que la conversion d'un flottant vers un entier **tronque** la partie décimale (elle ne l'arrondit pas) : `(int) 3.9` vaut `3`, et non `4`.
+
+Les conversions **implicites** — celles que le compilateur applique automatiquement sans que le programmeur l'ait explicitement demandé — sont une source fréquente et particulièrement insidieuse de bugs, car elles ne provoquent généralement ni erreur ni avertissement visible :
+
+- convertir un `int` de grande valeur vers un `char` (1 octet) tronque silencieusement la valeur, ne conservant que les 8 bits de poids faible ;
+- convertir un entier **signé négatif** vers un type **non signé** produit une valeur immense (par un mécanisme de représentation en complément à deux), ce qui peut fausser une comparaison ou une taille de boucle de façon désastreuse ;
+- convertir une taille calculée en `size_t` (type non signé, souvent 8 octets sur une architecture 64 bits) vers un `int` (souvent 4 octets, signé) peut silencieusement tronquer ou transformer une grande valeur positive en valeur négative.
+
+Ce dernier cas est particulièrement pertinent en sécurité : de nombreuses vulnérabilités réelles proviennent d'un calcul de taille de buffer effectué avec un type inadapté, qui « déborde » silencieusement et conduit ensuite à une allocation ou une copie de taille incorrecte. La vigilance sur les types utilisés dans les calculs de tailles est donc une compétence de sécurité à part entière, pas un simple détail de style.
+
+---
+
+## 5. Entrées-sorties standard
+
+Les fonctions `printf` (affichage) et `scanf` (saisie), déclarées dans `stdio.h`, constituent l'interface la plus courante entre un programme C et l'utilisateur en mode texte.
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    int age;
+    printf("Entrez votre âge : ");
+    scanf("%d", &age);          // & : adresse de la variable
+    printf("Vous avez %d ans.\n", age);
+    return 0;
+}
+```
+
+Les deux fonctions s'appuient sur une **chaîne de format** contenant des **spécificateurs**, précédés du symbole `%`, qui indiquent le type de la valeur à lire ou à écrire à cet endroit précis : `%d` pour un `int`, `%f` pour un `float` ou un `double` (en affichage), `%c` pour un `char`, `%s` pour une chaîne de caractères, `%p` pour afficher une adresse mémoire (un pointeur), `%x` pour afficher un entier en notation hexadécimale. Il est crucial que le spécificateur corresponde exactement au type de la variable fournie : un mauvais spécificateur (par exemple `%d` sur un `double`) est un comportement indéfini que le compilateur ne détecte pas toujours par défaut, mais que `-Wall -Wextra` (chapitre 1) signale généralement.
+
+Point notable dans l'exemple : `scanf("%d", &age)` prend `&age`, l'**adresse** de la variable `age`, et non `age` elle-même. C'est parce que `scanf` doit pouvoir **modifier** la variable de l'appelant pour y écrire la valeur saisie — un mécanisme de passage par adresse qui sera formalisé au chapitre 4 et qui repose directement sur les pointeurs, introduits au chapitre 6. Oublier le `&` (une erreur très fréquente chez les débutants) provoque un comportement indéfini : `scanf` interprète alors la valeur de `age` elle-même comme une adresse mémoire et tente d'y écrire, ce qui peut planter le programme ou, plus insidieusement, corrompre une zone mémoire arbitraire.
+
+**Point de vigilance sécurité** : `scanf("%s", buffer)` sans limite de taille explicite continue de lire des caractères tant qu'il n'y a pas d'espace, sans jamais vérifier que `buffer` est assez grand pour les contenir — une saisie trop longue provoque alors un débordement de tampon, exactement comme `strcpy` (détaillé au chapitre 5). De la même façon, transmettre directement une chaîne contrôlée par l'utilisateur comme chaîne de format à `printf` (par exemple `printf(saisie_utilisateur);` au lieu de `printf("%s", saisie_utilisateur);`) constitue une vulnérabilité de type **format string** : un attaquant peut y injecter ses propres spécificateurs (`%x`, `%n`…) pour lire, voire écrire, dans la mémoire du programme. Ces deux points seront repris et exploités en détail dans le cours *Sécurité des applications*, mais il est important d'en avoir conscience dès l'apprentissage des bases du langage.
+
+---
+
+## À retenir
+
+- Toujours initialiser ses variables : une variable non initialisée contient une valeur imprévisible, source de bugs et de fuites potentielles de données sensibles.
+- Connaître la taille et les limites de chaque type (`limits.h` pour les bornes, `stdint.h` pour des tailles garanties) évite les débordements d'entiers silencieux.
+- Se méfier des conversions implicites, en particulier entre types signés/non signés et entre tailles différentes : elles ne provoquent aucune erreur visible mais peuvent fausser un calcul critique.
+- Ne jamais utiliser une entrée utilisateur comme chaîne de format de `printf`, et toujours borner la taille des saisies avec `scanf` ou ses alternatives plus sûres.

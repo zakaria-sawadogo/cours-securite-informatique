@@ -1,0 +1,98 @@
+# Chapitre 3 — Audit technique : méthodologie des tests d'intrusion
+
+### Audit organisation et technique
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Le PTES (Penetration Testing Execution Standard)
+
+Le **PTES** (*Penetration Testing Execution Standard*) est l'un des référentiels méthodologiques les plus utilisés pour cadrer et dérouler un test d'intrusion. Son intérêt principal est de fournir un vocabulaire et une structure communs entre auditeurs, ce qui facilite la comparaison de prestations entre différents prestataires et la relecture d'un rapport par un client qui ne maîtrise pas nécessairement le détail technique. Il structure un test d'intrusion en sept phases, qui s'enchaînent logiquement mais peuvent, en pratique, se recouper ou se répéter au fil des découvertes :
+
+1. **Pre-engagement** : cadrage, périmètre, mandat, règles d'engagement — cette phase est directement liée au cadre légal vu au chapitre 1 : rien de technique ne commence avant que le mandat écrit ne soit signé.
+2. **Intelligence gathering** (reconnaissance) : collecte passive et active d'informations sur la cible, afin de construire une vision aussi complète que possible de sa surface d'attaque avant toute tentative d'exploitation.
+3. **Threat modeling** : identification des actifs critiques (données sensibles, systèmes vitaux) et des scénarios d'attaque plausibles compte tenu du profil de la cible — cette étape oriente les efforts vers ce qui compte réellement plutôt que de tester tout, indifféremment, avec la même intensité.
+4. **Vulnerability analysis** : identification des failles, par combinaison de scans automatisés et d'analyse manuelle, pour dresser la liste des points d'entrée potentiels.
+5. **Exploitation** : tentative d'exploitation contrôlée des vulnérabilités identifiées, dans le but de démontrer leur impact réel plutôt que de se contenter d'une simple hypothèse théorique.
+6. **Post-exploitation** : une fois un accès obtenu, évaluation de l'impact réel qu'un attaquant pourrait en tirer (élévation de privilèges, mouvement latéral ou « pivot » vers d'autres systèmes, simulation d'exfiltration de données) — c'est souvent cette phase qui transforme une vulnérabilité isolée en un scénario d'incident crédible pour la direction.
+7. **Reporting** : rédaction du rapport, qui documente l'ensemble de la démarche et de ses résultats (voir chapitre 6 pour la structure détaillée d'un rapport).
+
+---
+
+## 2. Reconnaissance passive vs active
+
+La phase de reconnaissance se subdivise en deux approches complémentaires, dont la distinction est fondamentale car elle conditionne le risque de détection par la cible.
+
+| Type | Exemples de techniques | Détectable par la cible ? |
+|---|---|---|
+| Passive | OSINT (WHOIS, réseaux sociaux, moteurs de recherche, `theHarvester`), consultation de code source public | non |
+| Active | scan de ports, résolution DNS directe, requêtes HTTP vers la cible | oui, potentiellement journalisé |
+
+La **reconnaissance passive** consiste à rassembler des informations sur la cible sans jamais interagir directement avec ses systèmes : consultation de sources publiques (registres WHOIS, réseaux sociaux, dépôts de code source publics, moteurs de recherche), ce que l'on regroupe sous le terme d'**OSINT** (*Open Source Intelligence*). Comme aucune requête n'est envoyée directement à la cible, cette activité est par définition indétectable par elle. Elle permet néanmoins de récolter des informations précieuses : noms de domaine associés, adresses e-mail de contact, technologies mentionnées dans des offres d'emploi, employés identifiables sur les réseaux professionnels — autant d'éléments qui alimentent ensuite les phases suivantes.
+
+La **reconnaissance active**, à l'inverse, implique un contact direct avec l'infrastructure de la cible (scan de ports, résolution DNS, requêtes HTTP). Ces actions laissent des traces dans les journaux de la cible et peuvent déclencher des alertes de détection — ce qui en fait, incidemment, un excellent test de la capacité de détection de l'organisation, même lorsque ce n'est pas l'objectif premier de l'exercice.
+
+---
+
+## 3. Scan et énumération
+
+Une fois la reconnaissance initiale effectuée, l'auditeur cherche à préciser concrètement quels services sont exposés et comment ils sont configurés.
+
+- **Scan de ports** : identifie les services exposés sur une machine cible, en distinguant les ports ouverts (un service y écoute), fermés (aucun service, mais la machine répond) et filtrés (aucune réponse, généralement à cause d'un pare-feu). L'outil de référence pour cette tâche est `nmap`.
+- **Fingerprinting** : au-delà de la simple ouverture d'un port, cette technique cherche à identifier précisément la version du service et du système d'exploitation sous-jacent (option `-sV -O` de `nmap`), une information indispensable pour rechercher ensuite des vulnérabilités connues associées à cette version précise.
+- **Énumération** : consiste à lister méthodiquement les ressources exposées par un service identifié — partages réseau accessibles, comptes utilisateurs valides, répertoires et fichiers d'une application web. C'est une étape souvent sous-estimée alors qu'elle révèle fréquemment des informations sensibles exposées par erreur (fichiers de sauvegarde oubliés, répertoires d'administration non protégés).
+
+```bash
+nmap -sV -sC -p- 192.168.1.10
+```
+
+Dans cet exemple, `-sV` active la détection de version des services, `-sC` exécute un ensemble de scripts de reconnaissance standard fournis avec `nmap`, et `-p-` étend le scan à l'ensemble des 65 535 ports TCP plutôt qu'aux seuls ports les plus courants — une pratique recommandée en audit, car limiter le scan aux ports par défaut laisse échapper les services volontairement déplacés sur un port non standard.
+
+---
+
+## 4. Analyse de vulnérabilités
+
+Une fois les services et leurs versions identifiés, l'étape suivante consiste à déterminer si des vulnérabilités connues leur sont associées. Des outils automatisés (scanners) confrontent systématiquement les versions relevées à des bases de vulnérabilités publiques référencées sous forme de **CVE** (*Common Vulnerabilities and Exposures*) :
+
+- **Nessus**, **OpenVAS** : scanners généralistes orientés réseau et systèmes, capables de tester un grand nombre de services et de configurations en une seule campagne de scan.
+- **Nikto**, **OWASP ZAP**, **Burp Suite** : scanners spécifiquement orientés applications web, qui recherchent des configurations dangereuses ou des vulnérabilités typiques des applications HTTP (en-têtes manquants, formulaires vulnérables, points d'entrée non protégés).
+
+Un scan automatisé, aussi puissant soit-il, présente des limites structurelles qu'il est essentiel de connaître avant de s'y fier aveuglément. Il produit des **faux positifs** — une vulnérabilité signalée sur la base d'une simple correspondance de version, alors qu'elle a en réalité été corrigée par un correctif appliqué séparément (*backport*) sans changement de numéro de version visible. Il peut aussi laisser passer des **faux négatifs** : des vulnérabilités purement logiques (par exemple un contrôle d'accès mal conçu métier par métier) ne correspondent à aucune signature connue et ne peuvent être détectées que par une analyse manuelle attentive. C'est pourquoi un scan automatisé, quel que soit sa qualité, ne remplace jamais le jugement et l'expérience d'un auditeur humain — il en constitue tout au plus un point de départ efficace.
+
+---
+
+## 5. Exploitation contrôlée
+
+L'exploitation est l'étape qui distingue véritablement un test d'intrusion d'un simple scan de vulnérabilités : elle vise à démontrer concrètement l'impact réel d'une faille identifiée, sous la forme d'une preuve de concept, sans jamais dégrader le service ni les données de production visées. Trois principes encadrent cette démarche :
+
+- **Privilégier les preuves non destructives** : lorsque plusieurs façons existent de démontrer une vulnérabilité, l'auditeur choisit toujours la moins risquée pour la cible — par exemple lire le contenu d'un fichier témoin déposé volontairement à cet effet plutôt que supprimer ou modifier des données réelles, ce qui suffit largement à prouver l'existence et la gravité de la faille.
+- **Documenter précisément chaque action entreprise** : horodatage, commande exacte utilisée, résultat obtenu — cette traçabilité minutieuse sert à la fois de preuve pour le rapport final et de garde-fou en cas de contestation ultérieure sur ce qui a réellement été fait pendant l'audit.
+- **S'arrêter strictement au périmètre autorisé par le mandat**, même lorsqu'une extension du périmètre semble techniquement possible et tentante — franchir cette limite, même dans une intention purement démonstrative, transformerait un audit légitime en action non autorisée.
+
+---
+
+## 6. Notation de la criticité (CVSS)
+
+Le score **CVSS** (*Common Vulnerability Scoring System*) est un standard largement adopté pour qualifier de façon objective et reproductible la gravité d'une vulnérabilité, à partir de plusieurs métriques combinées : le vecteur d'attaque (locale, réseau adjacent, réseau ouvert), la complexité de l'exploitation, les privilèges requis avant de pouvoir exploiter la faille, l'interaction utilisateur nécessaire, et l'impact sur les trois piliers de la sécurité de l'information — confidentialité, intégrité et disponibilité. Le score final est exprimé sur une échelle de 0 à 10, généralement traduite en catégories qualitatives (faible, moyen, élevé, critique).
+
+L'intérêt principal du CVSS est de rendre les comparaisons possibles entre vulnérabilités hétérogènes, plutôt que de reposer uniquement sur l'appréciation subjective d'un auditeur. Un score CVSS de 9.8 sur 10 (typiquement une exécution de code à distance sans authentification préalable requise) impose une remédiation immédiate, alors qu'un score de 3.1 (par exemple une fuite d'information mineure nécessitant un accès local déjà privilégié) peut généralement être traité dans un cycle de correctifs standard. Il faut néanmoins garder à l'esprit que le CVSS mesure une gravité technique intrinsèque, indépendamment du contexte métier de la cible — un point approfondi au chapitre 6, où la criticité technique brute est recontextualisée avec l'impact métier réel.
+
+---
+
+## 7. Limites et complémentarité avec l'audit organisationnel
+
+Un test d'intrusion technique, aussi rigoureux soit-il, donne une **photographie à un instant *t*** d'un périmètre limité, défini par le mandat. Il ne dit rien, en lui-même, sur la capacité de l'organisation à *détecter* une attaque en cours, ni sur sa capacité à y *répondre* efficacement une fois détectée — deux dimensions pourtant essentielles de la sécurité opérationnelle. Un test d'intrusion classique se termine généralement dès qu'un accès significatif est démontré, sans chercher systématiquement à savoir si les équipes de supervision l'ont remarqué.
+
+C'est précisément la différence avec un exercice de type ***Red Team***, plus large et généralement plus long dans le temps, dont l'objectif explicite inclut de tester également la détection et la réaction de l'organisation (« Blue Team »), et pas seulement la capacité d'intrusion elle-même. Cette complémentarité illustre bien pourquoi l'audit technique seul ne suffit jamais : il doit être articulé avec l'audit organisationnel (chapitre 2), qui évalue justement les processus de détection, de réponse à incident et de gouvernance qu'un test d'intrusion ponctuel ne peut pas mesurer directement.
+
+---
+
+## À retenir
+
+- Le PTES structure la démarche en sept phases, de la reconnaissance au rapport, en s'appuyant sur un vocabulaire commun facilitant la comparaison entre prestations.
+- La reconnaissance se décompose en une composante passive (indétectable) et active (potentiellement journalisée), et l'analyse de vulnérabilités combine scan automatisé et jugement manuel.
+- L'automatisation (scanners) accélère l'analyse mais ne remplace pas le jugement de l'auditeur, en raison des faux positifs et des faux négatifs qu'elle produit structurellement.
+- L'exploitation doit rester non destructive, documentée et strictement bornée au périmètre du mandat.
+- Le score CVSS objective la priorisation des vulnérabilités identifiées, mais doit être recontextualisé au regard de l'impact métier réel.
+- Un test d'intrusion technique ne mesure pas la capacité de détection et de réponse de l'organisation ; seul un exercice de type Red Team ou l'audit organisationnel permet d'évaluer cette dimension.

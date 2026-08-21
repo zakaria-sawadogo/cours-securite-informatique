@@ -1,0 +1,132 @@
+# Chapitre 7 — Structures (`struct`) et fichiers
+
+### Algorithmique et Programmation en C
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Définir une structure
+
+```c
+struct Utilisateur {
+    char nom[50];
+    int age;
+    float solde;
+};
+
+struct Utilisateur u1 = {"Zakaria", 30, 1500.0f};
+printf("%s a %d ans\n", u1.nom, u1.age);
+```
+
+Une **structure** (`struct`) regroupe plusieurs données de types potentiellement différents — ici une chaîne de caractères, un entier et un flottant — sous un seul type composite nommé, dont chaque instance (chaque variable de ce type) réserve en mémoire un bloc contenant l'ensemble de ces champs, généralement dans l'ordre de leur déclaration. C'est une brique de base essentielle pour modéliser des objets métier cohérents : un utilisateur, un paquet réseau, un enregistrement de journal (*log*), un en-tête de fichier, ou toute autre entité dont la description naturelle combine plusieurs informations liées entre elles. L'accès à un champ d'une structure se fait avec l'opérateur point (`.`) suivi du nom du champ, comme dans `u1.nom` ou `u1.age`.
+
+Il est important de noter que le compilateur peut insérer, entre les champs d'une structure, des octets de remplissage (*padding*) pour respecter les contraintes d'alignement mémoire du processeur cible (par exemple, aligner un `int` sur une adresse multiple de 4). La taille totale d'une structure, mesurée avec `sizeof`, n'est donc pas nécessairement égale à la somme exacte des tailles de ses champs pris individuellement — un point qui aura son importance à la section 6, lors de la sérialisation binaire.
+
+---
+
+## 2. Structures et pointeurs
+
+```c
+struct Utilisateur *pu = &u1;
+printf("%s\n", pu->nom);   // équivalent à (*pu).nom
+```
+
+Lorsqu'on manipule une structure via un pointeur — ce qui est extrêmement fréquent en C, notamment pour éviter de copier une structure volumineuse à chaque passage en paramètre de fonction (rappel du chapitre 4 : le passage par valeur copie intégralement l'argument) — accéder à un champ requiert de d'abord déréférencer le pointeur avant d'appliquer l'opérateur point : `(*pu).nom`. Cette écriture, correcte mais un peu lourde et nécessitant des parenthèses (sans elles, `*pu.nom` serait interprété comme `*(pu.nom)`, ce qui n'a pas de sens ici), est si courante que le C fournit un opérateur dédié, la **flèche** `->`, qui combine en une seule syntaxe le déréférencement et l'accès au champ : `pu->nom` est strictement équivalent à `(*pu).nom`, mais bien plus lisible.
+
+L'opérateur `->` est, dans la pratique, l'un des opérateurs les plus fréquemment rencontrés dans du code C réel : il est omniprésent dans la manipulation des **listes chaînées** et des **arbres** (voir section 4), ainsi que dans le code des systèmes d'exploitation et des piles réseau, où l'on manipule constamment des structures via des pointeurs — par exemple pour accéder aux champs d'un en-tête de paquet réseau à partir d'un pointeur vers un buffer reçu, un motif que l'on retrouvera dans les cours abordant l'analyse de protocoles.
+
+---
+
+## 3. `typedef` et alias de type
+
+```c
+typedef struct {
+    int x;
+    int y;
+} Point;
+
+Point p = {3, 4};
+```
+
+Le mot-clé `typedef` permet de créer un **alias** pour un type existant, souvent complexe ou verbeux à écrire, afin de simplifier son utilisation dans le reste du code. Dans l'exemple ci-dessus, `typedef struct { ... } Point;` définit une structure **anonyme** (sans nom propre après le mot-clé `struct`) et lui donne immédiatement l'alias `Point`, qui peut ensuite être utilisé directement comme un nom de type, sans avoir besoin d'écrire `struct` à chaque déclaration (`Point p = {3, 4};` au lieu du plus verbeux `struct Point p = {3, 4};` que nécessiterait une structure nommée classique). Cette convention, très répandue en C, améliore la lisibilité du code et rapproche visuellement l'usage d'une structure de celui d'un type de base comme `int` ou `double`. `typedef` peut d'ailleurs être utilisé pour créer un alias vers n'importe quel type, pas seulement des structures — par exemple `typedef unsigned char octet;` pour donner un nom métier explicite à un type existant.
+
+---
+
+## 4. Structures de données dynamiques : liste chaînée (introduction)
+
+```c
+typedef struct Noeud {
+    int valeur;
+    struct Noeud *suivant;
+} Noeud;
+
+Noeud* creer_noeud(int v) {
+    Noeud *n = malloc(sizeof(Noeud));
+    if (n == NULL) return NULL;
+    n->valeur = v;
+    n->suivant = NULL;
+    return n;
+}
+```
+
+Une **liste chaînée** est une structure de données dans laquelle chaque élément, appelé **nœud**, contient une valeur ainsi qu'un pointeur vers le nœud suivant dans la séquence (ou `NULL` s'il s'agit du dernier nœud). Contrairement à un tableau, dont la taille et l'organisation en mémoire sont fixées à l'allocation, une liste chaînée peut grandir ou rétrécir dynamiquement, un nœud à la fois, sans jamais avoir besoin de déplacer les nœuds existants — au prix de ne plus pouvoir accéder directement à un élément par son indice (il faut parcourir la liste nœud par nœud depuis le début).
+
+Cette définition mérite une observation syntaxique importante : à l'intérieur de la structure `Noeud`, le champ `suivant` est déclaré comme `struct Noeud *suivant;`, en utilisant explicitement `struct Noeud` (et non simplement `Noeud`, l'alias, qui n'est pas encore complètement défini à ce point de la déclaration) — c'est une **référence à soi-même**, rendue possible uniquement parce qu'il s'agit d'un *pointeur* vers un `Noeud` et non d'un `Noeud` directement inclus par valeur (ce qui, lui, serait impossible : une structure ne peut pas se contenir elle-même, sa taille serait indéfinie).
+
+La fonction `creer_noeud` illustre la combinaison de trois notions vues précédemment dans ce module, qui convergent ici naturellement : l'**allocation dynamique** (`malloc(sizeof(Noeud))`, avec la vérification systématique de son résultat — chapitre 6), les **pointeurs** (le nœud retourné, et le champ `suivant` qui permettra de chaîner les nœuds entre eux) et les **structures** (le regroupement de `valeur` et `suivant` dans un seul type cohérent). C'est précisément cette combinaison qui rend possible la construction de structures de données dynamiques plus élaborées — listes doublement chaînées, piles, files, arbres binaires — qui seront explorées en travaux pratiques.
+
+---
+
+## 5. Manipulation de fichiers
+
+```c
+#include <stdio.h>
+
+FILE *f = fopen("donnees.txt", "w");
+if (f == NULL) {
+    perror("Erreur d'ouverture");
+    return 1;
+}
+fprintf(f, "Bonjour %s\n", "Zakaria");
+fclose(f);
+
+FILE *lecture = fopen("donnees.txt", "r");
+char ligne[100];
+while (fgets(ligne, sizeof(ligne), lecture) != NULL) {
+    printf("%s", ligne);
+}
+fclose(lecture);
+```
+
+La bibliothèque standard `stdio.h` représente un fichier ouvert par un pointeur opaque de type `FILE *`, obtenu par `fopen(chemin, mode)`. Le second argument, le **mode d'ouverture**, détermine à la fois l'opération autorisée et l'effet sur le fichier existant : `"r"` ouvre en lecture seule (échoue si le fichier n'existe pas), `"w"` ouvre en écriture en **écrasant** tout contenu préexistant (ou en créant le fichier s'il n'existe pas), `"a"` ouvre en mode ajout (*append*), écrivant à la suite du contenu existant sans l'effacer, et les variantes `"rb"`/`"wb"` ouvrent respectivement en lecture et en écriture en **mode binaire**, sans les traitements spécifiques que certains systèmes appliquent aux fichiers texte (comme la conversion des fins de ligne).
+
+`fopen` peut échouer pour de nombreuses raisons — fichier inexistant, permissions insuffisantes, disque plein, chemin invalide — et renvoie alors `NULL` plutôt qu'un pointeur valide. Comme pour `malloc`, cette valeur de retour **doit toujours être vérifiée** avant tout usage : tenter d'écrire ou de lire à travers un pointeur `FILE *` nul provoque un comportement indéfini. La fonction `perror`, utilisée ici, affiche sur la sortie d'erreur standard un message décrivant la dernière erreur système survenue, ce qui facilite grandement le diagnostic.
+
+Pour la lecture, `fgets(ligne, sizeof(ligne), lecture)` lit **au maximum** `sizeof(ligne) - 1` caractères depuis le fichier (en s'arrêtant plus tôt si elle rencontre une fin de ligne), les stocke dans `ligne`, et ajoute automatiquement un `'\0'` final — contrairement à `gets` (fonction historique aujourd'hui supprimée du standard C11 précisément pour cette raison), `fgets` ne peut jamais déborder du buffer fourni, car elle connaît explicitement sa taille grâce au second paramètre. Elle renvoie `NULL` lorsqu'il n'y a plus rien à lire (fin de fichier atteinte) ou en cas d'erreur, ce qui permet d'utiliser directement sa valeur de retour comme condition de boucle, comme dans l'exemple.
+
+**Point de vigilance sécurité** : trois réflexes systématiques s'imposent pour toute manipulation de fichier en C — toujours vérifier la valeur de retour de `fopen` avant de l'utiliser ; toujours borner explicitement la taille lue avec des fonctions comme `fgets(buffer, taille, f)` plutôt que d'utiliser `gets`, dont l'absence totale de vérification de taille en fait l'une des fonctions les plus dangereuses jamais standardisées en C (raison pour laquelle elle a été retirée du langage) ; et enfin, valider soigneusement tout **chemin de fichier construit à partir d'une entrée utilisateur** avant de l'utiliser dans un `fopen` — un chemin non validé, contenant par exemple des séquences comme `../`, peut permettre à un attaquant de sortir du répertoire prévu et d'accéder à des fichiers arbitraires du système, une vulnérabilité connue sous le nom de **path traversal** (traversée de répertoire).
+
+---
+
+## 6. Lecture/écriture binaire
+
+```c
+struct Utilisateur u;
+fwrite(&u, sizeof(struct Utilisateur), 1, f);
+fread(&u, sizeof(struct Utilisateur), 1, f);
+```
+
+Alors que `fprintf`/`fgets` manipulent du texte lisible, `fwrite` et `fread` permettent d'écrire et de lire directement la **représentation binaire brute** en mémoire d'une variable — ici, l'intégralité des octets qui composent la structure `u`, tels qu'ils sont réellement organisés en mémoire (y compris, le cas échéant, les octets de padding évoqués à la section 1). Les paramètres de `fwrite` (identiques pour `fread`) suivent le même schéma : l'adresse des données (`&u`), la taille en octets d'un élément (`sizeof(struct Utilisateur)`), le nombre d'éléments à écrire ou lire (`1` ici, mais on peut écrire/lire un tableau entier de structures en une seule fois), et le flux de fichier concerné. Cette approche est nettement plus compacte et rapide que de formater chaque champ individuellement en texte, ce qui en fait le choix naturel pour **sérialiser** — c'est-à-dire convertir en une suite d'octets stockable ou transmissible — des structures de données destinées à être relues plus tard, potentiellement par le même programme.
+
+Cette efficacité a toutefois une contrepartie importante : la représentation binaire brute d'une structure dépend directement de l'architecture et du compilateur qui l'ont produite — la taille exacte des types (chapitre 2), la présence et la disposition du padding entre les champs (section 1), et l'**endianness** (l'ordre dans lequel les octets d'une valeur multi-octets, comme un `int`, sont rangés en mémoire — poids fort en premier ou poids faible en premier selon le processeur) peuvent tous varier d'un système à l'autre. Un fichier binaire produit par `fwrite` sur une machine n'est donc pas garanti d'être relisible correctement par `fread` sur une machine d'architecture différente, sauf à normaliser explicitement ces aspects avant l'écriture. Ce sujet, en apparence spécifique au C, sera repris sous un angle différent dans le chapitre *Cryptographie* (où l'encodage précis des données avant chiffrement doit être maîtrisé bit par bit) et dans le cours *Technologie Blockchain* (où la sérialisation déterministe et portable des transactions est une exigence de conception centrale).
+
+---
+
+## À retenir
+
+- `struct` modélise des données composites hétérogènes sous un seul type ; combinée à des pointeurs, elle permet de construire des structures de données dynamiques (listes chaînées, arbres) via l'opérateur `->`.
+- `typedef` simplifie l'utilisation des types complexes, notamment les structures, en leur donnant un alias direct sans répéter le mot-clé `struct`.
+- La gestion de fichiers en C impose une vérification systématique des erreurs (`fopen`, `fread`, `fwrite`), une lecture toujours bornée en taille, une fermeture explicite (`fclose`), et la validation de tout chemin construit à partir d'une entrée utilisateur.
+- La sérialisation binaire (`fwrite`/`fread`) est efficace mais sensible aux différences d'alignement mémoire et d'endianness entre systèmes.
+- Ce chapitre clôt le socle du langage : les travaux pratiques suivants consolident l'ensemble de ces notions — variables, structures de contrôle, fonctions, tableaux, pointeurs, structures et fichiers — sur des cas pratiques complets.

@@ -1,0 +1,134 @@
+# Chapitre 1 — Introduction et panorama OWASP Top 10
+
+### Sécurité des applications
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Pourquoi la sécurité applicative est un enjeu central
+
+Les applications (web, mobiles, API) constituent aujourd'hui la surface d'attaque la plus exposée et la plus dynamique des systèmes d'information. Contrairement à une infrastructure réseau relativement stable, une application évolue en permanence : nouvelles fonctionnalités livrées régulièrement, dépendances tierces mises à jour (ou non), configuration modifiée au fil des déploiements. Chaque changement est une occasion potentielle d'introduire une faiblesse, ce qui explique pourquoi la sécurité applicative ne peut pas être traitée comme un contrôle ponctuel effectué une fois pour toutes, mais comme un processus continu intégré au cycle de développement.
+
+Trois caractéristiques distinguent la sécurité applicative de la sécurité réseau ou système classique. D'abord, l'**exposition directe** à Internet : une application web ou une API est, par construction, accessible depuis n'importe quel point du réseau mondial, sans le filtrage implicite qu'offre un périmètre réseau traditionnel. Ensuite, la **complexité logique** : une application encode une logique métier riche (calculs, autorisations, flux de données) que des couches réseau ou système ne manipulent pas, ce qui multiplie les points où une hypothèse implicite peut être violée par un utilisateur malveillant. Enfin, la **dépendance à du code tiers** : une application moderne s'appuie typiquement sur de nombreuses bibliothèques externes dont la sécurité échappe en partie au contrôle direct de l'équipe qui développe l'application.
+
+| Type d'application | Exposition spécifique |
+|---|---|
+| Application web | Interface accessible via navigateur, souvent exposée publiquement, cible privilégiée de XSS, CSRF, injection |
+| Application mobile | Code exécuté côté client potentiellement rétro-analysable, stockage local sensible, communication avec une API back-end |
+| API | Généralement sans interface graphique intermédiaire filtrant les usages, consommée par des clients variés (application web, mobile, systèmes tiers), cible directe de scripts automatisés |
+
+Ce module approfondit chaque classe de vulnérabilité déjà introduite de façon plus générale au module *Audit organisation et technique* (chapitre 5), avec un objectif de compréhension technique fine du mécanisme sous-jacent à chaque vulnérabilité et de mise en œuvre effective de contre-mesures, plutôt qu'une simple liste de risques à connaître de nom.
+
+---
+
+## 2. Rappel du classement OWASP Top 10 (édition de référence)
+
+Le **OWASP Top 10** (*Open Worldwide Application Security Project*) est le référentiel le plus largement utilisé dans l'industrie pour hiérarchiser les risques de sécurité applicative. Il ne s'agit pas d'une liste figée : elle est révisée périodiquement par la communauté OWASP à partir de données de vulnérabilités réellement remontées par des organisations partenaires et de sondages auprès de praticiens de la sécurité, ce qui en fait un instantané représentatif des risques les plus courants et les plus impactants à un moment donné, plutôt qu'un classement purement théorique.
+
+1. Contrôle d'accès défaillant (*broken access control*)
+2. Défaillances cryptographiques
+3. Injection
+4. Conception non sécurisée (*insecure design*)
+5. Mauvaise configuration de sécurité
+6. Composants vulnérables et obsolètes
+7. Défaillances d'identification et d'authentification
+8. Défaillances d'intégrité des données et logiciels
+9. Journalisation et surveillance insuffisantes
+10. Falsification de requête côté serveur (SSRF)
+
+Ce classement évolue périodiquement en fonction des données réelles de vulnérabilités observées ; il reste la référence pédagogique et professionnelle la plus largement adoptée pour structurer un programme de sécurité applicative. Il est complété, pour les architectures orientées API, par un référentiel dédié — l'*OWASP API Security Top 10* — abordé au chapitre 6 de ce module.
+
+| Catégorie OWASP | Chapitre de ce module qui l'approfondit |
+|---|---|
+| Injection | Chapitre 2 |
+| Défaillances d'identification et d'authentification | Chapitre 3 |
+| Contrôle d'accès défaillant (dont certaines formes exploitées côté client) | Chapitres 3 et 4 |
+| Mauvaise configuration de sécurité, exposition de données | Chapitre 6 (spécifique aux API) |
+
+Toutes les catégories du Top 10 ne sont pas traitées avec la même profondeur dans ce module : celles qui exigent une compréhension technique fine d'un mécanisme d'exploitation (injection, authentification, vulnérabilités côté client) font l'objet d'un chapitre dédié ; les autres restent couvertes de façon plus généraliste dans les modules *Audit organisation et technique* et *Security by design*.
+
+---
+
+## 3. Principe général : ne jamais faire confiance aux entrées
+
+Le fil conducteur de la quasi-totalité des vulnérabilités applicatives est le même : **une donnée provenant d'une source non fiable (utilisateur, système tiers) est traitée comme si elle était fiable**, sans validation ni neutralisation appropriée avant d'être utilisée dans un contexte sensible (requête base de données, commande système, page HTML, chemin de fichier). Ce principe unificateur permet d'aborder chaque classe de vulnérabilité du module comme une variation d'un même problème fondamental, appliqué à des contextes différents.
+
+Ce schéma se décompose systématiquement en trois éléments : une **source** (le point d'entrée où une donnée non fiable pénètre dans l'application — paramètre d'URL, champ de formulaire, en-tête HTTP, fichier importé, réponse d'un système tiers), un **flux** (le chemin parcouru par cette donnée à travers le code, potentiellement sans aucune transformation), et un **puits** (*sink*, le point où cette donnée est utilisée dans un contexte où elle peut avoir un effet dangereux si elle n'a pas été validée ou neutralisée). Une vulnérabilité existe précisément lorsqu'un chemin non contrôlé relie une source à un puits sensible.
+
+| Source non fiable | Puits sensible | Vulnérabilité si non neutralisé |
+|---|---|---|
+| Champ de formulaire | Requête SQL | Injection SQL (chapitre 2) |
+| Paramètre d'URL | Commande système | Injection de commande (chapitre 2) |
+| Commentaire utilisateur | Page HTML rendue | XSS (chapitre 4) |
+| Nom de fichier fourni par l'utilisateur | Appel système de fichiers | Traversée de répertoire (*path traversal*) |
+| En-tête HTTP `Origin` non vérifié | Décision d'autorisation CORS | Mauvaise configuration exploitable (chapitre 6) |
+
+Ce cadre d'analyse — identifier la source, tracer le flux, repérer le puits — est une compétence transversale directement réutilisable dans les TP du module, ainsi que dans toute activité d'audit de code ultérieure.
+
+---
+
+## 4. Validation, encodage, échappement : trois mécanismes distincts à ne pas confondre
+
+La confusion entre ces trois mécanismes est fréquente, y compris chez des développeurs expérimentés, alors qu'ils répondent à des questions différentes et interviennent à des moments différents du traitement d'une donnée.
+
+**Validation** répond à la question « cette donnée respecte-t-elle le format attendu ? ». Elle vérifie qu'une entrée est conforme à un format attendu (ex. une adresse e-mail respecte une syntaxe donnée, un identifiant numérique ne contient que des chiffres), idéalement par **liste blanche** (n'accepter que ce qui est explicitement autorisé, ex. « uniquement des lettres, chiffres et tirets ») plutôt que par **liste noire** (tenter de bloquer ce qui est connu comme dangereux — toujours incomplète, car il suffit qu'un attaquant trouve une seule variante non couverte par la liste pour la contourner).
+
+**Encodage/échappement contextuel** répond à la question « comment transformer cette donnée pour qu'elle soit interprétée comme une donnée inerte, et non comme du code, dans le contexte de sortie visé ? ». Un même caractère peut nécessiter un encodage différent selon le contexte de sortie : un caractère `<` doit être transformé en `&lt;` avant insertion dans du HTML, mais suit une règle différente s'il est inséré dans un attribut HTML, dans une chaîne JavaScript ou dans une URL. Appliquer le mauvais encodage pour le contexte visé — une erreur fréquente — neutralise l'entrée de façon incomplète et laisse la vulnérabilité exploitable.
+
+**Paramétrage** répond à la question « comment séparer structurellement le code de la donnée, pour qu'aucune interprétation ambiguë ne soit possible ? ». C'est le cas, par exemple, des requêtes préparées en base de données (chapitre 2), où la donnée est transmise au moteur d'exécution dans un canal distinct de la structure de la commande elle-même. C'est la défense la plus robuste des trois, car elle élimine la classe de vulnérabilité par construction plutôt que de tenter de neutraliser après coup une donnée déjà mélangée au code.
+
+| Mécanisme | Répond à | Exemple | Limite |
+|---|---|---|---|
+| Validation | La donnée a-t-elle le bon format ? | Contrôle de format d'un identifiant en liste blanche | Ne protège pas une donnée valide mais dangereuse dans son contexte d'usage |
+| Encodage contextuel | Comment neutraliser la donnée pour ce contexte de sortie précis ? | Échappement HTML avant affichage | Doit être appliqué systématiquement, à chaque point de sortie, dans le bon contexte |
+| Paramétrage | Comment séparer structurellement code et donnée ? | Requête préparée SQL | Ne s'applique pas à tous les contextes (ex. pas de paramétrage natif pour l'insertion HTML) |
+
+Ces trois mécanismes sont complémentaires plutôt que substituables : une application robuste valide ses entrées en amont, encode systématiquement ses sorties selon le contexte, et privilégie le paramétrage chaque fois qu'un interpréteur (SQL, shell, moteur de gabarit) est sollicité.
+
+---
+
+## 5. Défense en profondeur appliquée à la sécurité applicative
+
+Rappel du module *Security by design* : aucune contre-mesure unique n'est infaillible, qu'il s'agisse d'une validation d'entrée, d'un pare-feu applicatif ou d'un contrôle d'accès. Une application robuste combine plusieurs couches de défense indépendantes, de sorte qu'une défaillance isolée d'une couche ne suffise pas, à elle seule, à compromettre l'ensemble du système : c'est le principe de **défense en profondeur** (*defense in depth*).
+
+Appliqué spécifiquement à la sécurité applicative, ce principe se traduit par la combinaison de plusieurs types de contrôles, opérant à des niveaux différents :
+
+| Couche | Exemple de contrôle | Objectif |
+|---|---|---|
+| Entrée | Validation stricte, liste blanche | Rejeter les données manifestement invalides avant tout traitement |
+| Traitement | Requêtes paramétrées, API d'exécution sans interprétation shell | Empêcher structurellement l'injection |
+| Sortie | Encodage contextuel systématique | Neutraliser une donnée avant qu'elle n'atteigne un interpréteur (HTML, JavaScript) |
+| Accès | Contrôle d'accès systématique, moindre privilège | Limiter ce qu'un utilisateur ou un composant compromis peut réellement atteindre |
+| Détection | Journalisation, surveillance, alerte | Repérer une exploitation en cours ou déjà survenue |
+
+L'intérêt pédagogique de cette grille est de montrer qu'aucune de ces couches, prise isolément, n'est suffisante : une validation d'entrée imparfaite reste rattrapable par un encodage de sortie correct ; un compte de service disposant du moindre privilège limite l'impact même en cas d'injection réussie. C'est cette logique de couches indépendantes et redondantes, plutôt que la recherche d'une solution unique et parfaite, qui structure l'ensemble des contre-mesures présentées dans ce module.
+
+---
+
+## 6. Méthodologie de ce module
+
+Chaque chapitre suivant traite une famille de vulnérabilités selon la même structure pédagogique, choisie pour faciliter la comparaison entre familles de vulnérabilités a priori très différentes :
+
+1. **Mécanisme technique** : comment la vulnérabilité fonctionne précisément, au niveau du code ou du protocole concerné — sans cette compréhension technique, une contre-mesure reste une recette appliquée sans discernement, incapable de s'adapter à une variante non prévue.
+2. **Exemple d'exploitation** : une illustration concrète et pédagogique du mécanisme, destinée à faire comprendre l'effet réel de la vulnérabilité plutôt qu'à fournir un outil d'attaque directement réutilisable contre un système réel.
+3. **Impact** : les conséquences possibles pour l'organisation (confidentialité, intégrité, disponibilité des données ou du système), à mettre en regard des critères DIC déjà vus au module *Introduction à la sécurité*.
+4. **Contre-mesures** : les défenses reconnues comme efficaces par la communauté de sécurité, en distinguant si possible une défense structurelle (qui élimine la vulnérabilité par construction) de mesures d'atténuation complémentaires.
+
+| Chapitre | Famille de vulnérabilités |
+|---|---|
+| 2 | Injection (SQL, commande, autres interpréteurs) |
+| 3 | Authentification et gestion de sessions |
+| 4 | Vulnérabilités côté client (XSS, CSRF, clickjacking) |
+| 5 | Vulnérabilités mémoire bas niveau et exploitation |
+| 6 | Sécurisation des API et bonnes pratiques transverses |
+
+Les TP associés à chaque chapitre permettent une mise en pratique contrôlée sur des cibles pédagogiques dédiées, conçues spécifiquement pour illustrer un mécanisme sans risque pour un système réel : la compréhension acquise en cours y est mobilisée pour identifier une vulnérabilité, en mesurer l'impact dans un environnement maîtrisé, puis mettre en œuvre et vérifier une contre-mesure appropriée.
+
+---
+
+## À retenir
+
+- L'OWASP Top 10 structure ce module ; chaque chapitre suivant approfondit une ou plusieurs de ses catégories.
+- Le principe unificateur des vulnérabilités applicatives est le traitement d'une entrée non fiable comme si elle était fiable.
+- Validation par liste blanche, encodage contextuel et paramétrage sont trois mécanismes de défense distincts, souvent combinés.

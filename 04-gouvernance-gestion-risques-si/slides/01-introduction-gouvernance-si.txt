@@ -1,0 +1,109 @@
+# Chapitre 1 — Introduction à la gouvernance de la sécurité de l'information
+
+### Gouvernance et gestion des risques SI
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Définition de la gouvernance SSI
+
+La **gouvernance de la sécurité de l'information** (souvent abrégée SSI, ou GSI) désigne l'ensemble des structures organisationnelles, des processus formalisés et des mécanismes de décision qui permettent à une organisation de définir, de piloter et de faire évoluer sa stratégie de sécurité, en cohérence avec ses objectifs métiers, ses obligations légales et son appétence au risque. Elle ne se réduit ni à un ensemble d'outils techniques, ni à une fonction isolée : c'est un système de management à part entière, au même titre que la gouvernance financière ou la gouvernance qualité, qui traverse l'ensemble de l'organisation, de la direction générale jusqu'aux équipes opérationnelles.
+
+Il est essentiel de distinguer la gouvernance de la **sécurité opérationnelle**, c'est-à-dire la mise en œuvre technique quotidienne (configuration de pare-feu, application de correctifs, surveillance des journaux). Les deux niveaux sont complémentaires mais répondent à des questions différentes :
+
+- La **gouvernance** définit le « quoi » et le « pourquoi » : quels risques l'organisation accepte-t-elle de courir, quelles ressources alloue-t-elle à la sécurité, quelles priorités stratégiques retient-elle, qui est responsable de quoi ?
+- Le niveau **opérationnel** exécute le « comment » : il traduit les orientations de gouvernance en mesures techniques et organisationnelles concrètes, au jour le jour.
+
+Une analogie utile : la gouvernance SSI joue, pour la sécurité de l'information, un rôle comparable à celui du conseil d'administration et de la direction financière pour la gestion budgétaire d'une entreprise — elle fixe le cap, arbitre les priorités et rend des comptes, sans pour autant configurer elle-même les équipements. Sans cette couche de gouvernance, une organisation peut disposer d'excellentes compétences techniques individuelles tout en restant globalement vulnérable, faute de cohérence d'ensemble, de priorisation claire et de portage par la hiérarchie.
+
+---
+
+## 2. Pourquoi la sécurité doit être gouvernée et non seulement « techniquement gérée »
+
+Plusieurs raisons structurelles expliquent pourquoi la sécurité de l'information ne peut pas rester une préoccupation purement technique, confinée aux équipes informatiques :
+
+**La sécurité a un coût et engage des arbitrages qui dépassent le périmètre technique.** Investir dans la sécurité signifie mobiliser un budget, des ressources humaines qualifiées (souvent rares et coûteuses) et du temps, autant d'éléments qui entrent en concurrence avec d'autres priorités de l'organisation (développement de nouveaux produits, expansion commerciale, autres projets informatiques). Ces arbitrages relèvent par nature de décisions de direction : un responsable technique ne peut pas, seul, décider du niveau de risque que l'organisation est prête à assumer, ni du montant qu'elle est prête à investir pour le réduire.
+
+**Les conséquences d'un incident de sécurité majeur dépassent largement le périmètre informatique.** Une compromission de données, une interruption prolongée de service ou une fraude numérique peuvent entraîner des conséquences juridiques (mise en cause de la responsabilité de l'organisation, sanctions réglementaires), financières (coûts de remédiation, pertes d'exploitation, primes d'assurance) et réputationnelles (perte de confiance des clients, des partenaires, des investisseurs). Ces impacts touchent directement la mission et la pérennité de l'organisation, ce qui justifie que la direction générale soit impliquée dans la définition de l'appétence au risque acceptée, et non seulement informée après coup.
+
+**Sans portage par la direction, les recommandations issues des audits restent rarement suivies d'effet.** Un audit de sécurité (organisationnel ou technique, comme évoqué dans le module précédent) produit généralement une liste de constats et de recommandations. Si ces recommandations ne sont pas reprises, arbitrées et suivies par une instance de gouvernance disposant d'une autorité réelle, elles ont tendance à rester lettre morte : les équipes opérationnelles, en tension permanente entre plusieurs priorités concurrentes, n'ont ni le mandat ni les ressources pour les mettre en œuvre de leur propre initiative. La gouvernance transforme ainsi des constats d'audit isolés en un plan d'action suivi et budgété.
+
+En synthèse, la gouvernance SSI est ce qui permet de faire de la sécurité une préoccupation continue et pilotée, plutôt qu'une succession de réactions ponctuelles à des événements ou à des injonctions réglementaires.
+
+---
+
+## 3. Les rôles clés
+
+Une gouvernance SSI efficace repose sur une répartition claire des rôles et responsabilités entre plusieurs parties prenantes, dont les intérêts ne sont pas toujours spontanément alignés :
+
+| Rôle | Responsabilité principale |
+|---|---|
+| **Direction générale** | définit l'appétence au risque de l'organisation, arbitre les budgets alloués à la sécurité, porte et incarne la culture sécurité auprès de l'ensemble du personnel |
+| **RSSI** (Responsable de la Sécurité des Systèmes d'Information) | pilote la stratégie SSI, anime les instances de gouvernance (comités, revues), coordonne la gestion des risques et rapporte régulièrement à la direction sur l'état de la sécurité |
+| **DSI** (Direction des Systèmes d'Information) | met en œuvre les moyens techniques nécessaires au fonctionnement du système d'information, souvent en tension avec le RSSI sur l'arbitrage entre disponibilité/performance et exigences de sécurité |
+| **Propriétaires de processus métier** (*business owners*) | identifient la valeur et la criticité des actifs qu'ils exploitent au quotidien, et arbitrent, sur leur périmètre, le traitement du risque en connaissance des enjeux métier |
+| **Correspondants sécurité / DPO** (Délégué à la Protection des Données) | jouent le rôle de relais opérationnels de la politique de sécurité dans les entités, et assurent le suivi de la conformité réglementaire, notamment en matière de protection des données personnelles |
+
+Chacun de ces rôles apporte un éclairage différent et souvent complémentaire : la direction porte la vision stratégique et l'autorité de décision, le RSSI apporte l'expertise sécurité et la vision transverse des risques, la DSI connaît les contraintes techniques réelles, et les propriétaires métier connaissent la valeur business des actifs qu'ils gèrent. C'est précisément la confrontation organisée de ces points de vue, au sein d'instances de gouvernance formalisées, qui permet des décisions équilibrées plutôt que des décisions prises isolément par un seul acteur.
+
+Un point de vigilance de gouvernance fréquemment souligné dans la littérature et les référentiels professionnels concerne le **positionnement organisationnel du RSSI** : pour préserver son indépendance et sa capacité à challenger les choix techniques (par exemple, alerter sur un risque introduit par un projet porté par la DSI), le RSSI ne devrait idéalement pas être rattaché hiérarchiquement à la DSI. Un rattachement direct à la direction générale, à la direction des risques, ou à une fonction équivalente, est généralement recommandé pour éviter les conflits d'intérêts entre impératifs de disponibilité/performance des systèmes et impératifs de sécurité.
+
+---
+
+## 4. Les composantes d'un système de gouvernance SSI
+
+Un système de gouvernance SSI complet s'articule généralement autour de cinq composantes qui s'enchaînent de façon cohérente, du cadrage stratégique jusqu'au pilotage opérationnel :
+
+1. **Politique de sécurité (PSSI)** : document de référence formalisant les orientations stratégiques, les principes directeurs et les responsabilités en matière de sécurité de l'information. C'est le socle documentaire sur lequel s'appuient toutes les décisions ultérieures ; ce sujet sera approfondi au chapitre 3.
+2. **Organisation** : mise en place de comités de pilotage (par exemple un comité sécurité réunissant régulièrement direction, RSSI et représentants métier), d'instances de décision clairement identifiées, et de circuits d'escalade permettant de faire remonter rapidement une décision urgente au bon niveau hiérarchique.
+3. **Gestion des risques** : méthodologie structurée d'identification, d'évaluation et de traitement des risques pesant sur les actifs informationnels de l'organisation. Ce processus, central dans toute démarche de gouvernance, fait l'objet d'un développement complet au chapitre 2.
+4. **Conformité** : suivi systématique des obligations légales, réglementaires et contractuelles applicables à l'organisation (protection des données personnelles, réglementations sectorielles, exigences contractuelles imposées par des clients ou partenaires).
+5. **Pilotage et amélioration continue** : mise en place d'indicateurs et de tableaux de bord permettant de mesurer l'efficacité du dispositif de sécurité dans la durée, complétée par des audits internes réguliers et des revues de direction périodiques, qui referment la boucle et alimentent le cycle suivant.
+
+Ces cinq composantes ne fonctionnent pas de façon isolée : la politique de sécurité fixe le cap, la gestion des risques identifie ce qui doit être traité en priorité, la conformité impose un plancher réglementaire incompressible, et le pilotage vérifie que l'ensemble produit des résultats mesurables, ce qui, en retour, alimente la révision de la politique et des priorités.
+
+---
+
+## 5. Cadres de référence en gouvernance SSI
+
+Plusieurs référentiels internationaux structurent aujourd'hui la pratique de la gouvernance SSI. Ils ne sont pas concurrents mais souvent complémentaires, chacun apportant un éclairage ou un niveau de détail différent :
+
+- **ISO/IEC 27001** : norme internationale de certification qui définit les exigences d'un Système de Management de la Sécurité de l'Information (SMSI). Elle met un accent particulièrement fort sur le pilotage par la direction, notamment à travers sa clause 5 (« Leadership »), qui exige un engagement démontrable de la direction générale, et non une simple délégation formelle à une équipe technique.
+- **COBIT** (*Control Objectives for Information and Related Technologies*), maintenu par l'ISACA, est un cadre de gouvernance des systèmes d'information au sens large, qui englobe la sécurité parmi un ensemble plus vaste d'objectifs de gouvernance et de gestion des technologies de l'information (performance, valeur, conformité, gestion des risques).
+- **NIST Cybersecurity Framework** (CSF), publié par l'institut américain de normalisation NIST, structure la gouvernance et la gestion opérationnelle de la cybersécurité autour de fonctions clés — historiquement au nombre de cinq (*Identify, Protect, Detect, Respond, Recover*), auxquelles la fonction *Govern* a été ajoutée dans les versions les plus récentes du cadre pour souligner explicitement le rôle central de la gouvernance. Ce cadre, bien qu'initialement conçu pour un contexte américain, est aujourd'hui largement adopté à l'international du fait de sa lisibilité et de sa flexibilité.
+
+Le tableau suivant synthétise les usages typiques de ces trois référentiels :
+
+| Référentiel | Nature | Usage typique |
+|---|---|---|
+| ISO/IEC 27001 | Norme certifiable | Démontrer formellement, via un audit tierce partie, la mise en place d'un SMSI conforme |
+| COBIT | Cadre de gouvernance IT global | Aligner la gouvernance SSI sur la gouvernance IT et la création de valeur pour l'organisation |
+| NIST CSF | Cadre volontaire, non certifiable | Structurer l'auto-évaluation et la communication sur la maturité cybersécurité |
+
+En pratique, une organisation peut très bien s'appuyer simultanément sur plusieurs de ces référentiels : par exemple, viser une certification ISO 27001 pour rassurer contractuellement ses clients, tout en utilisant le NIST CSF en interne comme grille de lecture pédagogique pour communiquer sur sa maturité auprès de la direction.
+
+---
+
+## 6. Maturité et amélioration continue
+
+La gouvernance SSI n'est jamais un état figé, atteint une fois pour toutes : c'est une démarche qui progresse par cycles successifs, souvent modélisés sous la forme du cycle **PDCA** (*Plan, Do, Check, Act* — Planifier, Déployer, Vérifier, Agir), largement popularisé par les normes de management (dont l'ISO 27001). Ce cycle formalise l'idée qu'une organisation doit périodiquement revisiter ses choix de sécurité à la lumière des résultats obtenus et de l'évolution de son contexte (nouvelles menaces, nouveaux projets, évolutions réglementaires).
+
+On distingue généralement plusieurs niveaux de maturité, du plus faible au plus élevé :
+
+- Une organisation **immature** réagit aux incidents au coup par coup : les mesures de sécurité sont mises en place de façon ponctuelle, en réponse à un événement précis (un incident subi, un audit ponctuel), sans vision d'ensemble ni continuité dans le temps.
+- Une organisation en cours de **structuration** commence à documenter ses processus, à désigner des responsables clairs et à formaliser une politique de sécurité, mais l'application reste inégale selon les équipes ou les projets.
+- Une organisation **mature** anticipe les risques par une gestion structurée et continue : elle dispose d'indicateurs fiables, revoit régulièrement ses priorités sur la base de retours d'expérience documentés, et intègre la sécurité dès la conception de ses projets plutôt que de la traiter comme une contrainte ajoutée a posteriori.
+
+Des modèles de maturité formalisés (par exemple issus de la famille des modèles CMM — *Capability Maturity Model* — adaptés à la sécurité) permettent de positionner objectivement une organisation sur une échelle et de définir une trajectoire de progression réaliste, étape par étape, plutôt que de viser un niveau d'excellence hors d'atteinte à court terme. Cette progression graduelle est d'ailleurs un principe pédagogique important : il vaut mieux consolider durablement un niveau de maturité correct que d'afficher des ambitions élevées sans les moyens de les tenir dans la durée.
+
+---
+
+## À retenir
+
+- La gouvernance SSI relève de la direction, pas uniquement des équipes techniques : elle arbitre l'appétence au risque et les moyens alloués, et se distingue de la sécurité opérationnelle qui exécute ces orientations.
+- Les conséquences d'un incident majeur (juridiques, financières, réputationnelles) dépassent le périmètre informatique, ce qui justifie l'implication de la direction générale dans les décisions de sécurité.
+- Un RSSI efficace a besoin d'un positionnement organisationnel qui préserve son indépendance vis-à-vis de la DSI, afin de pouvoir challenger les arbitrages techniques sans conflit d'intérêts.
+- La gouvernance s'appuie sur cinq composantes articulées en cycle continu : politique de sécurité, organisation, gestion des risques, conformité, pilotage et amélioration.
+- Des référentiels internationaux (ISO/IEC 27001, COBIT, NIST CSF) structurent la pratique de la gouvernance SSI et sont souvent utilisés de façon complémentaire.
+- La maturité d'une gouvernance SSI se construit progressivement, par cycles PDCA successifs, et non par un effort ponctuel isolé.

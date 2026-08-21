@@ -1,0 +1,91 @@
+# Chapitre 1 — Introduction à la cryptanalyse : histoire et classification des attaques
+
+### Cryptanalyse
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Définition
+
+La **cryptanalyse** est la discipline scientifique qui étudie les méthodes permettant de retrouver, en tout ou partie, l'information protégée par un système cryptographique — le message clair, la clé secrète, ou toute information partielle qui affaiblit la sécurité annoncée — sans disposer légitimement de la clé de déchiffrement. Elle constitue le pendant offensif de la cryptographie : là où la cryptographie conçoit des mécanismes de protection, la cryptanalyse les met à l'épreuve pour en révéler les faiblesses éventuelles.
+
+Ces deux disciplines ne s'opposent pas, elles progressent **ensemble et se nourrissent mutuellement**. Un algorithme cryptographique n'est jamais considéré comme fiable simplement parce que son concepteur l'affirme : il ne gagne la confiance de la communauté scientifique qu'après avoir résisté, pendant plusieurs années et face à un examen public et intensif, aux meilleures techniques de cryptanalyse connues. C'est le sens profond du **principe de Kerckhoffs** (vu au module *Cryptographie*) : la sécurité d'un système ne doit reposer que sur le secret de la clé, jamais sur le secret de l'algorithme. Un algorithme publié, largement étudié, et toujours non cassé après des années d'efforts (AES, SHA-256) inspire objectivement plus confiance qu'un algorithme secret ou « maison », dont personne n'a pu vérifier la robustesse — car un algorithme fondé sur le secret de sa conception s'effondre entièrement le jour où ce secret est découvert ou rétro-ingénieré.
+
+Il est important de noter que la cryptanalyse, telle qu'enseignée dans ce chapitre, vise un objectif strictement **académique et défensif** : comprendre les principes qui ont permis de casser des systèmes historiques ou théoriques permet de mieux concevoir, choisir et déployer des systèmes modernes robustes, et de reconnaître les signaux d'alerte d'une implémentation dangereuse.
+
+---
+
+## 2. Repères historiques
+
+L'histoire de la cryptanalyse est aussi ancienne que celle de la cryptographie elle-même ; chaque avancée cryptographique majeure a fini, tôt ou tard, par susciter une réponse cryptanalytique qui a fait progresser les deux domaines.
+
+- **Antiquité à Renaissance** : le chiffrement de César (décalage fixe de l'alphabet) et, plus généralement, les chiffres de substitution mono-alphabétique dominent les communications secrètes pendant des siècles. Ils sont cassés dès le IXe siècle par le savant arabe **Al-Kindi**, dans son traité sur le déchiffrement des messages cryptographiques, où il formalise pour la première fois l'**analyse fréquentielle** : chaque langue possède une distribution statistique caractéristique de ses lettres, et cette distribution « survit » à une simple substitution.
+- **XVIe siècle** : le chiffre de **Vigenère**, qui applique un décalage différent à chaque position du texte selon une clé répétée, est longtemps surnommé « le chiffre indéchiffrable » (*le chiffre indéchiffrable*) car il résiste, en apparence, à l'analyse fréquentielle directe. Il faudra attendre le XIXe siècle pour que **Friedrich Kasiski** (1863) puis, indépendamment et plus tôt mais sans publication, **Charles Babbage**, développent des méthodes systématiques pour le casser, en s'appuyant sur la répétition périodique de la clé.
+- **Seconde Guerre mondiale** : la cryptanalyse de la machine électromécanique **Enigma**, utilisée par l'Allemagne nazie, est menée d'abord par les mathématiciens polonais (Marian Rejewski et son équipe, dès les années 1930), puis reprise et considérablement étendue par les équipes britanniques de **Bletchley Park**, sous l'impulsion notamment d'**Alan Turing**. Cet épisode constitue un tournant historique double : il marque la naissance de la cryptanalyse industrialisée, mécanisée à grande échelle, et il est directement à l'origine de certains fondements théoriques et pratiques de l'informatique moderne (les « bombes » électromécaniques de Turing préfigurant le calcul automatisé).
+- **Ère moderne (seconde moitié du XXe siècle à aujourd'hui)** : l'apparition des chiffrements par blocs numériques (DES en 1977) suscite le développement d'attaques structurelles sophistiquées comme la **cryptanalyse différentielle** et la **cryptanalyse linéaire** (détaillées au chapitre 3), tandis que l'essor de la cryptographie asymétrique (RSA, 1977) ouvre un nouveau front d'attaques mathématiques fondées sur la factorisation d'entiers et le logarithme discret (chapitre 5). Plus récemment, les **attaques par canaux auxiliaires** (chapitre 6) ont montré que la sécurité d'un système ne peut se réduire à la robustesse théorique de son algorithme : l'implémentation physique compte tout autant.
+
+---
+
+## 3. Classification des attaques selon les informations disponibles
+
+Pour évaluer objectivement la robustesse d'un système cryptographique, il est essentiel de préciser **quel modèle d'attaquant** on considère : quelles informations cet attaquant peut-il obtenir, et avec quelles capacités d'interaction avec le système ? Cette classification, standard en cryptanalyse, ordonne les modèles du plus faible (moins d'information pour l'attaquant) au plus fort.
+
+| Type d'attaque | Information disponible à l'attaquant | Exemple illustratif |
+|---|---|---|
+| **Ciphertext-only** (texte chiffré seul) | uniquement des messages chiffrés interceptés, sans aucun texte clair correspondant | interception passive de communications chiffrées sur un réseau |
+| **Known-plaintext** (texte clair connu) | un ou plusieurs couples (texte clair, texte chiffré correspondant), obtenus par exemple parce qu'une partie du contenu est prévisible ou a fuité par ailleurs | un en-tête de fichier standardisé, toujours identique, dont la version chiffrée est observée |
+| **Chosen-plaintext** (texte clair choisi) | l'attaquant peut soumettre des textes clairs de son choix au système et observer les chiffrés correspondants | un attaquant qui interagit avec un service en ligne acceptant de chiffrer des données qu'il fournit |
+| **Chosen-ciphertext** (texte chiffré choisi) | l'attaquant peut, en plus, soumettre des textes chiffrés de son choix et observer le résultat de leur déchiffrement (à l'exception du message cible) | un système qui répond différemment selon que le déchiffrement d'un texte chiffré modifié réussit ou échoue |
+
+Ce classement traduit une progression de la puissance du modèle d'attaquant : de *ciphertext-only* à *chosen-ciphertext*, l'attaquant dispose de capacités d'interaction de plus en plus fortes avec le système cible. Un algorithme jugé robuste doit résister au modèle le plus exigeant qui soit **réaliste** dans son contexte d'usage : par exemple, un schéma de chiffrement utilisé dans un protocole interactif (comme TLS) doit impérativement résister aux attaques à texte chiffré choisi, car un attaquant actif sur le réseau peut effectivement injecter des messages modifiés et observer les réactions du système (c'est précisément ce mécanisme qu'exploitent les attaques par *padding oracle*, vues au chapitre 6). Un algorithme qui ne résiste qu'au modèle *ciphertext-only* le plus faible est donc, par construction, insuffisant pour la plupart des usages pratiques modernes.
+
+---
+
+## 4. Classification des attaques selon la méthode
+
+Une seconde façon, complémentaire, de classer les attaques cryptanalytiques consiste à s'intéresser non plus à ce que l'attaquant observe, mais à **la nature de la faiblesse exploitée**.
+
+- **Attaques statistiques** : elles exploitent des propriétés statistiques résiduelles du texte clair (fréquence des lettres, des mots, redondance du langage naturel) qui n'ont pas été suffisamment « effacées » par le chiffrement. L'analyse fréquentielle contre les substitutions classiques (chapitre 2) en est l'exemple archétypal.
+- **Attaques par force brute (recherche exhaustive)** : elles consistent à tester systématiquement toutes les clés possibles jusqu'à trouver la bonne, sans exploiter aucune faiblesse structurelle de l'algorithme. Leur coût croît exponentiellement avec la taille de la clé, ce qui rend cette approche impraticable dès que l'espace de clés est suffisamment grand — mais redoutablement efficace lorsque cet espace est trop restreint (voir le chiffre de César, chapitre 2, cassable en 25 essais).
+- **Attaques structurelles/mathématiques** : elles exploitent une faiblesse mathématique propre à la conception de l'algorithme — une hypothèse calculatoire qui s'avère plus faible que prévu (factorisation d'entiers, logarithme discret), ou un biais statistique interne à la structure de l'algorithme (biais différentiels ou linéaires dans un chiffrement par blocs, chapitre 3).
+- **Attaques par canaux auxiliaires (side-channel)** : elles n'attaquent pas l'algorithme mathématique lui-même, mais exploitent des informations physiques involontairement révélées par son **implémentation concrète** — temps d'exécution, consommation électrique, rayonnement électromagnétique (chapitre 6). Elles rappellent qu'une preuve mathématique de sécurité ne protège pas, à elle seule, contre une implémentation défaillante.
+- **Attaques par erreur d'implémentation ou de configuration** : elles exploitent des erreurs pratiques dans la façon dont un système cryptographique est déployé — générateur de nombres aléatoires de mauvaise qualité, réutilisation d'une clé ou d'un nonce, choix d'un mode opératoire inapproprié. En pratique, c'est de très loin la **source la plus fréquente** de compromission de systèmes cryptographiques réels : l'algorithme mathématique sous-jacent est presque toujours plus robuste que son utilisation concrète.
+
+Cette seconde classification n'est pas exclusive de la première : une attaque donnée se décrit généralement à la fois par le modèle d'information qu'elle suppose (section 3) et par la nature de la faiblesse qu'elle exploite (section 4). Les chapitres suivants de ce module reprennent systématiquement cette double grille de lecture pour chaque famille de systèmes cryptographiques étudiée.
+
+---
+
+## 5. Notion de sécurité et de coût d'une attaque
+
+Un principe fondamental, souvent contre-intuitif pour qui découvre la cryptographie, est qu'un système cryptographique n'est presque jamais qualifié de « sûr » parce qu'il serait mathématiquement incassable dans l'absolu. Il est qualifié de sûr parce que **le coût de la meilleure attaque connue** — exprimé en temps de calcul, en mémoire nécessaire, ou en nombre de messages requis — dépasse très largement ce qu'un attaquant réaliste peut mobiliser, aujourd'hui et dans un avenir prévisible.
+
+Cette notion de coût se mesure typiquement en ordres de grandeur d'opérations élémentaires : on parle par exemple d'une sécurité « de 128 bits » pour signifier que la meilleure attaque connue nécessite de l'ordre de 2^128 opérations, un nombre si colossal qu'il dépasse très largement les capacités de calcul cumulées de l'humanité entière sur des échelles de temps raisonnables, même en tenant compte des progrès attendus du matériel informatique classique.
+
+La conséquence directe de ce principe est que la sécurité cryptographique est **relative et évolutive**, et non absolue et figée :
+
+- Un algorithme jugé sûr aujourd'hui peut devenir vulnérable demain, soit parce qu'une **nouvelle technique cryptanalytique** est découverte et réduit le coût de la meilleure attaque connue (c'est arrivé à DES avec la cryptanalyse différentielle, puis avec la simple augmentation de la puissance de calcul disponible), soit parce que la **puissance de calcul disponible** augmente au point de rendre praticable une attaque autrefois hors de portée (c'est ce qui a rendu la force brute contre DES 56 bits réalisable en quelques heures avec du matériel spécialisé moderne, alors qu'elle était impraticable en 1977).
+- Une menace future bien identifiée peut également motiver une transition anticipée : c'est le cas de la menace, encore hypothétique mais prise très au sérieux, que représenterait un ordinateur quantique suffisamment puissant exécutant l'algorithme de Shor contre RSA et les schémas fondés sur le logarithme discret (approfondi au chapitre 5), qui justifie dès aujourd'hui la standardisation d'algorithmes post-quantiques.
+
+Cette relativité de la sécurité justifie la pratique, essentielle en cryptographie appliquée, de prévoir une **marge de sécurité** confortable (taille de clé, nombre de tours d'un algorithme par blocs) au-delà du strict minimum théoriquement nécessaire au moment de la conception, et de suivre dans la durée l'évolution des connaissances cryptanalytiques et des capacités de calcul, afin d'anticiper les migrations nécessaires avant qu'une faiblesse ne devienne exploitable en pratique.
+
+---
+
+## 6. Méthodologie générale d'une cryptanalyse
+
+Au-delà des techniques spécifiques présentées dans les chapitres suivants, une démarche méthodologique commune structure toute analyse cryptanalytique rigoureuse, qu'elle porte sur un chiffrement historique simple ou sur un algorithme moderne complexe :
+
+1. **Comprendre précisément l'algorithme et son mode d'utilisation.** Il ne suffit pas de connaître l'algorithme de base : le mode opératoire (chapitre 3), la gestion des clés, le protocole englobant font partie intégrante du système à analyser, et sont souvent la source réelle des faiblesses exploitables.
+2. **Identifier le modèle d'attaque réaliste.** Quelles informations un attaquant peut-il effectivement obtenir dans le contexte d'usage considéré (section 3) ? Un modèle trop optimiste conduirait à sous-estimer le risque ; un modèle irréaliste conduirait à des conclusions sans portée pratique.
+3. **Rechercher des biais exploitables**, qu'ils soient statistiques (redondance du texte clair), structurels (propriété mathématique de l'algorithme) ou liés à l'implémentation (erreur de configuration, fuite d'information physique).
+4. **Évaluer le coût de l'attaque** — complexité en temps, en mémoire, quantité de données nécessaires — et le comparer à un budget attaquant réaliste dans le contexte considéré (section 5). Une attaque « théorique » de complexité 2^100 n'a, à ce jour, aucune portée pratique, même si elle est scientifiquement intéressante en ce qu'elle réduit la marge de sécurité par rapport à la borne de force brute théorique de 2^128.
+5. **Le cas échéant, valider par une preuve de concept contrôlée**, sur un exemple réduit ou simulé, strictement dans un cadre académique et légal — jamais contre un système réel sans autorisation explicite.
+
+---
+
+## À retenir
+
+- La cryptanalyse et la cryptographie évoluent en miroir : un algorithme n'est validé que par une résistance prouvée à la cryptanalyse publique, jamais par la seule affirmation de son concepteur (principe de Kerckhoffs).
+- Le modèle d'attaque (ciphertext-only à chosen-ciphertext) détermine la puissance réaliste de l'attaquant ; un système doit résister au modèle le plus fort qui soit pertinent dans son contexte d'usage.
+- La sécurité cryptographique se mesure en coût d'attaque (temps, mémoire, données), pas en impossibilité mathématique absolue ; elle est donc relative et évolue avec les connaissances et la puissance de calcul disponibles.
+- En pratique, la majorité des compromissions viennent d'erreurs d'implémentation ou de configuration, pas de failles mathématiques dans l'algorithme lui-même.

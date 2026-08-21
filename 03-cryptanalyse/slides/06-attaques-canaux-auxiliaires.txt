@@ -1,0 +1,80 @@
+# Chapitre 6 — Attaques par canaux auxiliaires et attaques pratiques
+
+### Cryptanalyse
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Principe des attaques par canaux auxiliaires (side-channel)
+
+Une attaque par **canal auxiliaire** (*side-channel*) se distingue fondamentalement de toutes les attaques étudiées dans les chapitres précédents : elle n'exploite **aucune faiblesse mathématique** de l'algorithme cryptographique lui-même, aussi robuste soit-il en théorie, mais une **information physique involontairement fuitée par son implémentation concrète**. Cette information peut prendre des formes très diverses : le temps d'exécution d'une opération, la consommation électrique instantanée du circuit qui l'exécute, le rayonnement électromagnétique émis, le comportement observable du cache du processeur, ou encore le contenu précis des messages d'erreur renvoyés par un système.
+
+Ces attaques constituent un rappel fondamental, déjà annoncé au chapitre 1 : la sécurité effective d'un système cryptographique dépend **autant de la qualité de son implémentation que de la robustesse mathématique de sa conception**. Un algorithme parfaitement sûr sur le papier — disposant même d'une preuve de sécurité formelle — peut être totalement compromis en pratique si son implémentation laisse fuiter, même très indirectement, de l'information sur les secrets manipulés. C'est un domaine de recherche à l'intersection de la cryptographie théorique, de l'architecture matérielle et de l'ingénierie logicielle.
+
+---
+
+## 2. Attaques temporelles (timing attacks)
+
+Le principe d'une attaque temporelle repose sur l'observation suivante : si le **temps d'exécution** d'une opération cryptographique dépend, même de façon subtile, des bits secrets qu'elle manipule, alors un attaquant capable de mesurer précisément ce temps peut en déduire de l'information sur le secret, parfois octet par octet.
+
+Un exemple pédagogique classique concerne une **comparaison de mot de passe (ou de jeton secret) mal implémentée**, qui compare les caractères un par un et s'arrête dès qu'une différence est détectée (comportement naturel d'une comparaison de chaînes de caractères « naïve », comme celle offerte par défaut dans de nombreux langages de programmation). Dans ce cas, une comparaison s'arrêtant plus tôt (parce que le premier caractère testé est déjà incorrect) prend statistiquement moins de temps qu'une comparaison s'arrêtant plus tard (parce que les premiers caractères testés étaient corrects) : en mesurant ces variations de temps, même infimes, sur un très grand nombre d'essais successifs, un attaquant peut en théorie reconstituer le secret comparé, position par position, sans jamais avoir eu à le deviner d'un seul coup.
+
+**Contre-mesure** : la protection standard contre cette classe d'attaque consiste à utiliser des **comparaisons en temps constant** (*constant-time comparison*), c'est-à-dire des fonctions de comparaison conçues pour parcourir systématiquement l'intégralité de la donnée comparée, quel que soit le résultat intermédiaire obtenu à chaque étape, de sorte que le temps d'exécution total ne dépende jamais du contenu du secret. La plupart des bibliothèques cryptographiques modernes fournissent une fonction dédiée à cet effet, qu'il convient d'utiliser systématiquement pour toute comparaison portant sur une donnée secrète (clé, jeton d'authentification, code d'authentification de message), plutôt que de recourir à une comparaison générique du langage utilisé.
+
+---
+
+## 3. Attaques par oracle de padding (padding oracle)
+
+Cette classe d'attaque, décrite en détail en TP3, illustre de façon particulièrement concrète comment une information apparemment anodine — la simple validité d'un padding — peut suffire à compromettre entièrement la confidentialité d'un message chiffré, sans jamais avoir besoin de connaître la clé de chiffrement.
+
+Le principe repose sur le mode opératoire **CBC** (*Cipher Block Chaining*) combiné à un schéma de remplissage (padding) tel que **PKCS#7**, utilisé pour compléter le dernier bloc d'un message dont la longueur n'est pas un multiple exact de la taille de bloc. Si un système déchiffre un texte chiffré et **révèle**, d'une façon ou d'une autre — que ce soit par un code d'erreur explicitement différent selon que le padding est valide ou non, ou même simplement par une différence de temps de réponse mesurable entre les deux cas — cette information de validité du padding constitue un « oracle » que l'attaquant peut interroger de façon répétée et systématique. En modifiant méthodiquement des octets du texte chiffré, bloc par bloc, et en observant la réponse de l'oracle à chaque modification, un attaquant peut, sans jamais connaître la clé, **déchiffrer progressivement l'intégralité du message**, octet par octet, uniquement grâce à cette information binaire de validité du padding.
+
+Cette classe d'attaque a été formellement décrite par **Serge Vaudenay en 2002**, et a depuis compromis, en pratique, de nombreuses implémentations réelles de TLS/SSL — l'exemple le plus connu étant l'attaque **POODLE** (2014), qui a exploité une variante de cette faiblesse contre le protocole obsolète SSL 3.0, contribuant à accélérer son retrait définitif des navigateurs et serveurs modernes. La leçon générale à en tirer, pour la conception de systèmes cryptographiques, est qu'un mode opératoire non authentifié (CBC seul, sans vérification d'intégrité associée) expose structurellement ce type de canal d'information, ce qui motive fortement, là encore, l'adoption de schémas de chiffrement authentifié (AES-GCM) qui détectent toute altération du texte chiffré avant même de tenter le déchiffrement, sans jamais exposer d'information partielle sur la validité du padding.
+
+---
+
+## 4. Attaques par analyse de consommation électrique et électromagnétique
+
+Deux techniques complémentaires exploitent les variations physiques de consommation électrique d'un circuit exécutant un calcul cryptographique, sous l'hypothèse — vérifiée empiriquement dans de nombreux cas — que cette consommation dépend, au moins partiellement, des données et des opérations manipulées à chaque instant.
+
+- **SPA (Simple Power Analysis, analyse simple de la consommation)** : cette technique consiste à observer **directement** une seule trace de consommation électrique enregistrée pendant l'exécution d'une opération cryptographique, en cherchant à y reconnaître visuellement des motifs correspondant à des opérations distinctes. Un exemple classique concerne l'exponentiation modulaire (utilisée dans RSA) : les opérations de mise au carré et de multiplication modulaire peuvent présenter des signatures de consommation électrique visuellement distinctes sur la trace enregistrée, ce qui, dans une implémentation non protégée, peut permettre à un observateur entraîné de déduire directement la séquence de bits de l'exposant secret utilisé.
+- **DPA (Differential Power Analysis, analyse différentielle de la consommation)** : cette technique, plus puissante et plus robuste au bruit de mesure que la SPA, repose sur l'analyse **statistique** d'un grand nombre de traces de consommation enregistrées pour de nombreuses entrées différentes. En corrélant statistiquement les variations de consommation observées à des hypothèses sur des bits de clé candidats, un attaquant peut retrouver progressivement des portions de la clé secrète, même en présence d'un bruit de mesure important qui rendrait une analyse simple (SPA) inefficace.
+
+Ces deux techniques concernent principalement des **dispositifs physiques** dont l'attaquant peut obtenir un accès physique direct ou de proximité suffisamment prolongé pour effectuer les mesures nécessaires — typiquement des cartes à puce, des modules matériels de sécurité (HSM), ou des objets connectés dont le boîtier reste accessible. Elles sont beaucoup moins pertinentes contre un service distant accessible uniquement par le réseau, où l'attaquant n'a par définition aucun accès physique au matériel d'exécution.
+
+---
+
+## 5. Attaques par cache (cache-timing attacks)
+
+Cette famille d'attaques exploite les **différences de temps d'accès mémoire** entre une donnée présente dans le cache du processeur (accès rapide) et une donnée absente du cache, devant être récupérée depuis la mémoire principale (accès nettement plus lent). Ces différences, de l'ordre de quelques dizaines à quelques centaines de cycles processeur, sont mesurables avec une précision suffisante par un attaquant disposant d'un accès (même limité, par exemple sous forme d'un processus non privilégié partageant le même processeur physique) à la machine exécutant l'opération cryptographique ciblée.
+
+Un cas concret et bien documenté concerne certaines implémentations logicielles d'**AES** ayant recours à des **tables précalculées** (dites *T-tables*), destinées à accélérer le calcul en substituant certaines opérations par de simples consultations de table indexées, en partie, par des bits de la clé secrète. Si l'accès à ces tables passe par le cache processeur de façon dépendante de la clé, un attaquant capable de mesurer les temps d'accès mémoire peut, par une analyse statistique similaire dans son principe à la DPA, retrouver progressivement des informations sur la clé utilisée. Cette classe de vulnérabilité a directement motivé, au niveau matériel, l'adoption d'**instructions dédiées** telles que le jeu d'instructions **AES-NI**, intégré nativement dans les processeurs modernes, qui exécute les opérations de chiffrement AES en temps constant, indépendamment de la valeur de la clé, éliminant structurellement ce canal d'attaque au niveau matériel plutôt que de compter sur une implémentation logicielle soigneusement écrite en temps constant.
+
+---
+
+## 6. Attaques sur les générateurs de nombres aléatoires
+
+Un **générateur de nombres pseudo-aléatoires** (PRNG) de mauvaise qualité, ou correctement conçu mais **mal initialisé** — typiquement à cause d'une entropie insuffisante disponible au moment de son démarrage, ou d'une graine (*seed*) initiale prévisible — compromet **directement et intégralement** toute construction cryptographique qui en dépend en aval : génération de clés secrètes, génération de nonces, génération de vecteurs d'initialisation. Cette faiblesse est particulièrement insidieuse car elle peut coexister avec un algorithme cryptographique par ailleurs parfaitement robuste et correctement implémenté : le maillon faible se situe uniquement dans la source d'aléa, en amont de tout le reste du système.
+
+Un cas réel largement documenté publiquement concerne une faille découverte dans le générateur de nombres aléatoires d'une distribution du système d'exploitation Debian (2006-2008), résultant d'une modification malencontreuse du code source qui avait, sans le vouloir, considérablement réduit l'entropie effective utilisée pour initialiser le générateur sur les systèmes affectés. Cette faille a eu pour conséquence directe de réduire l'espace des clés cryptographiques SSH générées sur les systèmes concernés à seulement quelques dizaines de milliers de valeurs distinctes possibles, un espace suffisamment restreint pour être intégralement énuméré, ce qui a nécessité une opération massive de régénération des clés affectées une fois la faille identifiée et corrigée. Ce cas illustre de façon exemplaire le principe évoqué au chapitre 1 : une erreur d'implémentation, même localisée dans un composant en apparence périphérique comme un générateur aléatoire, peut annuler entièrement la sécurité théorique d'un système cryptographique par ailleurs sain.
+
+---
+
+## 7. Démarche défensive face aux canaux auxiliaires
+
+Face à cette diversité de menaces, une démarche défensive cohérente repose sur quelques principes directeurs simples mais essentiels à respecter systématiquement :
+
+- **Utiliser des implémentations cryptographiques éprouvées et auditées** (bibliothèques largement reconnues et maintenues par la communauté ou des acteurs établis) plutôt que de réimplémenter soi-même des primitives cryptographiques sensibles : la résistance aux canaux auxiliaires demande une expertise très spécialisée, rarement acquise en dehors d'équipes dédiées à la cryptographie appliquée, et de nombreuses subtilités d'implémentation (temps constant, protection contre les fuites de cache) sont facilement négligées par une implémentation « maison » bien intentionnée mais non spécialisée.
+- **Privilégier systématiquement les implémentations en temps constant** pour toute opération manipulant directement un secret (comparaison, opération arithmétique dépendant de bits de clé), en s'appuyant si possible sur des instructions matérielles dédiées (comme AES-NI) plutôt que sur des optimisations logicielles génériques dont le comportement temporel peut dépendre involontairement des données traitées.
+- **S'assurer d'une source d'entropie fiable** pour toute génération aléatoire à usage cryptographique, en s'appuyant sur les mécanismes fournis par le système d'exploitation (`/dev/urandom` sur les systèmes de type Unix, ou l'équivalent système approprié) ou sur un générateur pseudo-aléatoire cryptographiquement sûr (CSPRNG) dédié, plutôt que sur un générateur pseudo-aléatoire générique non conçu pour un usage sécuritaire.
+- **Pour les dispositifs physiques particulièrement sensibles** (cartes à puce, modules de sécurité matériels), envisager des contre-mesures matérielles dédiées, telles que des techniques de masquage (introduction de valeurs aléatoires intermédiaires dans le calcul pour décorréler la consommation observée des données réelles) ou l'ajout délibéré de bruit dans le circuit, afin de rendre les mesures physiques exploitées par SPA/DPA statistiquement plus difficiles à interpréter.
+
+---
+
+## À retenir
+
+- Les attaques par canaux auxiliaires exploitent l'implémentation d'un système cryptographique, jamais son algorithme mathématique en tant que tel : elles rappellent qu'une preuve mathématique de sécurité ne suffit pas, à elle seule, à garantir une sécurité pratique.
+- Le padding oracle est une attaque pratique majeure contre les usages naïfs et non authentifiés de CBC (Vaudenay, 2002), à l'origine de plusieurs failles réelles documentées dans TLS/SSL, dont l'attaque POODLE (2014).
+- Les attaques par consommation électrique (SPA/DPA) et par cache-timing ciblent principalement des implémentations non protégées en temps constant, ce qui a motivé l'adoption d'instructions matérielles dédiées comme AES-NI.
+- Un générateur aléatoire de mauvaise qualité ou mal initialisé peut annuler entièrement la sécurité de tout système cryptographique qui en dépend, quelle que soit par ailleurs la robustesse théorique de l'algorithme utilisé — un cas documenté publiquement (Debian, 2006-2008) l'illustre concrètement.

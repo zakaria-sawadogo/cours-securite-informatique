@@ -1,0 +1,75 @@
+# Chapitre 2 — Cryptanalyse des chiffrements classiques
+
+### Cryptanalyse
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Rappel : chiffrement de César et substitution mono-alphabétique
+
+Le **chiffre de César** est l'un des plus anciens systèmes de chiffrement connus : chaque lettre du texte clair est décalée d'un nombre fixe de positions dans l'alphabet, ce nombre constituant la clé (une valeur entière comprise entre 0 et 25 pour l'alphabet latin). Mathématiquement, si l'on numérote les lettres de A à Z de 0 à 25, le chiffrement d'une lettre *m* avec une clé *k* s'écrit `c = (m + k) mod 26`, et le déchiffrement `m = (c − k) mod 26`.
+
+La **substitution mono-alphabétique** généralise ce principe : au lieu d'un simple décalage, chaque lettre de l'alphabet clair est remplacée par une autre lettre selon une **permutation quelconque** de l'alphabet, fixée une fois pour toutes pour l'ensemble du message. L'espace de clés est alors considérablement plus grand que celui du chiffre de César : il existe 26! (factorielle de 26), soit environ 4 × 10^26 permutations possibles de l'alphabet, ce qui rend une attaque par force brute totalement impraticable en apparence. Pourtant, comme le montre la section suivante, la taille de l'espace de clés ne suffit pas à garantir la sécurité d'un chiffrement si sa structure laisse subsister une faiblesse exploitable par une autre méthode.
+
+---
+
+## 2. Analyse fréquentielle
+
+Chaque langue naturelle possède une **distribution statistique caractéristique** de la fréquence d'apparition de ses lettres, qui reste remarquablement stable d'un texte suffisamment long à un autre. En français, par exemple, la lettre **E** apparaît avec une fréquence d'environ 14,7 %, suivie par des lettres comme **A** (≈ 7,6 %), **S** (≈ 7,9 %) ou **I** (≈ 7,5 %), tandis que des lettres comme **W**, **K** ou **Z** sont beaucoup plus rares. Cette régularité statistique, propre à chaque langue, est le point de départ de l'analyse fréquentielle, formalisée dès le IXe siècle par le savant arabe Al-Kindi (chapitre 1).
+
+Le principe clé est le suivant : une substitution mono-alphabétique, en remplaçant systématiquement chaque lettre par une autre lettre fixe, **ne modifie pas la distribution statistique**, elle se contente de la « déplacer » d'une lettre vers une autre. Autrement dit, si E est la lettre la plus fréquente du texte clair, la lettre qui la remplace dans le texte chiffré sera très probablement la lettre la plus fréquente du texte chiffré. Cette invariance structurelle transforme un espace de clés gigantesque (26!) en un problème de reconnaissance de motifs statistiques bien plus abordable.
+
+### Méthode
+
+1. **Compter la fréquence** de chaque lettre dans le texte chiffré, généralement sous la forme d'un histogramme.
+2. **Comparer** cet histogramme au profil de fréquence connu de la langue supposée du texte clair.
+3. **Émettre des hypothèses de correspondance** pour les lettres les plus fréquentes du texte chiffré, en les associant aux lettres les plus fréquentes de la langue (par exemple, la lettre chiffrée la plus fréquente correspond probablement à E en français).
+4. **Affiner** ces hypothèses par l'analyse des **digrammes et trigrammes** fréquents (paires et triplets de lettres consécutives) : en français, des séquences comme « ES », « LE », « DE », « ENT » ou « QUE » apparaissent très fréquemment, et leur reconnaissance dans le texte partiellement déchiffré permet de lever les ambiguïtés que la seule fréquence des lettres isolées ne résout pas.
+5. **Itérer** en s'appuyant sur le sens progressivement révélé du texte partiellement déchiffré, jusqu'à obtenir un texte cohérent et complet — cette dernière étape mobilise autant l'intuition linguistique que l'analyse statistique pure.
+
+Pour le chiffre de César en particulier, la faiblesse structurelle se double d'une faiblesse triviale d'espace de clés : il suffit de tester systématiquement les **25 décalages possibles** (une attaque exhaustive quasi instantanée, même à la main) pour identifier le bon, ce qui rend l'analyse fréquentielle presque superflue dans ce cas précis — la véritable leçon du chiffre de César est celle d'un espace de clés bien trop restreint pour toute utilisation sérieuse.
+
+---
+
+## 3. Le chiffre de Vigenère et son cassage
+
+Le **chiffre de Vigenère**, présenté publiquement au XVIe siècle et longtemps surnommé « le chiffre indéchiffrable », améliore le chiffre de César en appliquant, non plus un décalage unique, mais **un décalage différent à chaque position** du texte clair, ce décalage étant déterminé par une clé de longueur *L* répétée cycliquement sur toute la longueur du message. Par exemple, avec la clé « CLE » (soit les décalages 2, 11, 4), le message « BONJOUR » se chiffrerait lettre par lettre en appliquant successivement les décalages 2, 11, 4, 2, 11, 4, 2.
+
+L'intérêt cryptographique de ce procédé est que, contrairement à une simple substitution, une même lettre du texte clair peut être chiffrée en plusieurs lettres différentes selon sa position — le chiffre de Vigenère **aplatit** artificiellement la distribution de fréquence des lettres du texte chiffré, ce qui le rend résistant à une analyse fréquentielle directe telle que décrite en section 2. Il reste cependant parfaitement cassable, en deux étapes bien distinctes.
+
+### Étape 1 — Trouver la longueur de la clé
+
+- **Méthode de Kasiski (1863)** : elle repose sur l'observation que des séquences de lettres identiques dans le texte clair, si elles se retrouvent alignées avec la même portion de clé, produiront des séquences identiques dans le texte chiffré. En repérant les répétitions de séquences de lettres identiques (typiquement 3 lettres ou plus) dans le texte chiffré et en mesurant la **distance** (en nombre de lettres) séparant deux occurrences d'une même séquence, on obtient une valeur qui est très probablement un **multiple de la longueur de la clé** *L*. En calculant le PGCD (plus grand commun diviseur) de plusieurs distances observées sur différentes répétitions, on obtient une estimation fiable de *L*.
+- **Indice de coïncidence (Friedman)** : c'est une mesure statistique de la probabilité que deux lettres tirées au hasard dans un texte donné soient identiques. Un texte rédigé en langue naturelle présente un indice de coïncidence relativement élevé, du fait de la distribution inégale des lettres (≈ 0,0778 en français), tandis qu'un texte parfaitement aléatoire (toutes les lettres équiprobables) présente un indice bas, proche de 1/26 ≈ 0,0385. La méthode consiste à découper le texte chiffré en *L* sous-suites (en prenant une lettre sur *L*, à partir de chaque position de départ), pour différentes valeurs candidates de *L*, puis à calculer l'indice de coïncidence moyen de ces sous-suites : la valeur de *L* qui donne des sous-suites dont l'indice se rapproche le plus de celui de la langue attendue est retenue, car chacune de ces sous-suites correspond alors à un simple décalage de César appliqué à un texte en langue naturelle.
+
+### Étape 2 — Casser chaque sous-alphabet
+
+Une fois la longueur de clé *L* déterminée, le texte chiffré se décompose en *L* sous-suites indépendantes, chacune correspondant à un unique décalage de César constant (puisque la même lettre de la clé s'applique à toutes les lettres d'une même sous-suite). Chacune de ces sous-suites est alors cassable individuellement par la méthode d'analyse fréquentielle classique décrite en section 2, ce qui permet de retrouver lettre par lettre l'intégralité de la clé, puis de déchiffrer le message dans son ensemble.
+
+Ce cassage en deux temps illustre un principe cryptanalytique important : une combinaison de mécanismes simples (ici, *L* décalages de César) ne garantit pas nécessairement une sécurité proportionnellement accrue si la structure de la combinaison (ici, la répétition périodique de la clé) peut elle-même être identifiée et exploitée séparément.
+
+---
+
+## 4. Autres chiffrements classiques
+
+- **Chiffre de Playfair** : ce chiffre, qui chiffre les lettres par paires (digrammes) à l'aide d'une grille 5×5 construite à partir d'un mot-clé, résiste mieux à une analyse fréquentielle simple portant sur les lettres isolées, car la fréquence de chaque lettre individuelle est « diluée » entre les 25 lettres possibles avec lesquelles elle peut être appariée. Il reste néanmoins vulnérable à une **analyse fréquentielle des digrammes** eux-mêmes : certains couples de lettres (« ES », « LE », « ON » en français) restent statistiquement plus fréquents que d'autres, et cette régularité, combinée aux contraintes géométriques propres à la grille de Playfair, permet une cryptanalyse structurée bien que plus laborieuse que celle d'une substitution simple.
+- **Chiffre de transposition** : contrairement aux chiffres de substitution, qui remplacent chaque lettre par une autre, un chiffre de transposition se contente de **permuter l'ordre des lettres** du texte clair sans en changer aucune. Une conséquence directe, et immédiatement révélatrice, de ce principe est que la **distribution de fréquence des lettres** du texte chiffré est rigoureusement identique à celle du texte clair — seule leur position a changé. Un cryptanalyste qui observe qu'un texte chiffré présente exactement le profil de fréquence attendu de la langue clair (au lieu du profil aplati typique d'une substitution) en déduit immédiatement qu'il s'agit très probablement d'une transposition, et oriente sa recherche vers l'identification de la permutation utilisée (souvent via une analyse combinatoire des anagrammes plausibles, ou par recherche de motifs de colonnes dans le cas des transpositions en grille).
+
+---
+
+## 5. Ce que cette cryptanalyse historique enseigne
+
+L'étude de ces chiffrements historiques n'a pas qu'une valeur culturelle : elle pose les fondations conceptuelles qui structurent encore aujourd'hui l'analyse des systèmes cryptographiques modernes.
+
+- **Toute redondance statistique du texte clair qui « survit » au processus de chiffrement est, en principe, exploitable.** Ce principe général reste pleinement valable pour évaluer des schémas modernes mal conçus ou mal utilisés : c'est exactement la faiblesse exploitée contre le mode opératoire **ECB** (Electronic Codebook, voir chapitre 3 et TP3), où deux blocs de texte clair identiques produisent systématiquement deux blocs chiffrés identiques, laissant transparaître des motifs visuels dans les données chiffrées.
+- **Un espace de clés trop restreint rend une attaque exhaustive triviale**, quelle que soit par ailleurs la sophistication apparente de l'algorithme. Le chiffre de César, avec ses 25 clés possibles seulement, en est l'illustration la plus simple ; ce principe motive directement les exigences modernes de taille de clé minimale (128 bits pour un chiffrement symétrique, 2048 bits ou plus pour RSA).
+- Les concepts de **confusion** (rendre la relation entre la clé et le texte chiffré la plus complexe et la moins prévisible possible) et de **diffusion** (répartir l'influence de chaque bit du texte clair, et de chaque bit de la clé, sur l'ensemble du texte chiffré), formalisés bien plus tard par **Claude Shannon** dans sa théorie de la sécurité des systèmes de chiffrement (1949), trouvent leur motivation directe dans l'observation historique que l'analyse fréquentielle exploite précisément l'**absence** de ces deux propriétés. Un bon chiffrement moderne (AES, chapitre 3) est conçu explicitement pour maximiser confusion et diffusion, de sorte qu'aucune redondance statistique du texte clair ne subsiste de façon exploitable dans le texte chiffré.
+
+---
+
+## À retenir
+
+- L'analyse fréquentielle, fondée sur la distribution statistique caractéristique de chaque langue, casse systématiquement toute substitution mono-alphabétique, quelle que soit la taille apparente de l'espace de clés.
+- Le chiffre de Vigenère se casse en deux temps : détermination de la longueur de clé (méthode de Kasiski ou indice de coïncidence), puis cryptanalyse fréquentielle classique de chaque sous-alphabet de César indépendant.
+- Ces méthodes historiques posent les bases conceptuelles (confusion, diffusion, exploitation de redondance statistique) formalisées ensuite par Claude Shannon, qui structurent toujours l'évaluation des chiffrements modernes.

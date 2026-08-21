@@ -1,0 +1,95 @@
+# Chapitre 4 — Vulnérabilités côté client : XSS, CSRF, clickjacking
+
+### Sécurité des applications
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Cross-Site Scripting (XSS)
+
+### Principe
+
+Une vulnérabilité XSS survient lorsqu'une donnée non fiable est insérée dans une page HTML sans encodage contextuel approprié, permettant à un attaquant de faire exécuter du code JavaScript arbitraire dans le navigateur d'une victime, dans le contexte de sécurité du site légitime. Cette dernière précision est essentielle pour comprendre la gravité de la vulnérabilité : le script injecté ne s'exécute pas dans un contexte isolé et sans conséquence, mais avec les mêmes droits que n'importe quel script légitime du site — il peut donc lire le contenu de la page, intercepter les actions de l'utilisateur, effectuer des requêtes vers l'API du site en réutilisant la session active de la victime, et accéder à tout ce que le navigateur associe à l'origine du site (cookies non protégés, stockage local).
+
+C'est le même principe unificateur qu'au chapitre 1 (source non fiable, puits sensible), appliqué ici à un puits particulier : le moteur de rendu HTML du navigateur, qui interprète différemment un même texte selon qu'il est traité comme une donnée à afficher ou comme du balisage à exécuter.
+
+### Trois formes principales
+
+| Type | Mécanisme |
+|---|---|
+| **XSS réfléchi** | la charge malveillante est incluse dans la requête (ex. paramètre d'URL) et renvoyée immédiatement dans la réponse, sans être stockée ; nécessite de piéger la victime pour qu'elle clique un lien spécialement construit |
+| **XSS stocké (persistant)** | la charge est enregistrée côté serveur (ex. commentaire, champ de profil) et exécutée pour tout utilisateur consultant ultérieurement le contenu affecté ; impact généralement plus large, car aucune action spécifique de la victime au-delà de la simple consultation de la page n'est nécessaire |
+| **XSS DOM-based** | la vulnérabilité provient d'un traitement non sûr côté client (JavaScript manipulant directement le DOM à partir de données non fiables, par exemple un fragment d'URL lu et réinjecté dans la page), sans que le serveur soit nécessairement impliqué dans la faille ni même conscient de la donnée concernée |
+
+Ces trois formes se distinguent essentiellement par l'endroit où la donnée non fiable transite avant d'atteindre le puits sensible (immédiatement dans la réponse, via un stockage persistant, ou entièrement côté client), ce qui a une conséquence directe sur la façon de les détecter : une analyse du code serveur suffit à repérer les deux premières formes, alors que la troisième nécessite d'examiner le code JavaScript exécuté côté navigateur.
+
+### Exemple
+
+```html
+<!-- Champ de commentaire affiché sans encodage -->
+<p>Commentaire : <?php echo $commentaire_utilisateur; ?></p>
+```
+
+Si `$commentaire_utilisateur` contient une balise `<script>` insérée sans échappement, le code JavaScript qu'elle contient s'exécute dans le navigateur de tout visiteur affichant ce commentaire, avec accès potentiel au cookie de session de la victime (d'où l'importance de l'attribut `HttpOnly` vu au chapitre 3, qui limite précisément ce vecteur en rendant le cookie inaccessible à un script, même exécuté avec succès). Le défaut ici est l'absence totale d'encodage contextuel entre la donnée fournie par l'utilisateur et son insertion dans le flux HTML renvoyé au navigateur : le moteur de rendu ne dispose d'aucun moyen de savoir que ce fragment de texte devait rester une donnée inerte plutôt que d'être traité comme du balisage actif.
+
+### Contre-mesures
+
+- **Encodage contextuel systématique** en sortie (HTML, attribut, JavaScript, URL — chaque contexte a ses propres règles d'encodage, un encodage adapté à un contexte n'étant pas nécessairement suffisant pour un autre).
+- **Content Security Policy (CSP)** : en-tête HTTP restreignant les sources de scripts autorisées à s'exécuter sur une page (par exemple en n'autorisant que les scripts hébergés sur le domaine du site lui-même), limitant fortement l'impact d'un XSS même si l'injection réussit — un script injecté en ligne dans la page peut alors être bloqué par le navigateur avant même son exécution, selon la politique déclarée.
+- Utilisation de frameworks front-end effectuant un encodage automatique par défaut (la plupart des frameworks modernes encodent par défaut le contenu inséré dynamiquement, à condition de ne pas contourner ce mécanisme volontairement, par exemple via des fonctions explicitement nommées « dangereuses » que ces frameworks exposent pour les cas où une insertion de HTML brut est réellement nécessaire).
+
+Ces trois contre-mesures se combinent naturellement : l'encodage contextuel élimine la vulnérabilité à la source, la CSP agit comme filet de sécurité si l'encodage a été oublié à un endroit, et le choix d'un framework encodant par défaut réduit la probabilité même que l'oubli se produise.
+
+---
+
+## 2. Cross-Site Request Forgery (CSRF)
+
+### Principe
+
+Un attaquant piège la victime (déjà authentifiée sur un site cible) pour qu'elle exécute, à son insu, une requête vers ce site (ex. via une page piégée provoquant une soumission de formulaire automatique) : le navigateur joint automatiquement les cookies de session valides à toute requête vers le domaine concerné, quel que soit le site à l'origine de la requête, faisant apparaître la requête comme légitime aux yeux du serveur. C'est précisément ce comportement par défaut du navigateur — joindre automatiquement les cookies pertinents à chaque requête, indépendamment de son origine — qui rend possible cette attaque : le serveur reçoit une requête indiscernable, sur la seule base des cookies, d'une requête réellement initiée par l'utilisateur depuis le site légitime.
+
+Contrairement à XSS, le CSRF n'exploite aucune faille de rendu ou d'exécution de code dans l'application cible : il exploite la confiance automatique et implicite que le navigateur accorde, par défaut, à toute requête intersite envoyée vers un domaine pour lequel des cookies existent déjà.
+
+### Exemple
+
+```html
+<!-- Page piégée hébergée par l'attaquant -->
+<form action="https://banque.example/virement" method="POST">
+  <input type="hidden" name="destinataire" value="compte-attaquant">
+  <input type="hidden" name="montant" value="5000">
+</form>
+<script>document.forms[0].submit();</script>
+```
+
+Si la victime authentifiée sur `banque.example` visite cette page piégée, son navigateur soumet automatiquement le formulaire avec ses cookies de session valides — la requête reçue par `banque.example` est, du point de vue du serveur, syntaxiquement identique à celle qu'aurait envoyée l'utilisateur légitime en remplissant volontairement le formulaire de virement, ce qui empêche une simple vérification de format de la requête de distinguer les deux cas.
+
+### Contre-mesures
+
+- **Jeton anti-CSRF** : valeur unique et imprévisible générée côté serveur, incluse dans chaque formulaire sensible et vérifiée à la soumission — un attaquant externe ne peut pas connaître ce jeton à l'avance (il n'a accès ni à la page légitime contenant le jeton, ni au moyen de le déduire), et une requête forgée sans ce jeton correct est rejetée par le serveur.
+- **Attribut de cookie `SameSite`** (rappel chapitre 3) : empêche le navigateur d'envoyer automatiquement le cookie de session lors d'une requête intersite dans de nombreux cas, neutralisant le mécanisme même sur lequel repose l'attaque, sans nécessiter de modification du formulaire ou de logique applicative supplémentaire.
+- Vérification de l'en-tête `Origin`/`Referer` pour les opérations sensibles, en complément : le serveur peut rejeter une requête dont l'origine déclarée ne correspond pas au domaine attendu, bien que ces en-têtes puissent être absents dans certaines configurations légitimes, ce qui en fait une défense complémentaire plutôt que suffisante à elle seule.
+
+---
+
+## 3. Clickjacking
+
+Un attaquant superpose (via une iframe transparente) une page légitime sous une interface trompeuse, incitant la victime à cliquer sur un élément de la page légitime sans le savoir (ex. un bouton « activer le micro » ou « confirmer un paiement » masqué sous un bouton apparemment inoffensif). Le principe repose sur une manipulation purement visuelle : la page légitime, chargée normalement dans une iframe rendue invisible ou transparente par une feuille de style contrôlée par l'attaquant, reçoit réellement le clic de la victime, alors que celle-ci pense interagir avec le contenu visible de la page piégeante superposée. Aucune donnée n'est falsifiée ni interceptée : c'est l'action même de l'utilisateur, légitime en apparence pour le serveur qui la reçoit, qui est détournée.
+
+**Contre-mesure** : en-tête HTTP `X-Frame-Options` ou directive CSP `frame-ancestors`, empêchant qu'une page sensible soit chargée dans une iframe par un site non autorisé — le navigateur refuse alors purement et simplement d'afficher la page dans l'iframe piégée, rendant l'attaque impossible sans qu'aucune modification de la logique applicative ne soit nécessaire.
+
+---
+
+## 4. Injection côté client : DOM et frameworks modernes
+
+Les applications à page unique (SPA, *single-page applications*) manipulant intensivement le DOM côté client introduisent des variantes de ces vulnérabilités, en particulier le XSS DOM-based, qui déplace une partie de la surface d'attaque du code serveur vers le code JavaScript exécuté dans le navigateur. Une source de donnée non fiable, côté client, peut provenir de l'URL elle-même (fragment, paramètre de requête lu directement par du JavaScript), du contenu d'un message reçu via une API de communication entre fenêtres, ou d'une réponse d'API insuffisamment neutralisée avant d'être insérée dans le DOM.
+
+Cette évolution architecturale nécessite une vigilance spécifique sur toute fonction manipulant directement le HTML à partir de données non fiables (fonctions explicitement signalées comme dangereuses par les frameworks modernes — leur nommage explicite vise précisément à attirer l'attention du développeur sur le risque encouru — à éviter sauf nécessité strictement justifiée et accompagnée d'un encodage manuel rigoureux). Le principe de défense reste identique à celui du XSS traditionnel — encodage contextuel systématique avant toute insertion dans le DOM — mais son application se déplace du code serveur vers le code client, ce qui implique d'étendre la vigilance et, le cas échéant, les outils d'analyse statique à l'ensemble de la base de code JavaScript.
+
+---
+
+## À retenir
+
+- XSS exploite une insertion non sécurisée de données dans une page ; CSRF exploite la confiance automatique du navigateur envers des cookies de session lors de requêtes intersites — deux mécanismes distincts nécessitant des contre-mesures distinctes.
+- L'encodage contextuel systématique et une CSP bien configurée sont les défenses de référence contre XSS ; le jeton anti-CSRF et l'attribut `SameSite` sont les défenses de référence contre CSRF.
+- Le clickjacking se prévient simplement par les en-têtes HTTP appropriés (`X-Frame-Options`, `frame-ancestors`), souvent négligés en pratique.

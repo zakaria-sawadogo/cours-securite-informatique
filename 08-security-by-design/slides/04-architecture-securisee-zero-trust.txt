@@ -1,0 +1,84 @@
+# Chapitre 4 — Architecture sécurisée : segmentation et zero trust
+
+### Security by design
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Le modèle périmétrique traditionnel et ses limites
+
+Le modèle de sécurité dit « château fort » repose sur un périmètre — typiquement matérialisé par un ou plusieurs pare-feu — séparant un réseau interne considéré de confiance d'un extérieur considéré hostile. Ce modèle a longtemps été l'approche dominante de la sécurité réseau : concentrer l'essentiel des contrôles à la frontière, et accorder une confiance largement implicite à tout ce qui se trouve à l'intérieur de cette frontière une fois franchie légitimement.
+
+Ce modèle s'avère aujourd'hui fragile face à des évolutions structurelles qui érodent progressivement la notion même de « périmètre » clairement délimité :
+
+- Le **télétravail massif** implique que des utilisateurs légitimes se connectent quotidiennement depuis des réseaux extérieurs à l'organisation, rendant la notion de « réseau interne de confiance » de moins en moins pertinente comme critère de confiance à elle seule.
+- L'usage généralisé du **Cloud** place données et applications hors du périmètre physique traditionnel de l'organisation, chez des fournisseurs tiers dont l'infrastructure ne relève pas d'un contrôle direct.
+- Une **compromission initiale par hameçonnage** d'un poste de travail interne donne d'emblée à l'attaquant la position privilégiée d'un utilisateur « de confiance », sans qu'il ait eu besoin de franchir frontalement le pare-feu périmétrique.
+- Des **prestataires tiers** disposant d'accès internes légitimes (maintenance, support, intégration) constituent un point d'entrée qui contourne, par construction, la logique périmétrique classique.
+
+---
+
+## 2. Segmentation réseau
+
+Avant même l'émergence du concept de zero trust, la **segmentation réseau** constitue déjà une pratique de réduction de risque bien établie : diviser le réseau en zones distinctes, séparées par un filtrage strict entre elles, plutôt que de traiter l'ensemble du réseau interne comme une zone de confiance homogène (rappel du module *Audit organisation et technique*, chapitre 4).
+
+Une architecture segmentée typique distingue par exemple une **DMZ** (zone démilitarisée) pour les services exposés à l'extérieur, un réseau interne lui-même cloisonné par fonction ou par niveau de sensibilité (réseau des postes utilisateurs, réseau des serveurs applicatifs, réseau des systèmes financiers), et un réseau d'administration isolé du réseau utilisateur courant, réservé aux opérations de gestion des systèmes.
+
+L'intérêt direct de cette segmentation est de limiter la **propagation latérale** (*lateral movement*) d'un attaquant ayant compromis un premier point d'entrée : un poste utilisateur compromis dans un réseau bien segmenté ne donne pas automatiquement accès aux serveurs de base de données critiques, car un filtrage strict s'interpose entre les deux zones, forçant l'attaquant à franchir une barrière supplémentaire — et potentiellement à être détecté dans le processus.
+
+---
+
+## 3. Principes du modèle Zero Trust
+
+Le modèle **zero trust**, formalisé notamment par le NIST dans sa publication SP 800-207, part d'un principe simple mais qui rompt radicalement avec la logique périmétrique : **aucune confiance implicite ne doit être accordée du simple fait qu'une requête provient du réseau interne**. Chaque accès doit être authentifié, autorisé et vérifié en continu, indépendamment de sa localisation réseau d'origine — qu'il provienne d'un poste connecté physiquement au siège de l'organisation ou d'un appareil distant sur Internet.
+
+### Principes clés
+
+- **Vérification explicite** : authentifier et autoriser systématiquement chaque accès, en s'appuyant sur l'ensemble des données disponibles pour évaluer sa légitimité — identité de l'utilisateur, appareil utilisé et sa posture de sécurité (mis à jour, conforme aux politiques), localisation géographique, et comportement observé. Aucun de ces signaux pris isolément ne suffit ; c'est leur combinaison qui permet une décision d'accès robuste.
+- **Moindre privilège appliqué dynamiquement** : accorder des accès **juste-à-temps** (*just-in-time*) et **juste-suffisants** (*just-enough-access*), c'est-à-dire des droits accordés pour la durée strictement nécessaire à une tâche donnée, plutôt que des droits larges accordés une fois pour toutes et rarement révisés par la suite.
+- **Présomption de compromission** (*assume breach*) : concevoir le système comme si un attaquant était déjà présent quelque part dans l'environnement, ce qui conduit à minimiser le rayon d'action possible d'une compromission (via la segmentation fine et la micro-segmentation) tout en maximisant les capacités de détection d'une activité anormale.
+
+---
+
+## 4. Composants typiques d'une architecture zero trust
+
+La mise en œuvre d'une architecture zero trust combine plusieurs briques technologiques complémentaires, chacune couvrant un aspect différent de la vérification continue :
+
+| Composant | Rôle |
+|---|---|
+| **Gestion des identités (IAM)** | Authentification forte (MFA), gestion centralisée des identités et des droits associés à chaque utilisateur ou service |
+| **Politique d'accès contextuelle** | Décision d'accès fondée sur de multiples signaux (identité, posture de l'appareil, localisation, sensibilité de la ressource demandée), et non plus sur la seule appartenance au réseau interne |
+| **Micro-segmentation** | Contrôle fin des flux réseau, y compris entre charges de travail internes elles-mêmes, et pas seulement à la frontière externe du réseau |
+| **Chiffrement systématique** | Chiffrement de l'ensemble des flux, y compris en interne, sans supposer qu'un réseau interne serait intrinsèquement sûr et donc dispensé de chiffrement |
+| **Supervision continue** | Journalisation et détection comportementale permettant de révoquer un accès en cours de session dès qu'un comportement anormal est détecté, plutôt que de se fier indéfiniment à une autorisation accordée en début de session |
+
+Ces composants ne fonctionnent pleinement que combinés : une gestion des identités robuste sans micro-segmentation laisse un attaquant ayant obtenu un accès légitime se déplacer librement une fois entré ; une micro-segmentation sans supervision continue laisse passer des comportements anormaux qui restent formellement autorisés.
+
+---
+
+## 5. Zero trust n'est pas un produit unique
+
+Il est important de dissiper une confusion fréquente : zero trust est une **architecture et une philosophie de conception**, pas un produit unique que l'on pourrait acheter sur étagère et installer pour « obtenir » le zero trust. Sa mise en œuvre combine plusieurs briques technologiques existantes — IAM, micro-segmentation, chiffrement, supervision — orchestrées selon les principes présentés à la section 3.
+
+Cette mise en œuvre s'accompagne nécessairement d'une **transformation organisationnelle**, et pas uniquement technique : elle implique une revue des processus d'accès existants (qui a accès à quoi, et pour combien de temps), et une évolution de la culture des équipes vers une logique de vérification continue plutôt que de confiance acquise une fois pour toutes. Un fournisseur qui promet un produit « zero trust clé en main » sans que l'organisation revoie ses propres processus d'accès n'apporte, au mieux, qu'une partie de la solution.
+
+---
+
+## 6. Migration progressive
+
+Une migration complète vers zero trust est rarement — et prudemment rarement — un projet mené en une seule fois (« big bang ») : une organisation qui basculerait brutalement l'ensemble de son infrastructure existante prendrait un risque opérationnel disproportionné par rapport au bénéfice de sécurité immédiat.
+
+Elle se conduit généralement de façon **incrémentale**, en priorisant en premier lieu les actifs les plus critiques, identifiés au préalable par la démarche de gestion des risques du module *Gouvernance*. Cette priorisation permet de concentrer l'effort initial là où le gain de sécurité est le plus significatif, plutôt que de disperser les ressources sur l'ensemble du système d'un coup.
+
+Durant cette transition, des **architectures hybrides** combinent nécessairement des éléments périmétriques hérités de l'existant avec des contrôles zero trust nouvellement introduits, le temps que la migration progresse. Cette coexistence transitoire n'est pas un défaut de conception mais une réalité opérationnelle incontournable pour toute organisation disposant déjà d'une infrastructure établie de longue date.
+
+---
+
+## À retenir
+
+- Le modèle périmétrique traditionnel suppose une confiance implicite au réseau interne, une hypothèse de moins en moins tenable face au télétravail, au Cloud et aux menaces internes ou latérales.
+- La segmentation réseau, préalable historique au zero trust, limite déjà la propagation latérale d'une compromission en cloisonnant le réseau en zones distinctes.
+- Le zero trust remplace la confiance implicite par une vérification systématique et continue de chaque accès (vérification explicite, moindre privilège dynamique, présomption de compromission), quelle que soit sa provenance.
+- Sa mise en œuvre combine des briques technologiques existantes (IAM, micro-segmentation, chiffrement, supervision) et s'accompagne d'une transformation organisationnelle, pas seulement technique.
+- Une migration réaliste se conduit de façon progressive et priorisée, via des architectures hybrides transitoires, plutôt qu'en un seul projet global.

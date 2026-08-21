@@ -1,0 +1,91 @@
+# Chapitre 1 — Introduction : principes de security by design et privacy by design
+
+### Security by design
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Définition
+
+*Security by design* désigne l'approche consistant à intégrer les exigences de sécurité **dès la phase de conception** d'un système, plutôt que de les ajouter a posteriori sous forme de correctifs après un incident ou un audit. C'est un changement de posture : la sécurité devient une contrainte de conception au même titre que la performance ou l'ergonomie, pas une couche additionnelle optionnelle greffée en fin de projet.
+
+Concrètement, cela signifie que les questions de sécurité doivent être posées dès les premières réunions de cadrage d'un projet : quelles données seront traitées, qui doit pouvoir y accéder, quelles menaces pèsent sur l'architecture envisagée, quelles conséquences en cas de défaillance. Ces questions influencent directement les choix structurants (découpage en composants, modèle de données, choix technologiques), et non uniquement des détails d'implémentation traités « plus tard ». Un système conçu ainsi porte la sécurité dans son architecture même, ce qui la rend beaucoup plus difficile à contourner qu'un contrôle ajouté en périphérie d'un système déjà figé.
+
+À l'opposé, une approche « sécurité a posteriori » traite la sécurité comme une liste de vérifications à cocher juste avant la mise en production, ou pire, comme une réaction à un incident déjà survenu. Ce mode de fonctionnement produit typiquement des correctifs partiels, des contournements fragiles et une dette de sécurité qui s'accumule au fil des versions successives du logiciel.
+
+---
+
+## 2. Pourquoi corriger après coup coûte plus cher
+
+Le coût de correction d'une faille de conception augmente très fortement à mesure que le projet avance dans son cycle de vie. Une faille identifiée en phase de conception se corrige souvent par un simple ajustement de schéma ou de choix d'architecture, sans code déjà écrit à modifier. La même faille découverte en production peut, elle, nécessiter de repenser une architecture déjà déployée, d'interrompre un service utilisé par des clients réels, de migrer des données existantes et de communiquer sur un incident — autant de coûts qui ne se limitent pas au seul temps de développement.
+
+| Phase de détection | Nature de la correction | Ampleur typique de l'effort |
+|---|---|---|
+| Exigences / conception | Ajustement d'un modèle de données ou d'une architecture pas encore implémentée | Faible : quelques heures de discussion et de re-conception |
+| Développement | Modification de code non encore livré, avant intégration | Modérée : réécriture localisée, tests à adapter |
+| Tests / recette | Correctif sur du code déjà intégré, potentiellement avec effets de bord sur d'autres fonctionnalités | Plus élevée : régression à vérifier sur l'ensemble du périmètre testé |
+| Production | Correctif d'urgence sur un système en service, migration de données, communication aux utilisateurs, gestion d'un incident éventuel | Élevée : indisponibilité possible, risque de perte de confiance, coût organisationnel en plus du coût technique |
+
+Cette observation — qu'un ordre de grandeur sépare typiquement le coût d'une correction précoce de celui d'une correction tardive — motive l'intégration précoce de la sécurité, résumée par l'expression **« shift left »** : décaler les activités de sécurité vers la gauche d'une frise chronologique du projet, c'est-à-dire vers les phases amont. Ce principe est développé plus en détail au chapitre 5 consacré au DevSecOps, où il se traduit en pratiques concrètes intégrées au pipeline de développement.
+
+---
+
+## 3. Security by design vs sécurité périmétrique
+
+Un modèle de sécurité historique reposait sur une **frontière protégée** (pare-feu, périmètre réseau) séparant un extérieur considéré hostile d'un intérieur considéré de confiance : une fois à l'intérieur du périmètre, un utilisateur ou une machine bénéficiait d'une confiance largement implicite, avec peu de contrôles supplémentaires. Ce modèle a longtemps constitué l'approche par défaut de la sécurité des systèmes d'information, en particulier lorsque l'essentiel des ressources informatiques restait physiquement localisé dans des locaux contrôlés par l'organisation.
+
+Ce modèle s'avère cependant fragile dès qu'un attaquant parvient à franchir le périmètre — par hameçonnage d'un employé, compromission d'un poste de travail, ou via un prestataire tiers disposant d'accès internes légitimes mais mal maîtrisés. Une fois à l'intérieur, l'attaquant profite précisément de cette confiance implicite pour se déplacer latéralement d'un système à l'autre, souvent sans rencontrer de résistance significative avant d'atteindre sa cible réelle.
+
+| Modèle périmétrique | Security by design |
+|---|---|
+| Confiance forte accordée à tout ce qui est « à l'intérieur » du réseau | Aucune confiance implicite, quelle que soit l'origine de la requête |
+| Contrôles concentrés à la frontière (pare-feu, VPN d'entrée) | Contrôles répartis à chaque composant et à chaque accès |
+| Une compromission initiale ouvre un large accès interne | Une compromission partielle reste contenue par conception |
+| Hypothèse implicite : le réseau interne est sûr | Hypothèse explicite : la compromission est possible, il faut la limiter |
+
+*Security by design* pousse ainsi à concevoir des systèmes résilients même en présence d'une compromission partielle, plutôt que de miser uniquement sur l'inviolabilité d'une frontière. Cette logique préfigure directement le modèle **zero trust**, développé au chapitre 4, qui généralise ce principe à l'ensemble de l'architecture réseau et applicative.
+
+---
+
+## 4. Les grands principes, aperçu
+
+Concevoir un système sécurisé ne repose pas sur une intuition isolée mais sur un ensemble de principes de conception éprouvés, applicables indépendamment de la technologie utilisée. Ce module en détaille une liste au chapitre 3 : moindre privilège, défense en profondeur, échec sécurisé, séparation des tâches, simplicité de conception et médiation complète en constituent le noyau. Ces principes ont été formalisés dès 1975 par Jerome Saltzer et Michael Schroeder dans un article fondateur sur la protection des systèmes informatiques, et restent aujourd'hui d'une actualité remarquable malgré la transformation radicale des technologies concernées depuis cette date.
+
+L'intérêt de ces principes réside précisément dans leur généralité : ils s'appliquent aussi bien à la conception d'un système d'exploitation qu'à celle d'une API web moderne ou d'une architecture Cloud distribuée. Le chapitre 3 les présente en détail, avec des exemples concrets d'application dans des contextes contemporains de développement logiciel.
+
+---
+
+## 5. Privacy by design
+
+Concept complémentaire à la sécurité au sens strict, le *privacy by design* (protection de la vie privée dès la conception) a été formalisé par Ann Cavoukian, alors commissaire à l'information et à la protection de la vie privée de l'Ontario, à la fin des années 1990 et au cours des années 2000. Son principe central est que la protection des données personnelles doit être une **caractéristique par défaut** d'un système — présente sans action requise de l'utilisateur — plutôt qu'une option qu'il faudrait activer explicitement pour en bénéficier.
+
+Ce concept, longtemps considéré comme une bonne pratique parmi d'autres, est aujourd'hui explicitement exigé par plusieurs réglementations de protection des données, au premier rang desquelles l'article 25 du RGPD (Règlement Général sur la Protection des Données de l'Union européenne), intitulé « protection des données dès la conception et par défaut ». Cette exigence juridique transforme une bonne pratique en obligation formelle pour tout responsable de traitement de données personnelles. Le chapitre 6 de ce module développe ce concept en détail, avec ses sept principes fondateurs et leurs implications pratiques.
+
+---
+
+## 6. Sécurité et fonctionnalité : un arbitrage, pas une opposition
+
+Une idée reçue largement répandue oppose systématiquement sécurité et facilité d'usage, comme si l'une ne pouvait progresser qu'au détriment de l'autre. Cette vision binaire est trompeuse : une conception mature cherche plutôt à rendre le **comportement sécurisé le comportement par défaut et le plus simple** pour l'utilisateur, de sorte que suivre le chemin le plus naturel soit aussi le chemin le plus sûr.
+
+Un exemple classique illustre ce principe : l'authentification à double facteur (MFA) apporte une réduction significative du risque de compromission de compte, mais son efficacité réelle dépend entièrement de son taux d'adoption. Si elle est proposée comme un réglage avancé, enfoui dans un menu que peu d'utilisateurs découvrent spontanément, son taux d'adoption reste faible et sa valeur protectrice réelle s'en trouve fortement amoindrie. Si elle est au contraire **activée par défaut**, avec un parcours d'activation simple, elle protège la totalité de la base d'utilisateurs sans effort supplémentaire de leur part.
+
+À l'inverse, une mesure de sécurité qui dégrade excessivement l'expérience utilisateur est très souvent contournée en pratique, quelle que soit sa robustesse théorique : des mots de passe trop complexes et changés trop fréquemment finissent notés sur un post-it ou dans un fichier texte non protégé ; un contrôle jugé trop contraignant par les utilisateurs finit désactivé dès que la procédure le permet, ou évité par des chemins de contournement informels. Ce constat n'est pas un problème de discipline des utilisateurs qu'il faudrait corriger par la formation seule ; c'est avant tout un **échec de conception**, qui doit être corrigé en repensant l'ergonomie du contrôle de sécurité lui-même.
+
+---
+
+## 7. Articulation avec le reste du programme
+
+Ce module de *security by design* ne fonctionne pas en vase clos : il synthétise et opérationnalise des notions abordées ailleurs dans le programme de formation. Le module *Audit organisation et technique* fournit le catalogue de vulnérabilités concrètes que la conception cherche justement à prévenir en amont, plutôt que de les découvrir a posteriori lors d'un audit. Le module *Gouvernance* apporte la méthodologie de gestion des risques permettant de prioriser les efforts de conception sécurisée en fonction de leur impact réel. Le module *Cryptographie* fournit les primitives techniques (chiffrement, signatures, fonctions de hachage) que la conception doit savoir intégrer correctement dans une architecture, sans en réinventer les mécanismes internes.
+
+*Security by design* est ainsi la discipline qui transforme ces connaissances théoriques et ces catalogues de risques en pratiques de conception concrètes, appliquées en amont du développement plutôt qu'en réaction à un problème déjà survenu. C'est le fil conducteur qui relie l'analyse de risque, la cryptographie et l'audit à des décisions d'architecture effectives.
+
+---
+
+## À retenir
+
+- *Security by design* intègre la sécurité dès la conception, réduisant fortement le coût de correction par rapport à une approche corrective a posteriori — un ordre de grandeur sépare typiquement une correction en conception d'une correction en production.
+- Le modèle de sécurité périmétrique seul est insuffisant face à des attaquants capables de franchir la frontière ; une conception résiliente à la compromission partielle est nécessaire, préfigurant le modèle zero trust (chapitre 4).
+- Les grands principes de conception sécurisée (Saltzer et Schroeder, 1975) restent le socle théorique du domaine et sont détaillés au chapitre 3 ; le privacy by design, complément centré sur les données personnelles, est développé au chapitre 6.
+- Une mesure de sécurité qui dégrade excessivement l'usage est souvent contournée : la sécurité par défaut et simple d'usage est un objectif de conception, pas un vœu pieux.
+- Ce module opérationnalise des notions vues dans les modules Audit, Gouvernance et Cryptographie, en les traduisant en pratiques de conception concrètes.

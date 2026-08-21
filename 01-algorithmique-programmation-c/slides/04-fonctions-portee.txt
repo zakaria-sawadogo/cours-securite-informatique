@@ -1,0 +1,126 @@
+# Chapitre 4 — Fonctions et portée des variables
+
+### Algorithmique et Programmation en C
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Pourquoi découper en fonctions ?
+
+Une **fonction** encapsule un traitement réutilisable sous un nom : elle prend éventuellement des données en entrée (les **paramètres**), effectue un calcul ou une action, et produit éventuellement un résultat en sortie (la **valeur de retour**). Découper un programme en fonctions plutôt que d'écrire l'intégralité de la logique dans `main` répond à plusieurs objectifs complémentaires, qui deviennent de plus en plus déterminants à mesure qu'un projet grandit :
+
+- **Réutilisabilité** : un traitement écrit une seule fois sous forme de fonction peut être appelé autant de fois que nécessaire, à différents endroits du programme, sans dupliquer le code — ce qui réduit les erreurs (une correction n'est à faire qu'à un seul endroit) et la taille du code source.
+- **Lisibilité** : un `main` qui appelle des fonctions bien nommées (`valider_saisie()`, `calculer_moyenne()`, `afficher_resultat()`) se lit presque comme une description de haut niveau de l'algorithme, indépendamment des détails d'implémentation de chaque étape.
+- **Testabilité** : une fonction isolée, avec des entrées et une sortie clairement définies, peut être testée indépendamment du reste du programme — un principe fondamental des tests unitaires, qui deviennent nettement plus difficiles à écrire lorsque toute la logique est enchevêtrée dans une seule grande fonction.
+- **Limitation de la portée des erreurs** : si une fonction est petite et se limite à une seule responsabilité clairement identifiée, un bug qu'elle contient est plus facile à localiser, à comprendre et à corriger qu'un bug perdu au milieu de centaines de lignes mêlant plusieurs préoccupations différentes.
+
+Ce dernier point est directement lié à l'un des principes fondateurs du *Security by design* : plus une fonction est petite, ciblée et prévisible, plus elle est facile à auditer — à relire méthodiquement pour vérifier qu'elle ne contient pas de faille — et plus il est facile de raisonner formellement sur ce qu'elle garantit (ses préconditions, ses postconditions) sans avoir à tenir compte de l'état de tout le reste du programme.
+
+---
+
+## 2. Déclaration, prototype, définition
+
+```c
+// Prototype (souvent dans un .h)
+int addition(int a, int b);
+
+int main(void) {
+    int resultat = addition(3, 4);
+    printf("%d\n", resultat);
+    return 0;
+}
+
+// Définition
+int addition(int a, int b) {
+    return a + b;
+}
+```
+
+Il faut distinguer deux notions souvent confondues par les débutants : le **prototype** et la **définition** d'une fonction. Le prototype (`int addition(int a, int b);`) déclare uniquement la **signature** de la fonction — son nom, le type de la valeur qu'elle renvoie, et le type (et éventuellement le nom) de chacun de ses paramètres — sans fournir son corps. La définition (`int addition(int a, int b) { return a + b; }`) fournit, elle, l'implémentation complète.
+
+Le compilateur C lit un fichier source de façon séquentielle, de haut en bas : il ne peut vérifier un appel de fonction (`addition(3, 4)`) que s'il a déjà rencontré, avant cet appel, soit la définition complète de la fonction, soit au minimum son prototype. Déclarer le prototype en tête de fichier (ou, plus couramment dans un projet réel, dans un fichier d'en-tête `.h` inclus par `#include`) permet donc d'appeler une fonction avant sa définition complète plus bas dans le fichier, tout en permettant au compilateur de vérifier immédiatement la cohérence des types passés à chaque appel : si `addition` est appelée avec un mauvais nombre d'arguments, ou avec un type incompatible, le compilateur le détecte et signale une erreur — une vérification précieuse qu'une absence totale de prototype (pratique tolérée par d'anciens standards C, mais fortement déconseillée) laisserait passer silencieusement, avec un comportement indéfini à l'exécution.
+
+---
+
+## 3. Passage de paramètres
+
+Le C connaît deux modes de passage de paramètres à une fonction, dont la distinction est essentielle à comprendre pour prévoir correctement ce qu'une fonction peut ou ne peut pas modifier chez son appelant.
+
+- **Passage par valeur** (comportement par défaut en C, pour tous les types de base) : lorsqu'une fonction est appelée, chaque paramètre reçoit une **copie** de la valeur fournie par l'appelant. Toute modification effectuée sur ce paramètre à l'intérieur de la fonction n'affecte que cette copie locale, et disparaît dès que la fonction se termine — la variable d'origine, du côté de l'appelant, reste totalement inchangée.
+- **Passage par adresse** (via un pointeur) : plutôt que de transmettre une copie de la valeur, on transmet l'**adresse mémoire** de la variable de l'appelant. La fonction reçoit alors un pointeur vers cette variable et peut, en le déréférençant, lire et **modifier directement** la valeur d'origine.
+
+```c
+void incrementer(int *x) {
+    (*x)++;
+}
+
+int main(void) {
+    int n = 5;
+    incrementer(&n);   // n vaut 6 après l'appel
+    return 0;
+}
+```
+
+Dans cet exemple, `incrementer` reçoit non pas une copie de `n`, mais l'adresse de `n` (obtenue avec `&n` lors de l'appel). À l'intérieur de la fonction, `x` est un pointeur vers cette adresse ; l'expression `(*x)++` déréférence `x` pour accéder à la variable pointée (`n`) et l'incrémente directement. C'est le **seul** mécanisme dont dispose le C pour permettre à une fonction de modifier une variable de l'appelant : sans passage par adresse, une fonction telle que `void incrementer(int x) { x++; }` compilerait parfaitement, mais n'aurait strictement aucun effet visible en dehors d'elle-même, car elle n'incrémenterait qu'une copie locale immédiatement perdue à son retour. Ce mécanisme sera repris et approfondi dans le chapitre sur les pointeurs (chapitre 6), où l'on verra qu'il est également au cœur du passage de tableaux à des fonctions.
+
+---
+
+## 4. Portée (scope) et durée de vie
+
+Deux notions distinctes, mais souvent confondues, décrivent le cycle de vie d'une variable : sa **portée** (*scope* — dans quelle partie du code son nom est-il visible et utilisable) et sa **durée de vie** (*lifetime* — combien de temps l'emplacement mémoire qui lui est associé reste-t-il valide).
+
+| Type de variable | Portée | Durée de vie |
+|---|---|---|
+| locale | bloc où elle est déclarée | jusqu'à la fin du bloc (pile) |
+| globale | tout le fichier (ou programme si non `static`) | toute l'exécution |
+| `static` locale | bloc de déclaration | toute l'exécution, valeur conservée entre appels |
+| paramètre | corps de la fonction | durée de l'appel |
+
+Une **variable locale**, déclarée à l'intérieur d'une fonction ou d'un bloc `{ }`, n'est visible et utilisable qu'à l'intérieur de ce bloc ; elle est automatiquement créée sur la **pile** (*stack*, voir chapitre 6) à l'entrée du bloc et détruite à sa sortie — toute tentative d'y accéder en dehors de son bloc est une erreur de compilation. Une **variable globale**, déclarée en dehors de toute fonction, est visible dans tout le reste du fichier (et dans d'autres fichiers du même programme si elle n'est pas marquée `static`) et existe pendant toute la durée de vie du programme.
+
+Le cas de la variable **`static` locale** mérite une attention particulière, car il combine une portée limitée (comme une variable locale ordinaire) avec une durée de vie étendue (comme une variable globale) :
+
+```c
+int compteur_appels(void) {
+    static int n = 0;  // initialisée une seule fois, à la première exécution de cette ligne
+    n++;
+    return n;
+}
+```
+
+Contrairement à une variable locale ordinaire, `n` n'est **pas** recréée et réinitialisée à chaque appel de `compteur_appels` : elle est initialisée une seule fois, lors du tout premier appel, puis conserve sa valeur d'un appel à l'autre pendant toute la durée de vie du programme — un appel successif de `compteur_appels()` renverra donc `1`, puis `2`, puis `3`, et ainsi de suite. Ce mécanisme est pratique pour maintenir un état discret entre plusieurs appels (un compteur, un cache simple) sans recourir à une variable globale visible de tout le fichier, mais il introduit un **état caché** dans la fonction : deux appels successifs à `compteur_appels()`, avec exactement les mêmes arguments (ici, aucun), ne produisent plus le même résultat, ce qui rend la fonction plus difficile à raisonner, à tester isolément et à paralléliser en toute sécurité.
+
+Plus largement, les **variables globales** facilitent le partage d'état entre différentes parties d'un programme sans avoir à le transmettre explicitement en paramètre, mais ce confort a un coût : elles nuisent à la prévisibilité du code (n'importe quelle fonction du programme peut potentiellement les modifier, ce qui rend difficile de savoir, en lisant une seule fonction, d'où vient une valeur inattendue) et compliquent considérablement l'analyse de sécurité, car elles introduisent des **effets de bord non locaux** — une fonction peut modifier un état que d'autres fonctions, ailleurs dans le programme, consultent ou modifient également, créant des dépendances implicites difficiles à tracer. Pour ces raisons, l'usage des variables globales doit être limité au strict nécessaire, et toujours documenté clairement.
+
+---
+
+## 5. Récursivité
+
+```c
+unsigned long factorielle(unsigned int n) {
+    if (n == 0) return 1;
+    return n * factorielle(n - 1);
+}
+```
+
+Une fonction **récursive** est une fonction qui s'appelle elle-même, directement ou indirectement (via une autre fonction), pour résoudre un problème en le ramenant à une version plus petite de lui-même. Toute fonction récursive correctement conçue comporte deux éléments indispensables : un **cas de base** (ici, `n == 0`, qui renvoie directement un résultat sans nouvel appel récursif) qui arrête la récursion, et un **cas récursif** (ici, `n * factorielle(n - 1)`) qui rapproche progressivement le problème du cas de base à chaque appel. Sans cas de base atteignable, ou si le cas récursif ne se rapproche jamais réellement du cas de base, la récursion ne s'arrête jamais — l'équivalent, pour une fonction, d'une boucle infinie.
+
+Le mécanisme sous-jacent qui rend la récursivité possible est la **pile d'appels** : chaque appel de fonction, récursif ou non, réserve un espace sur la pile (une *stack frame*) pour stocker ses variables locales, ses paramètres et l'adresse de retour vers l'appelant. Dans un appel récursif, chaque nouvel appel empile un nouveau cadre par-dessus les précédents, qui restent tous en mémoire tant que l'appel correspondant n'est pas terminé. Une récursion **non bornée**, ou simplement trop profonde par rapport à la taille de pile allouée au programme (souvent de l'ordre de quelques mégaoctets par défaut), épuise cet espace et provoque un **stack overflow** (débordement de pile) — un cas concret, et facile à reproduire expérimentalement, de vulnérabilité par épuisement de ressource : si la profondeur de récursion dépend d'une entrée fournie par un utilisateur (par exemple, une donnée dont la taille contrôle indirectement le nombre d'appels récursifs), un attaquant peut potentiellement provoquer volontairement ce débordement pour faire planter le programme, voire, dans certaines conditions, en exploiter les conséquences mémoire.
+
+---
+
+## 6. Bonnes pratiques
+
+- **Une fonction, une responsabilité claire** : si le nom d'une fonction nécessite un « et » pour être décrit précisément (« valide et enregistre l'utilisateur »), c'est souvent le signe qu'elle devrait être scindée en plusieurs fonctions plus ciblées.
+- **Toujours valider les paramètres reçus** : vérifier qu'un pointeur passé en paramètre n'est pas `NULL` avant de le déréférencer, vérifier qu'une taille est cohérente (positive, dans les bornes attendues) avant de l'utiliser pour une allocation ou un accès à un tableau. Une fonction qui fait confiance aveuglément à ses paramètres, sans les valider, propage silencieusement les erreurs de son appelant au lieu de les détecter tôt.
+- **Documenter précondition et postcondition** : préciser explicitement, en commentaire ou dans la documentation associée, ce que la fonction attend en entrée (précondition — par exemple « `n` doit être positif ou nul ») et ce qu'elle garantit en sortie (postcondition), y compris — point souvent oublié et pourtant crucial pour éviter fuites mémoire et double libérations — qui, de l'appelant ou de la fonction, est responsable de libérer une éventuelle mémoire allouée dynamiquement par la fonction ou transmise à travers elle.
+
+---
+
+## À retenir
+
+- Le passage par adresse (via un pointeur) est l'unique mécanisme du C permettant à une fonction de modifier une variable de l'appelant ; le passage par valeur, par défaut, ne modifie qu'une copie locale.
+- La portée `static` locale crée un état persistant discret entre les appels d'une fonction : pratique mais à utiliser avec parcimonie, car elle nuit à la prévisibilité et à la testabilité.
+- Les variables globales facilitent le partage d'état mais introduisent des effets de bord non locaux qui compliquent l'analyse de sécurité : à limiter au strict nécessaire.
+- La récursivité est élégante pour exprimer certains algorithmes, mais reste bornée par la taille de la pile ; une récursion non maîtrisée est une vulnérabilité par épuisement de ressource.

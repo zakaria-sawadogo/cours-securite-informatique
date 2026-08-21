@@ -1,0 +1,74 @@
+# Chapitre 6 — Applications, enjeux et limites
+
+### Technologie Blockchain
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Panorama des applications au-delà des cryptomonnaies
+
+Si les cryptomonnaies (Bitcoin, Ether) restent l'application la plus visible et la plus ancienne de la technologie blockchain, les propriétés étudiées dans les chapitres précédents — registre partagé sans tiers de confiance unique, intégrité vérifiable, exécution automatisée via les smart contracts — ont trouvé des applications dans des domaines assez différents :
+
+- **Finance décentralisée (DeFi)** : prêts, échanges décentralisés, produits dérivés, fonctionnant sans intermédiaire financier centralisé, en s'appuyant directement sur les mécanismes de smart contracts étudiés au chapitre 4. Ce domaine reste exposé aux risques de sécurité détaillés au chapitre 5, ainsi qu'à une volatilité de marché et une situation réglementaire encore incertaines selon les juridictions.
+- **Traçabilité de chaîne logistique** : suivi de la provenance de produits (agroalimentaire, textile, minerais) tout au long d'une chaîne d'approvisionnement, où la blockchain garantit l'**intégrité** des enregistrements une fois qu'ils y ont été saisis — personne ne peut discrètement modifier un enregistrement passé — sans pour autant garantir la **véracité** de la saisie initiale (problème de l'oracle, rappel du chapitre 4) : si un maillon de la chaîne saisit une information fausse dès le départ, la blockchain la conservera fidèlement, mais fausse.
+- **Identité numérique décentralisée** (*self-sovereign identity*) : une approche visant à permettre à un individu de **contrôler lui-même** ses données d'identité et de **prouver sélectivement** certains attributs (par exemple, prouver qu'il est majeur sans révéler sa date de naissance exacte) sans dépendre d'un registre central unique détenu par un État ou une entreprise.
+- **Certification et notarisation** : preuve d'existence et d'horodatage d'un document à une date donnée, en ancrant l'empreinte de hachage de ce document sur une blockchain publique (sans jamais y publier le contenu du document lui-même). C'est un usage relativement simple et robuste de la blockchain, puisqu'il ne manipule aucune valeur financière et se limite à exploiter la propriété d'intégrité horodatée du registre.
+- **Vote électronique** : un cas d'usage souvent évoqué dans les discours de vulgarisation, mais particulièrement délicat à réaliser correctement en pratique, car il combine des exigences difficilement conciliables entre elles : l'**anonymat de l'électeur** (personne ne doit pouvoir savoir pour qui il a voté), la **vérifiabilité publique du résultat** (chacun doit pouvoir vérifier que son vote a bien été comptabilisé et que le résultat global est exact), et la **résistance à la coercition** (un électeur ne doit pas pouvoir prouver a posteriori à un tiers pour qui il a voté, afin d'éviter l'achat ou la contrainte de votes). Ce domaine reste, à ce jour, davantage un objet de recherche active qu'un terrain de déploiements matures et largement adoptés à grande échelle.
+
+---
+
+## 2. Trilemme de la blockchain (scalabilité, sécurité, décentralisation)
+
+Les concepteurs de blockchains publiques font face à un compromis largement reconnu dans la communauté, souvent désigné sous le nom de **trilemme de la blockchain** : il est difficile d'optimiser simultanément trois propriétés à la fois — la **scalabilité** (le nombre de transactions que le réseau peut traiter par seconde), la **sécurité** (la résistance du réseau aux tentatives d'attaque ou de falsification) et la **décentralisation** (le nombre et l'indépendance réelle des participants qui contribuent à la validation).
+
+En pratique, les architectures existantes tendent à privilégier deux de ces trois propriétés, au détriment relatif de la troisième. Bitcoin, par exemple, privilégie fortement la sécurité et la décentralisation, au prix d'une scalabilité limitée (un nombre de transactions par seconde relativement faible comparé à un système de paiement centralisé). À l'inverse, certaines blockchains à permission (chapitre 1), en limitant le nombre de validateurs à un groupe restreint et identifié, peuvent atteindre une scalabilité et une sécurité opérationnelle élevées, mais au prix d'une décentralisation nettement réduite.
+
+### Approches de mise à l'échelle (aperçu)
+
+Plusieurs pistes techniques sont explorées ou déployées pour tenter d'assouplir ce compromis, sans prétendre l'éliminer totalement :
+
+- **Solutions de couche 2 (Layer 2)** : l'idée générale consiste à traiter la **majorité des transactions en dehors de la chaîne principale** (*off-chain*), dans un environnement plus rapide et moins coûteux, tout en n'ancrant sur la chaîne principale qu'un **résumé périodique** de ces opérations — suffisant pour hériter des garanties de sécurité de la chaîne principale sans y faire transiter chaque transaction individuellement. Les *rollups* déployés sur Ethereum en sont un exemple représentatif de cette famille d'approches.
+- **Sharding** : cette approche consiste à **répartir l'état et le traitement** du réseau entre plusieurs sous-réseaux, appelés « shards » (fragments), chacun traité en parallèle par un sous-ensemble de validateurs plutôt que par l'intégralité du réseau. L'objectif est d'augmenter la capacité globale de traitement du système en évitant que chaque nœud n'ait à valider absolument toutes les transactions du réseau entier.
+
+---
+
+## 3. Enjeux réglementaires
+
+L'adoption croissante des cryptoactifs et des applications blockchain soulève des enjeux réglementaires substantiels, encore loin d'être stabilisés :
+
+- **Lutte contre le blanchiment (AML) et connaissance du client (KYC)** : il existe une tension structurelle entre le **pseudonymat** propre aux blockchains publiques — une adresse n'est pas directement associée à une identité civile — et les obligations réglementaires imposées par de nombreuses juridictions aux plateformes d'échange de cryptoactifs, qui doivent généralement identifier leurs utilisateurs et surveiller certains mouvements de fonds suspects.
+- **Qualification juridique des cryptoactifs** : selon les juridictions, un même jeton peut être qualifié de façon très différente — comme une monnaie, une valeur mobilière, ou un actif numérique *sui generis* (d'une catégorie propre, ne correspondant à aucune catégorie juridique préexistante) — avec des conséquences fiscales et réglementaires très différentes selon la qualification retenue.
+- **Protection des consommateurs** : les utilisateurs de cryptoactifs s'exposent à une **volatilité** de marché souvent importante et à un **risque de perte totale et irréversible** des fonds, que ce soit en cas d'erreur de manipulation (perte définitive d'une clé privée, sans mécanisme de récupération) ou d'escroquerie, en l'absence de recours équivalent à ceux offerts par un système bancaire traditionnel régulé.
+- **Encadrement progressif** : plusieurs juridictions ont mis en place, ou sont en cours de développement, des cadres réglementaires dédiés spécifiquement aux actifs numériques et aux prestataires de services associés. La situation évolue rapidement et diffère fortement d'un pays à l'autre, ce qui impose une vigilance particulière pour tout projet ou toute organisation opérant dans plusieurs juridictions à la fois.
+
+---
+
+## 4. Limites techniques et environnementales
+
+Au-delà des enjeux réglementaires, plusieurs limites d'ordre technique et environnemental doivent être prises en compte lors de l'évaluation d'un projet blockchain :
+
+- La **consommation énergétique** reste significative pour les réseaux fonctionnant en preuve de travail (chapitre 3), bien que la transition de certains réseaux majeurs (comme Ethereum) vers la preuve d'enjeu ait fortement réduit cet impact pour les réseaux concernés — cette réduction ne s'applique cependant pas aux réseaux qui conservent la preuve de travail, à commencer par Bitcoin.
+- L'**irréversibilité des transactions** est à double tranchant : c'est un avantage recherché en termes de finalité et de résistance à la censure, mais c'est aussi un risque important en cas d'erreur humaine (envoi à la mauvaise adresse) ou de vol de clés privées — il n'existe, par conception, aucun « bouton d'annulation » ni service client capable d'inverser une transaction déjà confirmée.
+- La **complexité d'usage** pour l'utilisateur final constitue un frein réel à l'adoption grand public : la gestion de clés privées (leur génération sécurisée, leur sauvegarde, leur protection contre le vol ou la perte) demande une rigueur et une compréhension technique que l'utilisateur moyen d'un service numérique classique n'a généralement pas à maîtriser, et l'absence de recours en cas de perte de clé aggrave encore les conséquences d'une erreur.
+
+---
+
+## 5. Regard critique : quand la blockchain est-elle pertinente ?
+
+Face à l'engouement qui a entouré la technologie blockchain, il est utile de disposer d'une **grille de questions critiques** avant d'adopter cette solution pour un projet donné, plutôt que de l'adopter par simple effet de mode :
+
+- A-t-on réellement besoin de **décentralisation**, ou une base de données classique administrée par un tiers de confiance suffirait-elle à répondre au besoin identifié ?
+- Plusieurs parties **mutuellement méfiantes** doivent-elles effectivement partager un même registre, sans qu'aucune d'entre elles n'accepte de déléguer cette fonction à un intermédiaire commun ?
+- L'**immutabilité** est-elle un avantage réel pour ce cas d'usage précis, ou au contraire une contrainte gênante — par exemple en tension avec un droit à l'effacement des données personnelles imposé par une réglementation applicable ?
+
+Cette grille de questions, appliquée avec rigueur, conduit souvent à une conclusion inconfortable mais utile : de nombreux projets « blockchain » annoncés ces dernières années auraient pu être résolus de façon plus simple, plus rapide et moins coûteuse par une architecture centralisée classique, sans que le besoin réel de décentralisation n'ait été véritablement établi au préalable. Savoir reconnaître ces situations est une compétence professionnelle à part entière, aussi importante que la maîtrise technique de la blockchain elle-même.
+
+---
+
+## À retenir
+
+- Les applications de la blockchain dépassent les cryptomonnaies (DeFi, traçabilité, identité décentralisée, notarisation, vote électronique) mais restent souvent confrontées au problème de l'oracle et au trilemme scalabilité/sécurité/décentralisation.
+- Les solutions de couche 2 et le sharding sont des pistes de mise à l'échelle qui assouplissent le trilemme sans l'éliminer.
+- Le cadre réglementaire des cryptoactifs (AML/KYC, qualification juridique, protection des consommateurs) est encore en construction et varie fortement selon les juridictions.
+- La pertinence d'une solution blockchain doit être évaluée par rapport à un besoin réel de décentralisation, pas adoptée par principe.

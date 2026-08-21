@@ -1,0 +1,125 @@
+# Chapitre 3 — Principes de conception sécurisée
+
+### Security by design
+
+*Dr. Zakaria Sawadogo — École Polytechnique de Ouagadougou*
+
+---
+
+## 1. Moindre privilège (least privilege)
+
+Chaque composant, utilisateur ou processus ne doit disposer que des droits strictement nécessaires à l'accomplissement de sa tâche, ni plus. Ce principe, parmi les plus anciens et les plus universellement reconnus de la sécurité informatique, s'applique aussi bien aux comptes utilisateurs qu'aux services techniques et aux processus automatisés.
+
+Application concrète : un service applicatif se connectant à une base de données ne doit pas utiliser un compte disposant de droits d'administration complets (création de tables, suppression de bases, gestion des utilisateurs) si seules des opérations de lecture et d'écriture sur des tables spécifiques sont nécessaires à son fonctionnement. De même, un pipeline d'intégration continue qui a seulement besoin de lire un dépôt de code ne doit pas disposer d'un jeton d'accès permettant également d'en modifier les paramètres ou d'en supprimer les branches.
+
+L'intérêt de ce principe est direct : il limite l'impact d'une compromission. Un composant compromis — que ce soit par une faille applicative, un identifiant volé ou une dépendance malveillante — ne peut nuire qu'à hauteur de ses propres privilèges. Un service de lecture seule compromis expose au pire une fuite de données ; le même service doté de droits d'administration complets, une fois compromis, peut permettre à un attaquant de détruire ou de modifier l'ensemble du système.
+
+---
+
+## 2. Défense en profondeur (defense in depth)
+
+La défense en profondeur consiste à superposer plusieurs couches de contrôles indépendantes, de sorte que la défaillance d'une seule couche ne compromette pas l'ensemble du système. L'origine militaire de l'expression est révélatrice : il s'agit de ralentir et de limiter la progression d'un assaillant à travers des lignes de défense successives, plutôt que de miser sur une unique ligne infranchissable.
+
+Exemple typique pour une application web exposée sur Internet :
+
+| Couche | Rôle |
+|---|---|
+| Pare-feu réseau | Filtrer le trafic non légitime avant qu'il n'atteigne l'infrastructure applicative |
+| Pare-feu applicatif (WAF) | Détecter et bloquer des motifs d'attaque connus au niveau des requêtes HTTP |
+| Validation des entrées côté serveur | Rejeter les données malformées ou inattendues, indépendamment de tout contrôle côté client contournable |
+| Requêtes préparées | Empêcher structurellement l'injection SQL, quelle que soit la donnée fournie en entrée |
+| Chiffrement des données sensibles au repos | Limiter l'impact d'un accès non autorisé direct au support de stockage |
+| Journalisation et détection d'anomalies | Détecter une compromission qui aurait franchi les couches précédentes |
+
+Le point essentiel de ce principe est qu'**aucune couche seule n'est infaillible** : un pare-feu applicatif peut être contourné par une nouvelle variante d'attaque non encore reconnue, une validation d'entrée peut comporter un oubli. C'est la combinaison de plusieurs couches indépendantes, chacune couvrant des angles différents, qui réduit fortement la probabilité qu'une seule faille suffise à compromettre le système entier.
+
+---
+
+## 3. Échec sécurisé (fail-safe / fail-secure)
+
+En cas d'erreur ou de défaillance technique, un système doit basculer vers l'état le plus sûr, jamais vers un état permissif par défaut. Ce principe, souvent négligé dans le code applicatif courant, distingue une gestion d'erreurs correcte d'une gestion d'erreurs dangereuse.
+
+Exemple concret : si un mécanisme de vérification d'autorisation échoue techniquement — exception non gérée, dépassement de délai (timeout) lors de l'appel à un service d'autorisation externe, erreur de connexion à une base de permissions — le comportement par défaut du système doit être de **refuser** l'accès, jamais de l'accorder par défaut faute de réponse claire.
+
+Une erreur de logique qui inverse ce principe constitue une classe de bug de sécurité récurrente et particulièrement dangereuse, car elle passe souvent inaperçue en test tant que le chemin d'erreur n'est pas explicitement déclenché :
+
+```python
+# Dangereux : en cas d'exception, l'accès est accordé par défaut
+def verifier_acces(utilisateur, ressource):
+    try:
+        return service_autorisation.est_autorise(utilisateur, ressource)
+    except Exception:
+        return True  # échec permissif : à proscrire
+
+# Correct : en cas d'exception, l'accès est refusé par défaut
+def verifier_acces(utilisateur, ressource):
+    try:
+        return service_autorisation.est_autorise(utilisateur, ressource)
+    except Exception:
+        return False  # échec sécurisé
+```
+
+Ce principe s'applique au-delà du seul code applicatif : un système de contrôle d'accès physique doit, en cas de coupure de courant, verrouiller les portes plutôt que les déverrouiller (sauf considérations de sécurité incendie qui priment alors sur la sécurité informatique), et un mécanisme de validation de certificat doit rejeter une connexion en cas d'échec de vérification, plutôt que de l'accepter silencieusement.
+
+---
+
+## 4. Médiation complète (complete mediation)
+
+Chaque accès à une ressource protégée doit être vérifié systématiquement, à chaque tentative, sans mise en cache non maîtrisée d'une autorisation antérieure qui pourrait être devenue caduque entre-temps. Ce principe s'oppose à une pratique répandue mais dangereuse : vérifier les droits d'un utilisateur une seule fois « à l'entrée » d'une session, puis considérer cette vérification valide pour toute la durée de la session sans nouvelle vérification.
+
+Le problème concret est le suivant : si un droit est révoqué en cours de session (un employé quitte l'organisation, un rôle est retiré à un utilisateur, une ressource change de niveau de sensibilité), une vérification effectuée uniquement à la connexion initiale ne reflète plus la réalité des droits actuels. Un utilisateur dont l'accès vient d'être révoqué peut ainsi continuer à agir sur le système tant que sa session active n'expire pas, alors même que son autorisation formelle a déjà été retirée.
+
+La médiation complète implique donc de vérifier l'autorisation à **chaque** opération sensible, et pas seulement au moment de l'authentification initiale. Cela ne signifie pas nécessairement une requête réseau vers un service d'autorisation à chaque appel — un cache d'autorisation à durée de vie courte et explicitement invalidée lors d'un changement de droit peut constituer un compromis acceptable — mais la conception doit traiter cette question de façon délibérée, plutôt que de supposer implicitement qu'une vérification initiale suffit pour toute la durée d'une session.
+
+---
+
+## 5. Séparation des tâches (separation of duties)
+
+Ce principe consiste à répartir des opérations sensibles entre plusieurs personnes ou composants distincts, de sorte qu'aucune entité unique ne puisse, seule, réaliser une action critique de bout en bout sans contrôle croisé indépendant. L'objectif n'est pas seulement de limiter les conséquences d'une compromission technique, mais aussi de se prémunir contre une action malveillante interne, dont la probabilité augmente avec l'ampleur des privilèges concentrés sur une seule entité.
+
+Exemple organisationnel classique : la personne qui valide un paiement ne doit pas être la même que celle qui l'initie, afin qu'une fraude nécessite la collusion de deux personnes plutôt que l'action isolée d'une seule. Exemple technique directement transposable au développement logiciel : séparer les clés de signature de code de production des systèmes de build automatisés accessibles à un grand nombre de développeurs, de sorte qu'une compromission du système de build ne permette pas à elle seule de signer et publier un artefact malveillant sous une identité de confiance.
+
+Ce principe se retrouve également dans la gestion des accès à l'infrastructure critique : l'équipe qui développe une application ne devrait pas nécessairement disposer, seule et sans validation, des droits pour modifier directement les données de production, ce qui introduit un contrôle croisé naturel avant toute intervention sensible.
+
+---
+
+## 6. Simplicité de conception (economy of mechanism)
+
+Un système simple est plus facile à analyser, à auditer et, dans une certaine mesure, à prouver correct qu'un système complexe. Ce principe part d'un constat empirique bien établi en génie logiciel : la complexité est l'ennemie de la sécurité, car elle multiplie les cas limites, les interactions imprévues entre composants, et donc la surface d'attaque effective d'un système — même lorsque cette surface n'est pas immédiatement visible.
+
+Un mécanisme de sécurité complexe est également plus difficile à configurer correctement par les équipes qui l'exploitent au quotidien : une politique de contrôle d'accès à dizaines de règles imbriquées est nettement plus sujette aux erreurs de configuration qu'une politique simple et lisible, même si la première paraît a priori plus « puissante » sur le papier.
+
+Ce principe justifie de préférer des architectures et des dépendances minimales à des solutions sur-conçues « au cas où », intégrant des fonctionnalités ou des flexibilités qui ne répondent à aucun besoin réel identifié, mais qui augmentent mécaniquement la surface à sécuriser, tester et maintenir dans la durée.
+
+---
+
+## 7. Conception ouverte (open design) — rappel du principe de Kerckhoffs
+
+Ce principe reprend directement un acquis du module *Cryptographie* : la sécurité d'un système ne doit jamais reposer sur le secret de sa conception (*security through obscurity*), mais sur la robustesse de mécanismes qui restent sûrs même connus dans le détail par un attaquant. Seuls les secrets d'authentification proprement dits — clés cryptographiques, mots de passe — doivent rester confidentiels ; le design du système lui-même peut, en principe, être examiné publiquement sans que cela compromette sa sécurité.
+
+Ce principe a une conséquence pratique importante pour la conception : un système dont la sécurité s'effondrerait si son code source ou son architecture devenaient publics n'était, en réalité, jamais sécurisé — il reposait sur une illusion de protection par la confidentialité de sa conception, une hypothèse fragile qui ne résiste ni à une fuite de code source ni à de la rétro-ingénierie.
+
+---
+
+## 8. Minimisation de la surface d'attaque
+
+Réduire le nombre de points d'entrée exposés — fonctionnalités actives, ports réseau ouverts, points d'accès d'API, dépendances tierces intégrées — au strict nécessaire au fonctionnement du système. Ce principe rejoint directement la simplicité de conception évoquée plus haut, mais mérite d'être traité séparément tant son application concrète est spécifique.
+
+Chaque fonctionnalité, chaque point d'entrée d'API ou chaque dépendance supplémentaire constitue une surface d'attaque potentielle additionnelle : du code qui n'est pas exécuté ne peut, par définition, pas contenir de vulnérabilité exploitable en pratique, tandis que chaque ligne de code active, chaque port ouvert et chaque bibliothèque tierce intégrée doit être sécurisée et maintenue à jour dans la durée. Un serveur qui expose par défaut des services de gestion à distance non utilisés, ou une application qui embarque une bibliothèque volumineuse pour n'en utiliser qu'une fonction marginale, augmentent inutilement leur exposition sans bénéfice fonctionnel correspondant.
+
+---
+
+## 9. Valeurs par défaut sécurisées (secure by default)
+
+Un système livré ou installé doit être sécurisé « dès la sortie de la boîte », sans que l'utilisateur ou l'administrateur qui le déploie ait à activer explicitement les protections de base pour en bénéficier. Concrètement, cela signifie par exemple que le chiffrement des communications doit être activé par défaut plutôt qu'optionnel, que les comptes par défaut fournis avec un logiciel doivent être désactivés ou contraints à un changement de mot de passe immédiat, et que les ports réseau non essentiels au fonctionnement de base doivent rester fermés jusqu'à ce qu'un besoin explicite justifie leur ouverture.
+
+Ce principe rejoint directement l'observation du chapitre 1 : la sécurité facile et activée par défaut protège en pratique bien plus efficacement que la sécurité techniquement supérieure mais laissée à l'initiative d'un utilisateur qui, dans les faits, ne l'activera souvent jamais — que ce soit par méconnaissance, par manque de temps, ou simplement parce que l'option reste invisible dans une interface de configuration.
+
+---
+
+## À retenir
+
+- Ces principes (Saltzer et Schroeder, et compléments ultérieurs) forment un socle de conception réutilisable indépendamment de la technologie employée — d'un système d'exploitation historique à une architecture Cloud moderne.
+- Ils se combinent entre eux : la défense en profondeur suppose l'application cohérente du moindre privilège à chaque couche ; l'échec sécurisé suppose une médiation complète pour être réellement efficace à chaque accès.
+- Simplicité de conception et minimisation de la surface d'attaque poursuivent un même objectif — réduire ce qu'il y a à sécuriser — sous deux angles complémentaires (complexité interne, points d'entrée exposés).
+- Aucun principe pris isolément ne suffit ; c'est leur application systématique et cohérente à l'échelle d'un système entier qui constitue une véritable démarche *security by design*.
