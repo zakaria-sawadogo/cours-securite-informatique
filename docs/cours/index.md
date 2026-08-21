@@ -11,27 +11,6 @@ Support de cours, présentations (diapositives) et travaux pratiques des matièr
 
 </div>
 
-## En un coup d'œil
-
-<div class="stats-row" markdown>
-<div class="stat" markdown>
-<span class="stat-value">11</span>
-<span class="stat-label">Matières</span>
-</div>
-<div class="stat" markdown>
-<span class="stat-value">169h</span>
-<span class="stat-label">Cours magistral</span>
-</div>
-<div class="stat" markdown>
-<span class="stat-value">95h</span>
-<span class="stat-label">Travaux pratiques</span>
-</div>
-<div class="stat" markdown>
-<span class="stat-value">264h</span>
-<span class="stat-label">Volume total</span>
-</div>
-</div>
-
 ## Les matières
 
 <div class="grid cards" markdown>
