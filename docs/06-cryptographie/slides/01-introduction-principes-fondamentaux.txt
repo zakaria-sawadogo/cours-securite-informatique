@@ -8,65 +8,86 @@
 
 ## 1. Les objectifs de la cryptographie
 
-La cryptographie moderne vise à garantir, en présence d'un adversaire potentiel, quatre propriétés fondamentales :
+La cryptographie moderne n'est pas qu'une technique de « secret » : c'est une discipline qui vise à garantir, en présence d'un adversaire potentiel capable d'observer, d'intercepter ou de modifier des communications, quatre propriétés fondamentales. Ces propriétés sont indépendantes les unes des autres — un système peut en garantir certaines sans garantir les autres — et un même mécanisme cryptographique ne les couvre pas toutes simultanément, d'où la nécessité de bien identifier l'objectif recherché avant de choisir une primitive.
 
-- **Confidentialité** : seules les parties autorisées peuvent accéder au contenu d'une information.
-- **Intégrité** : toute modification non autorisée d'une information est détectable.
-- **Authenticité** : l'origine d'une information (identité de l'émetteur) est vérifiable.
-- **Non-répudiation** : l'émetteur d'un message ne peut pas nier ultérieurement en être l'auteur (propriété apportée notamment par la signature numérique).
+- **Confidentialité** : seules les parties autorisées peuvent accéder au contenu en clair d'une information. C'est l'objectif historique de la cryptographie (le chiffrement), obtenu aujourd'hui par des algorithmes comme AES ou ChaCha20 (chapitre 2). La confidentialité ne dit rien sur le fait que le message ait pu être altéré en transit : un texte chiffré modifié peut, selon le mode utilisé, se déchiffrer en un texte clair corrompu sans que le récepteur ne s'en aperçoive.
+- **Intégrité** : toute modification non autorisée d'une information — accidentelle (erreur de transmission) ou malveillante (altération délibérée) — doit être détectable par le récepteur. L'intégrité est assurée par des fonctions de hachage et des codes d'authentification de message (MAC/HMAC, chapitre 3), indépendamment de toute notion de confidentialité : un message peut être intègre sans être confidentiel (ex. une mise à jour logicielle publique, dont on vérifie l'empreinte).
+- **Authenticité** : l'origine d'une information — l'identité de l'émetteur — est vérifiable par le récepteur. Un message authentique garantit qu'il provient bien de qui il prétend provenir, et pas d'un tiers qui usurperait cette identité. L'authenticité s'obtient via un MAC (authentification pour deux parties partageant un secret) ou une signature numérique (chapitre 5).
+- **Non-répudiation** : l'émetteur d'un message ne peut pas nier ultérieurement, y compris devant un tiers indépendant (par exemple un juge), en être l'auteur. Cette propriété n'est apportée que par la signature numérique fondée sur la cryptographie asymétrique (chapitre 5) : un MAC symétrique, lui, ne l'apporte pas, puisque le récepteur possède la même clé que l'émetteur et pourrait techniquement avoir forgé le message lui-même.
+
+En pratique, un système donné ne recherche pas toujours les quatre propriétés à la fois : un simple stockage de logs internes peut ne nécessiter que l'intégrité, tandis qu'un contrat électronique nécessitera authenticité et non-répudiation sans besoin de confidentialité.
 
 ---
 
 ## 2. Le principe de Kerckhoffs
 
-Formulé par Auguste Kerckhoffs en 1883 : **la sécurité d'un système cryptographique ne doit reposer que sur le secret de la clé, jamais sur le secret de l'algorithme**. Un algorithme dont la sécurité dépend de rester confidentiel (« security through obscurity ») est fragile : il suffit qu'il soit divulgué ou rétro-ingénié une seule fois pour effondrer la sécurité de tous les systèmes qui l'utilisent. À l'inverse, un algorithme public, largement étudié par la communauté scientifique (comme AES, RSA), gagne en confiance précisément parce qu'il résiste à un examen ouvert et prolongé — lien direct avec le module *Cryptanalyse*.
+Formulé par le cryptographe militaire Auguste Kerckhoffs en 1883, ce principe fondateur énonce que **la sécurité d'un système cryptographique ne doit reposer que sur le secret de la clé, jamais sur le secret de l'algorithme lui-même**. Autrement dit, on doit pouvoir publier intégralement la description d'un algorithme de chiffrement — son fonctionnement interne, son code source — sans que cela compromette la sécurité des messages chiffrés avec une clé restée secrète.
+
+Un algorithme dont la sécurité dépend de rester confidentiel relève de la « sécurité par l'obscurité » (*security through obscurity*), une approche fondamentalement fragile pour au moins deux raisons : d'une part, il suffit que l'algorithme soit divulgué, rétro-ingénié ou simplement deviné une seule fois pour effondrer d'un coup la sécurité de tous les systèmes qui l'utilisent, sans possibilité de « changer de clé » pour se rétablir ; d'autre part, un algorithme tenu secret échappe à l'examen critique de la communauté scientifique, qui est historiquement le meilleur moyen de détecter ses faiblesses avant qu'un attaquant ne les exploite.
+
+À l'inverse, un algorithme public, largement étudié, publié dans des conférences scientifiques et soumis à des années de cryptanalyse ouverte — comme AES ou RSA — gagne en confiance précisément *parce qu'*il résiste à un examen prolongé par des milliers de chercheurs indépendants. C'est cette logique qui explique pourquoi les standards actuels (AES, SHA-2/SHA-3, RSA, ECC) sont issus de processus de sélection publics (comme le concours AES du NIST) plutôt que de conceptions propriétaires gardées secrètes. Ce principe est le fil conducteur direct du module *Cryptanalyse*, qui étudie précisément comment ces algorithmes publics résistent — ou non — à l'analyse.
 
 ---
 
 ## 3. Confusion et diffusion (Claude Shannon, 1949)
 
-Deux propriétés structurantes de tout chiffrement robuste :
+Dans son article fondateur de 1949 sur la théorie de la communication des systèmes secrets, Claude Shannon a identifié deux propriétés structurantes que doit posséder tout chiffrement robuste pour résister à une analyse statistique du texte chiffré. Ces deux notions restent, plus de 75 ans plus tard, le cadre conceptuel de référence pour concevoir un chiffrement par bloc moderne.
 
-- **Confusion** : rendre la relation entre la clé et le texte chiffré la plus complexe possible, pour qu'une analyse statistique du chiffré ne révèle rien sur la clé.
-- **Diffusion** : répartir l'influence de chaque bit du texte clair (et de la clé) sur l'ensemble du texte chiffré, pour qu'une modification d'un seul bit du clair change en moyenne la moitié des bits du chiffré (effet avalanche).
+- **Confusion** : rendre la relation entre la clé et le texte chiffré la plus complexe et la plus non linéaire possible, de sorte qu'observer le texte chiffré ne révèle statistiquement rien sur la clé utilisée. Concrètement, la confusion est apportée par des opérations de substitution non linéaires (les « boîtes-S », *S-boxes*), qui remplacent chaque symbole d'entrée par un autre symbole selon une table fixe conçue pour éviter toute relation algébrique simple.
+- **Diffusion** : répartir l'influence de chaque bit du texte clair (et de chaque bit de la clé) sur l'ensemble des bits du texte chiffré, de sorte qu'une modification d'un seul bit du message clair change, en moyenne, environ la moitié des bits du texte chiffré produit. Ce phénomène est appelé l'**effet avalanche** : il empêche un attaquant de déduire des informations locales sur le clair à partir d'une observation localisée du chiffré. La diffusion est typiquement apportée par des opérations de permutation et de mélange linéaire qui répartissent chaque bit d'entrée sur de nombreuses positions de sortie.
 
-Ces deux notions justifient directement la structure des chiffrements par blocs modernes (tours de substitution et de permutation dans AES, chapitre 2).
+Ces deux notions ne sont pas de simples curiosités théoriques : elles justifient directement la structure en « tours » (*rounds*) des chiffrements par blocs modernes, où chaque tour alterne une étape de substitution (confusion) et une étape de permutation/mélange (diffusion), répétées suffisamment de fois pour que l'effet cumulé rende toute analyse statistique du chiffré inexploitable. AES, étudié en détail au chapitre 2, est l'illustration directe de cette architecture confusion-diffusion.
 
 ---
 
 ## 4. Cryptographie symétrique vs asymétrique : vue d'ensemble
 
+La cryptographie se divise en deux grandes familles, dont les propriétés sont largement complémentaires plutôt que concurrentes. Comprendre leurs forces et faiblesses respectives explique pourquoi les systèmes réels ne choisissent presque jamais l'une à l'exclusion de l'autre.
+
 | | Symétrique | Asymétrique |
 |---|---|---|
-| Clés | une seule clé, partagée entre émetteur et récepteur | une paire de clés (publique/privée) |
-| Vitesse | rapide | beaucoup plus lente |
-| Problème principal | distribution sécurisée de la clé partagée | vérification de l'authenticité de la clé publique |
+| Clés | une seule clé secrète, partagée entre émetteur et récepteur | une paire de clés mathématiquement liées (publique/privée) |
+| Vitesse | rapide (plusieurs Go/s en logiciel, davantage avec accélération matérielle) | beaucoup plus lente (plusieurs ordres de grandeur) |
+| Problème principal | distribution sécurisée de la clé partagée à l'ensemble des correspondants | vérification de l'authenticité de la clé publique (qui la possède réellement ?) |
+| Nombre de clés pour *n* correspondants | de l'ordre de *n²* si chaque paire a une clé distincte | *n* paires de clés, une par participant |
 | Exemples | AES, ChaCha20 | RSA, Diffie-Hellman, ECC |
 
-En pratique, les systèmes réels combinent les deux : la cryptographie asymétrique établit ou échange une clé de session, ensuite utilisée pour un chiffrement symétrique rapide du volume de données (principe du **chiffrement hybride**, à l'œuvre notamment dans TLS, détaillé au chapitre 6).
+La cryptographie symétrique excelle pour chiffrer de gros volumes de données rapidement, mais pose un problème pratique redoutable : comment transmettre la clé secrète à l'autre partie sans qu'un tiers ne l'intercepte, alors que le canal de communication n'est justement pas encore sécurisé ? La cryptographie asymétrique résout élégamment ce problème d'amorçage (la clé publique peut être diffusée ouvertement), mais au prix d'une lenteur qui la rend impraticable pour chiffrer directement de grands volumes.
+
+En pratique, les systèmes réels combinent systématiquement les deux approches : la cryptographie asymétrique sert à établir ou échanger une **clé de session** de façon sécurisée, laquelle est ensuite utilisée pour un chiffrement symétrique rapide de l'ensemble des données échangées. C'est le principe du **chiffrement hybride**, mis en œuvre notamment dans TLS (détaillé au chapitre 6) : l'asymétrique résout le problème de la distribution de clé, le symétrique assure le débit.
 
 ---
 
 ## 5. Notion de sécurité prouvable et de sécurité calculatoire
 
-La sécurité d'un système cryptographique moderne repose généralement sur une hypothèse calculatoire : un problème mathématique réputé difficile à résoudre en un temps raisonnable avec les moyens de calcul actuels et prévisibles (factorisation pour RSA, logarithme discret pour Diffie-Hellman/ECC). Il ne s'agit pas d'une preuve d'impossibilité absolue (à l'exception du **masque jetable** — *one-time pad* — seul système prouvé théoriquement incassable, mais impraticable car il exige une clé aussi longue que le message, utilisée une seule fois).
+Contrairement à une intuition répandue, la sécurité d'un système cryptographique moderne n'est presque jamais une preuve mathématique d'impossibilité absolue : elle repose généralement sur une **hypothèse calculatoire**, c'est-à-dire l'existence d'un problème mathématique réputé difficile à résoudre en un temps raisonnable avec les moyens de calcul actuels et raisonnablement prévisibles dans un futur proche. Par exemple, la sécurité de RSA repose sur la difficulté supposée de factoriser un grand nombre entier produit de deux grands nombres premiers, et celle de Diffie-Hellman ou d'ECC repose sur la difficulté supposée du problème du logarithme discret. Ces problèmes ne sont pas démontrés impossibles à résoudre efficacement — ils sont seulement restés non résolus efficacement malgré des décennies d'efforts de recherche intensifs, ce qui constitue une forme de confiance empirique plutôt qu'une garantie absolue.
+
+Cette distinction a une conséquence directe et importante : un progrès algorithmique inattendu (comme l'a démontré théoriquement l'algorithme de Shor pour un ordinateur quantique, cf. chapitre 6) peut potentiellement rendre soluble en pratique un problème jusque-là considéré comme difficile, invalidant du jour au lendemain la sécurité de tous les systèmes qui en dépendaient.
+
+Il existe une exception notable et instructive : le **masque jetable** (*one-time pad*), seul système cryptographique dont la sécurité a été formellement démontrée par Shannon comme étant **inconditionnelle** (indépendante de toute puissance de calcul de l'attaquant, même infinie). Le masque jetable combine le message clair avec une clé aléatoire de même longueur par XOR, à condition impérative que la clé soit véritablement aléatoire, utilisée une seule fois, et aussi longue que le message. Ces contraintes le rendent impraticable pour un usage courant (il faudrait distribuer et gérer une clé aussi volumineuse que l'ensemble des données à protéger), ce qui explique pourquoi la cryptographie moderne repose presque exclusivement sur la sécurité calculatoire plutôt que sur cette sécurité prouvable inconditionnelle.
 
 ---
 
 ## 6. Vocabulaire de base
 
+Avant d'aborder les mécanismes concrets dans les chapitres suivants, il est utile de fixer un vocabulaire précis, employé de façon cohérente dans tout le module :
+
 | Terme | Définition |
 |---|---|
-| Texte clair (plaintext) | message original, non protégé |
-| Texte chiffré (ciphertext) | résultat du chiffrement |
-| Clé | paramètre secret contrôlant le chiffrement/déchiffrement |
-| Algorithme (chiffre, cipher) | procédure de transformation, publique (Kerckhoffs) |
-| Cryptosystème | ensemble algorithme + gestion des clés + protocole d'usage |
+| Texte clair (plaintext) | le message original, lisible, non protégé, avant toute transformation cryptographique |
+| Texte chiffré (ciphertext) | le résultat du chiffrement du texte clair, en principe inintelligible sans la clé appropriée |
+| Clé | le paramètre secret (ou la paire publique/privée) qui contrôle le fonctionnement précis du chiffrement et du déchiffrement |
+| Algorithme (chiffre, cipher) | la procédure de transformation elle-même, publique par principe (Kerckhoffs), qui définit *comment* la clé agit sur le texte |
+| Cryptosystème | l'ensemble complet formé par un algorithme, sa gestion des clés (génération, distribution, stockage, révocation) et le protocole qui encadre son usage réel |
+
+Cette distinction entre « algorithme » et « cryptosystème » est importante : un algorithme mathématiquement solide (AES, par exemple) peut être intégré dans un cryptosystème vulnérable si la gestion des clés est défaillante — clé codée en dur, générateur aléatoire de mauvaise qualité, absence de rotation des clés. La majorité des failles cryptographiques rencontrées en pratique proviennent d'ailleurs de la gestion des clés et du protocole d'usage, bien plus que d'une faiblesse de l'algorithme sous-jacent lui-même.
 
 ---
 
 ## À retenir
 
-- Confidentialité, intégrité, authenticité, non-répudiation : quatre objectifs distincts, pas toujours tous nécessaires simultanément selon le contexte.
-- Le principe de Kerckhoffs interdit de fonder la sécurité sur le secret de l'algorithme.
-- La cryptographie moderne combine en pratique symétrique (rapide, volume) et asymétrique (échange de clé, authentification) dans des schémas hybrides.
+- Confidentialité, intégrité, authenticité, non-répudiation : quatre objectifs distincts, pas toujours tous nécessaires simultanément selon le contexte, et pas tous apportés par les mêmes mécanismes (un MAC n'apporte pas la non-répudiation, contrairement à une signature).
+- Le principe de Kerckhoffs interdit de fonder la sécurité sur le secret de l'algorithme ; seule la clé doit rester secrète, l'algorithme doit pouvoir être publié et étudié ouvertement.
+- Confusion (relation clé/chiffré non linéaire) et diffusion (effet avalanche) sont les deux propriétés de Shannon qui structurent la conception des chiffrements par blocs modernes.
+- La cryptographie moderne combine en pratique symétrique (rapide, adapté au volume) et asymétrique (échange de clé, authentification) dans des schémas hybrides, chacune compensant la faiblesse de l'autre.
+- La sécurité cryptographique moderne repose sur des hypothèses calculatoires (problèmes réputés difficiles), non sur une preuve d'impossibilité absolue — à l'exception du masque jetable, prouvé mais impraticable.

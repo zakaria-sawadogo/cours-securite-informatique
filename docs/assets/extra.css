@@ -2,19 +2,19 @@
    Identité visuelle du site — palette de marque
    ============================================================ */
 :root {
-  --md-primary-fg-color: #3538cd;
-  --md-primary-fg-color--light: #6c63ff;
-  --md-primary-fg-color--dark: #262aa0;
-  --md-accent-fg-color: #1fb6c9;
-  --brand-a: #3538cd;
-  --brand-b: #6c3ce9;
-  --brand-c: #1fb6c9;
+  --md-primary-fg-color: #0e7c3f;
+  --md-primary-fg-color--light: #2fa360;
+  --md-primary-fg-color--dark: #0a5c2f;
+  --md-accent-fg-color: #c9860f;
+  --brand-a: #0e7c3f;
+  --brand-b: #2fa360;
+  --brand-c: #e3a92b;
 }
 
 [data-md-color-scheme="slate"] {
-  --md-primary-fg-color: #4b4fe0;
-  --md-accent-fg-color: #29d0e0;
-  --md-default-bg-color: #14162a;
+  --md-primary-fg-color: #22a85c;
+  --md-accent-fg-color: #f0c04a;
+  --md-default-bg-color: #101f18;
 }
 
 /* ============================================================
@@ -30,7 +30,17 @@
     radial-gradient(circle at 12% 18%, rgba(255,255,255,.14), transparent 45%),
     linear-gradient(135deg, var(--brand-a) 0%, var(--brand-b) 55%, var(--brand-c) 100%);
   color: #fff;
-  box-shadow: 0 20px 45px -18px rgba(53, 56, 205, .5);
+  box-shadow: 0 20px 45px -18px rgba(14, 124, 63, .5);
+}
+
+.md-typeset .hero .hero-logo {
+  width: 108px;
+  height: auto;
+  padding: 0.6rem;
+  margin: 0 0 1rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .35);
 }
 
 .md-typeset .hero h1 {
@@ -88,7 +98,7 @@
 
 .md-typeset .tip > .admonition-title,
 .md-typeset .tip > summary {
-  background-color: rgba(31, 182, 201, 0.1);
+  background-color: rgba(227, 169, 43, 0.12);
 }
 
 .md-typeset .tip > .admonition-title::before,
@@ -319,8 +329,8 @@
 }
 
 .md-typeset .admin-snippet {
-  background: var(--ink, #1b1e3d);
-  color: #e8e8f5;
+  background: var(--ink, #122a1c);
+  color: #eaf5ee;
   white-space: pre-wrap;
 }
 
@@ -407,15 +417,18 @@
   opacity: 0.95;
 }
 
-.md-typeset .grid.cards > ul > li:nth-child(1) { --card-accent-a:#5b6bf5; --card-accent-b:#8f6cf5; }
-.md-typeset .grid.cards > ul > li:nth-child(2) { --card-accent-a:#0ea5a4; --card-accent-b:#37c9c0; }
-.md-typeset .grid.cards > ul > li:nth-child(3) { --card-accent-a:#e0527a; --card-accent-b:#f08a5d; }
-.md-typeset .grid.cards > ul > li:nth-child(4) { --card-accent-a:#c99a2e; --card-accent-b:#e8c257; }
-.md-typeset .grid.cards > ul > li:nth-child(5) { --card-accent-a:#6c63ff; --card-accent-b:#3ab0ff; }
-.md-typeset .grid.cards > ul > li:nth-child(6) { --card-accent-a:#2e9e6c; --card-accent-b:#7bd389; }
-.md-typeset .grid.cards > ul > li:nth-child(7) { --card-accent-a:#d1495b; --card-accent-b:#ff7b54; }
-.md-typeset .grid.cards > ul > li:nth-child(8) { --card-accent-a:#3d63dd; --card-accent-b:#3fa9f5; }
-.md-typeset .grid.cards > ul > li:nth-child(9) { --card-accent-a:#8e44ad; --card-accent-b:#c2439c; }
+.md-typeset .grid.cards > ul > li:nth-child(1) { --card-accent-a:#0f7d3a; --card-accent-b:#3fae6a; }
+.md-typeset .grid.cards > ul > li:nth-child(2) { --card-accent-a:#0d8a7a; --card-accent-b:#34c2ad; }
+.md-typeset .grid.cards > ul > li:nth-child(3) { --card-accent-a:#c9960e; --card-accent-b:#f2c14e; }
+.md-typeset .grid.cards > ul > li:nth-child(4) { --card-accent-a:#b5541f; --card-accent-b:#e2894a; }
+.md-typeset .grid.cards > ul > li:nth-child(5) { --card-accent-a:#2f6b2f; --card-accent-b:#6bbf59; }
+.md-typeset .grid.cards > ul > li:nth-child(6) { --card-accent-a:#8a7815; --card-accent-b:#cdb23a; }
+.md-typeset .grid.cards > ul > li:nth-child(7) { --card-accent-a:#14665c; --card-accent-b:#3fa393; }
+.md-typeset .grid.cards > ul > li:nth-child(8) { --card-accent-a:#9a5b12; --card-accent-b:#d98f3c; }
+.md-typeset .grid.cards > ul > li:nth-child(9) { --card-accent-a:#b23a2e; --card-accent-b:#d9694f; }
+.md-typeset .grid.cards > ul > li:nth-child(10) { --card-accent-a:#1f6b4a; --card-accent-b:#4fae82; }
+.md-typeset .grid.cards > ul > li:nth-child(11) { --card-accent-a:#8a4a12; --card-accent-b:#c47c33; }
+.md-typeset .grid.cards > ul > li:nth-child(n+12) { --card-accent-a:#0f7d3a; --card-accent-b:#3fae6a; }
 
 .md-typeset .grid.cards > ul > li:hover {
   transform: translateY(-5px);

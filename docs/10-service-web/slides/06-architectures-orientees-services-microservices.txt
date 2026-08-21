@@ -99,6 +99,23 @@ Ce modèle correspond directement à la contrainte « système en couches » du 
 
 Dans une architecture à microservices déployée à grande échelle, l'adresse réseau exacte d'une instance de service peut changer dynamiquement (redémarrage, montée en charge automatique, migration). La **découverte de services** (*service discovery*) résout ce problème : chaque service s'enregistre auprès d'un registre central (ex. Consul, ou les mécanismes intégrés d'un orchestrateur de conteneurs), et les autres services interrogent ce registre pour localiser dynamiquement une instance disponible, plutôt que de coder en dur une adresse réseau fixe.
 
+On distingue deux façons d'exploiter ce registre :
+
+- **Découverte côté client** (*client-side discovery*) : le service appelant interroge lui-même le registre puis choisit une instance (éventuellement en répartissant la charge entre plusieurs instances disponibles) avant d'émettre sa requête directement.
+- **Découverte côté serveur** (*server-side discovery*) : l'appelant envoie sa requête à un intermédiaire fixe (répartiteur de charge, ou l'API Gateway elle-même — section 4), qui consulte le registre et redirige la requête vers une instance disponible ; l'appelant n'a alors jamais connaissance du registre.
+
+```
+# Enregistrement au démarrage d'une instance du service « commandes »
+registre.enregistrer(service="commandes", adresse="10.0.4.12:8080")
+
+# Découverte côté client, avant l'appel
+instances = registre.rechercher(service="commandes")
+adresse = choisir_instance(instances)   # ex. répartition en tour de rôle
+requete_http(adresse, "/commandes/17")
+```
+
+Dans les environnements conteneurisés modernes, ce mécanisme est souvent transparent pour le développeur : l'orchestrateur (ex. Kubernetes, via ses objets *Service*) gère automatiquement l'enregistrement des instances et leur découverte par un simple nom logique, sans registre à interroger explicitement dans le code applicatif.
+
 ---
 
 ## 6. Défis propres aux architectures à microservices

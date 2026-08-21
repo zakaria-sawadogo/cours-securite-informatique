@@ -115,6 +115,31 @@ Une confusion fréquente concerne `401 Unauthorized` et `403 Forbidden` : le pre
 | `Location` | Indique, en réponse à une création (`201 Created`), l'URI de la ressource créée |
 | `ETag` | Identifiant de version d'une ressource, utilisé pour la mise en cache conditionnelle |
 
+### Exemple : une requête conditionnelle avec `ETag`
+
+Ces en-têtes se combinent en pratique pour éviter de retransmettre une ressource qui n'a pas changé depuis la dernière consultation du client. Le serveur associe d'abord un `ETag` à sa réponse :
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+ETag: "a1b2c3d4"
+
+{"id": 42, "nom": "Awa Traoré", "role": "etudiant"}
+```
+
+Lors d'une consultation ultérieure, le client renvoie cette valeur dans l'en-tête `If-None-Match`. Si la ressource n'a pas changé, le serveur répond `304 Not Modified`, sans corps, économisant de la bande passante :
+
+```http
+GET /api/utilisateurs/42 HTTP/1.1
+Host: exemple.edu
+If-None-Match: "a1b2c3d4"
+```
+
+```http
+HTTP/1.1 304 Not Modified
+ETag: "a1b2c3d4"
+```
+
 ---
 
 ## 7. Statelessness : l'absence d'état côté serveur

@@ -8,6 +8,8 @@
 
 ## 1. Structures conditionnelles
 
+Une **structure de contrôle** permet à un programme de ne pas exécuter ses instructions de façon purement linéaire, mais de choisir un chemin d'exécution différent selon des conditions, ou de répéter un bloc d'instructions. Les structures **conditionnelles** répondent à la première de ces deux besoins : exécuter tel ou tel bloc de code selon la valeur d'une expression.
+
 ### `if / else if / else`
 
 ```c
@@ -21,6 +23,8 @@ if (note >= 16) {
 }
 ```
 
+Le C évalue les conditions **dans l'ordre d'écriture** et exécute le premier bloc dont la condition est vraie, en ignorant tous les suivants : dans l'exemple ci-dessus, si `note` vaut `18`, seule la première condition (`note >= 16`) est testée et son bloc exécuté ; les blocs suivants ne sont même pas évalués. Il est important de noter qu'en C, toute expression entière non nulle est considérée comme « vraie » et la valeur `0` comme « fausse » — ce qui permet d'écrire `if (compteur)` comme raccourci de `if (compteur != 0)`, une pratique courante mais qu'il faut savoir lire pour ne pas la confondre avec une simple faute de frappe (`if (compteur = 0)` avec un seul `=` est une **erreur d'affectation**, syntaxiquement valide mais presque toujours un bug, que certains compilateurs signalent avec `-Wall`).
+
 ### `switch`
 
 ```c
@@ -33,7 +37,9 @@ switch (jour) {
 }
 ```
 
-L'oubli d'un `break` provoque un **fall-through** vers le cas suivant : parfois voulu, souvent source de bug. Toujours documenter un fall-through intentionnel par un commentaire.
+La structure `switch` compare une expression (ici `jour`) à une série de valeurs constantes (les `case`), et exécute les instructions du `case` correspondant. Contrairement à un enchaînement de `if / else if`, l'exécution ne s'arrête pas automatiquement à la fin d'un bloc `case` : sans instruction `break`, le flux d'exécution continue vers le `case` suivant, quelle que soit sa valeur — un comportement appelé **fall-through** (« chute au travers »). C'est parfois voulu (par exemple pour regrouper plusieurs valeurs traitées de façon identique : `case 6: case 7: printf("Week-end\n"); break;`), mais c'est très souvent une source de bug lorsqu'il est involontaire, notamment lorsqu'un `case` est ajouté a posteriori sans que le développeur ne pense à ajouter le `break` correspondant. La clause `default`, optionnelle mais fortement recommandée, capture toutes les valeurs non prévues explicitement par un `case` — l'omettre revient à ignorer silencieusement les cas non anticipés, ce qui peut masquer une erreur logique.
+
+**Bonne pratique** : documenter systématiquement par un commentaire tout fall-through intentionnel (par exemple `// fall through volontaire`), pour signaler clairement au lecteur — et à son futur soi — que l'absence de `break` n'est pas un oubli.
 
 ### Opérateur ternaire
 
@@ -41,9 +47,13 @@ L'oubli d'un `break` provoque un **fall-through** vers le cas suivant : parfois 
 int max = (a > b) ? a : b;
 ```
 
+L'opérateur ternaire `condition ? valeur_si_vrai : valeur_si_faux` est une forme condensée d'un `if / else` qui produit directement une **valeur**, utilisable dans une expression (ici, une affectation). Il est pratique pour des choix simples entre deux valeurs, mais son usage doit rester limité à des cas lisibles : l'imbrication de plusieurs opérateurs ternaires (`a ? b : c ? d : e`) nuit rapidement à la clarté du code et doit généralement être remplacée par un `if / else if` classique.
+
 ---
 
 ## 2. Boucles
+
+Les **boucles** permettent de répéter un bloc d'instructions tant qu'une condition reste vraie, ou pour un nombre d'itérations donné. Le C propose trois constructions de boucle, chacune adaptée à un cas d'usage particulier.
 
 ### `while`
 
@@ -55,9 +65,9 @@ while (i < 5) {
 }
 ```
 
-### `do ... while`
+La boucle `while` teste sa condition **avant** chaque itération, y compris la toute première : si la condition est fausse dès le départ, le corps de la boucle n'est jamais exécuté. Elle convient particulièrement bien lorsque le nombre d'itérations n'est pas connu à l'avance et dépend d'un état qui évolue au fil de l'exécution (par exemple, lire des données tant qu'il en reste, ou rechercher un élément tant qu'il n'est pas trouvé).
 
-Exécute le corps au moins une fois avant de tester la condition — utile pour valider une saisie utilisateur.
+### `do ... while`
 
 ```c
 int choix;
@@ -67,6 +77,8 @@ do {
 } while (choix < 1 || choix > 3);
 ```
 
+La boucle `do ... while` inverse l'ordre : elle exécute d'abord le corps de la boucle, puis teste la condition — garantissant ainsi que le corps s'exécute **au moins une fois**, quelle que soit la condition initiale. Cette structure est particulièrement adaptée à la validation d'une saisie utilisateur : on a besoin de demander la valeur au moins une fois avant de pouvoir la tester, ce qu'une boucle `while` classique rendrait plus maladroit à exprimer (il faudrait initialiser artificiellement la variable de condition avant la boucle).
+
 ### `for`
 
 ```c
@@ -75,13 +87,25 @@ for (int i = 0; i < 10; i++) {
 }
 ```
 
+La boucle `for` regroupe en une seule ligne les trois éléments habituellement nécessaires pour piloter une itération : l'**initialisation** (`int i = 0`, exécutée une seule fois avant la première itération), la **condition de poursuite** (`i < 10`, testée avant chaque itération, comme pour `while`) et l'**incrémentation** (`i++`, exécutée après chaque itération). Cette structure est le choix naturel dès que le nombre d'itérations est connu ou calculable à l'avance — parcourir un tableau de taille fixe en est l'exemple le plus courant. Les trois éléments du `for` sont en réalité optionnels et séparés par des points-virgules : on peut par exemple omettre l'incrémentation si elle est gérée dans le corps de la boucle, ou écrire une boucle sans aucun des trois éléments (voir section 4).
+
 ---
 
 ## 3. Rupture de séquence
 
-- `break` : sort immédiatement de la boucle ou du `switch`.
-- `continue` : passe directement à l'itération suivante.
-- `goto` : à éviter en général (nuit à la lisibilité), sauf cas très spécifiques (sortie d'imbrications profondes, gestion d'erreurs façon « cleanup » en C bas niveau).
+En complément des trois structures de boucle, le C fournit des instructions permettant de modifier explicitement le déroulement normal d'une boucle ou d'un `switch` :
+
+- **`break`** : interrompt immédiatement la boucle ou le `switch` englobant et poursuit l'exécution juste après. Dans une boucle imbriquée, `break` ne sort que de la boucle la plus interne — il n'existe pas de mécanisme natif en C pour sortir directement de plusieurs niveaux de boucles imbriquées avec `break` seul.
+- **`continue`** : interrompt l'itération courante et passe directement à l'itération suivante, en réévaluant la condition de la boucle (et, dans le cas d'un `for`, en exécutant d'abord l'étape d'incrémentation). C'est utile pour « sauter » certains cas particuliers sans imbriquer davantage de conditions dans le corps de la boucle.
+- **`goto`** : transfère le contrôle de façon inconditionnelle vers une étiquette (*label*) définie ailleurs dans la même fonction. Son usage est **fortement déconseillé** dans la très grande majorité des cas, car il nuit gravement à la lisibilité et à la prévisibilité du flux d'exécution (« code spaghetti »). Il subsiste néanmoins des cas d'usage reconnus et acceptés, notamment pour sortir proprement d'imbrications profondes de boucles, ou pour implémenter un mécanisme de nettoyage centralisé en cas d'erreur (motif dit de « *goto cleanup* »), fréquent dans du code C bas niveau — noyau Linux, pilotes — où il est utilisé de façon disciplinée et systématique plutôt qu'ad hoc.
+
+```c
+for (int i = 0; i < 10; i++) {
+    if (i == 5) break;      // arrête complètement la boucle à i == 5
+    if (i % 2 == 0) continue; // saute les valeurs paires, sans les afficher
+    printf("%d ", i);
+}
+```
 
 ---
 
@@ -93,18 +117,30 @@ for (;;) {
 }
 ```
 
-Une condition de terminaison mal posée (ex. compteur non incrémenté, condition toujours vraie) provoque un déni de service par consommation de ressources — un cas particulier à garder en tête pour le cours *Security by design*.
+Cette écriture, `for (;;)`, omet les trois éléments habituels du `for` : sans condition explicite, elle est toujours considérée comme vraie, ce qui produit une boucle qui ne s'arrête jamais d'elle-même. C'est un idiome courant et parfaitement valide en C — par exemple pour la boucle principale d'un serveur qui doit tourner indéfiniment — à condition qu'une instruction `break` (ou un `return`, ou un `exit`) quelque part dans le corps de la boucle permette effectivement d'en sortir dans les conditions voulues.
+
+Le vrai danger ne réside donc pas dans l'écriture explicite d'une boucle infinie volontaire, mais dans une boucle censée se terminer et qui, à cause d'une erreur de logique, ne le fait jamais : un compteur qui n'est jamais incrémenté, une condition de sortie qui ne peut structurellement jamais devenir vraie, ou une variable de contrôle modifiée par erreur à l'intérieur de la boucle. Une telle boucle consomme indéfiniment des ressources (temps processeur, éventuellement mémoire si elle alloue à chaque itération) sans jamais rendre la main : dans un service exposé, c'est un vecteur classique de **déni de service** (*denial of service*), qu'une entrée malveillante suffisamment spécifique peut parfois déclencher délibérément. Cette classe de problème sera reprise sous un angle plus large dans le cours *Security by design*.
+
+**Bonne pratique** : pour toute boucle `while` ou `do while`, vérifier explicitement, à l'écriture du code, que chaque chemin d'exécution possible dans le corps de la boucle fait progresser la condition vers sa sortie.
 
 ---
 
 ## 5. Complexité algorithmique (introduction)
 
-Le nombre d'itérations d'une boucle détermine la complexité temporelle d'un algorithme, notée en notation de Landau (grand O). Exemple : une recherche séquentielle dans un tableau de taille *n* est en O(n) ; une recherche dichotomique dans un tableau trié est en O(log n). Cette notion sera réutilisée pour analyser le coût des algorithmes cryptographiques (chapitre Cryptographie) et des attaques par force brute (chapitre Cryptanalyse).
+Le nombre d'itérations effectuées par les boucles d'un algorithme, en fonction de la taille des données qu'il traite, détermine ce qu'on appelle sa **complexité temporelle** : une mesure, indépendante du matériel utilisé, de la façon dont le temps d'exécution croît lorsque la taille des données d'entrée augmente. Cette croissance s'exprime en **notation de Landau** (le grand O), qui décrit le comportement asymptotique — c'est-à-dire pour des données de grande taille — en ignorant les facteurs constants et les termes d'ordre inférieur.
+
+Deux exemples illustrent concrètement cette notion, tous deux détaillés et implémentés en TP :
+
+- Une **recherche séquentielle** d'un élément dans un tableau non trié de taille *n* doit, dans le pire cas, examiner chacun des *n* éléments un par un : sa complexité est notée **O(n)**, elle croît linéairement avec la taille des données.
+- Une **recherche dichotomique** (ou recherche par bissection) dans un tableau **trié** élimine, à chaque comparaison, la moitié des éléments restants encore candidats : sa complexité est notée **O(log n)**, une croissance beaucoup plus lente — pour un tableau d'un million d'éléments, une recherche dichotomique nécessite au plus une vingtaine de comparaisons, contre potentiellement un million pour une recherche séquentielle.
+
+Cette différence n'est pas une nuance purement théorique : elle a des conséquences pratiques directes sur la performance d'un programme réel dès que les volumes de données deviennent significatifs. La notion de complexité sera réutilisée à plusieurs reprises plus loin dans le cursus, en particulier pour évaluer le coût de calcul de certains algorithmes cryptographiques (chapitre *Cryptographie*) et pour estimer, en ordre de grandeur, le nombre d'opérations nécessaires à une attaque par force brute (chapitre *Cryptanalyse*) — la sécurité de nombreux mécanismes cryptographiques repose précisément sur le fait que la meilleure attaque connue a une complexité si élevée qu'elle est irréalisable en pratique avec les ressources de calcul actuelles.
 
 ---
 
 ## À retenir
 
-- Choisir la structure adaptée : `for` pour un nombre d'itérations connu, `while`/`do while` pour une condition dynamique.
-- Toujours s'assurer qu'une boucle progresse vers sa condition d'arrêt.
-- `switch` sans `break` = piège classique.
+- Choisir la structure adaptée : `for` pour un nombre d'itérations connu à l'avance, `while` pour une condition testée avant chaque itération, `do while` lorsqu'il faut exécuter le corps au moins une fois.
+- Toujours s'assurer qu'une boucle progresse effectivement vers sa condition d'arrêt, sous peine de boucle infinie non voulue et de déni de service potentiel.
+- `switch` sans `break` provoque un fall-through vers le `case` suivant : un piège classique à documenter explicitement lorsqu'il est intentionnel.
+- La complexité algorithmique (notation grand O) mesure la croissance du temps d'exécution avec la taille des données ; elle sera réutilisée pour analyser des algorithmes cryptographiques et des attaques par force brute.

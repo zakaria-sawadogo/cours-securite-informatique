@@ -8,67 +8,89 @@
 
 ## 1. Chiffrement par flux (stream cipher)
 
-Combine le texte clair avec une suite pseudo-aléatoire (le « keystream ») générée à partir de la clé, généralement par XOR bit à bit :
+Un chiffrement par flux combine le texte clair, bit par bit ou octet par octet, avec une suite pseudo-aléatoire appelée le **keystream**, générée à partir de la clé (et généralement d'un nonce). L'opération de combinaison la plus courante est le XOR, réversible par construction :
 
 ```
 chiffré[i] = clair[i] XOR keystream[i]
+déchiffré[i] = chiffré[i] XOR keystream[i]  (identique, car XOR est son propre inverse)
 ```
 
-Exemple moderne largement utilisé : **ChaCha20**. Un chiffrement par flux exige impérativement de **ne jamais réutiliser le même couple (clé, nonce)** : réutiliser le même keystream sur deux messages différents permet de retrouver le XOR des deux messages clairs, une fuite d'information souvent exploitable (rappel du chapitre Cryptanalyse).
+L'avantage principal d'un chiffrement par flux est sa légèreté : il ne nécessite pas de découper le message en blocs de taille fixe ni de gérer de padding, et il peut chiffrer un flux de données de longueur arbitraire, potentiellement inconnue à l'avance. Exemple moderne largement utilisé : **ChaCha20**, conçu par Daniel J. Bernstein, apprécié pour sa rapidité en logiciel (y compris sur des processeurs sans accélération matérielle dédiée, contrairement à AES) et sa résistance aux attaques par canal auxiliaire liées au temps d'exécution.
+
+Un chiffrement par flux exige impérativement de **ne jamais réutiliser le même couple (clé, nonce)** pour chiffrer deux messages différents. En effet, si le même keystream sert à chiffrer deux messages clairs distincts `m1` et `m2`, un attaquant qui observe les deux textes chiffrés `c1` et `c2` peut calculer :
+
+```
+c1 XOR c2 = (m1 XOR keystream) XOR (m2 XOR keystream) = m1 XOR m2
+```
+
+Le keystream s'annule et l'attaquant obtient directement le XOR des deux messages clairs — une fuite d'information souvent suffisante pour reconstituer une grande partie du contenu, en particulier si l'un des deux messages est partiellement connu ou prévisible (rappel du module *Cryptanalyse*).
 
 ---
 
 ## 2. Chiffrement par bloc (block cipher)
 
-Chiffre des blocs de taille fixe (128 bits pour AES) en appliquant plusieurs « tours » de transformations combinant substitution et permutation.
+Un chiffrement par bloc, à la différence d'un chiffrement par flux, chiffre des blocs de taille fixe (128 bits pour AES) en appliquant plusieurs « tours » (*rounds*) de transformations combinant substitution et permutation, conformément aux principes de confusion et de diffusion vus au chapitre 1.
 
 ### AES (Advanced Encryption Standard)
 
-Standardisé par le NIST en 2001 (algorithme Rijndael), AES opère sur des blocs de 128 bits avec des clés de 128, 192 ou 256 bits, en 10, 12 ou 14 tours respectivement. Chaque tour comprend classiquement :
+AES a été standardisé par le NIST en 2001 à l'issue d'un concours public international, à partir d'un algorithme belge nommé Rijndael (conçu par Joan Daemen et Vincent Rijmen). Ce processus de sélection ouvert illustre directement le principe de Kerckhoffs : plusieurs candidats ont été soumis à une cryptanalyse publique intensive avant qu'un vainqueur ne soit désigné. AES opère sur des blocs de 128 bits avec des clés de 128, 192 ou 256 bits, appliquées en 10, 12 ou 14 tours respectivement — plus la clé est longue, plus le nombre de tours augmente, pour maintenir une marge de sécurité comparable.
 
-1. **SubBytes** : substitution non linéaire octet par octet (boîte-S), assure la confusion.
-2. **ShiftRows** : décalage cyclique des lignes de l'état, contribue à la diffusion.
-3. **MixColumns** : combinaison linéaire des colonnes (absente au dernier tour), renforce la diffusion.
-4. **AddRoundKey** : XOR avec une sous-clé dérivée de la clé principale pour ce tour.
+Chaque tour comprend classiquement quatre opérations, appliquées dans cet ordre :
+
+1. **SubBytes** : substitution non linéaire octet par octet à l'aide d'une boîte-S fixe et publique, assurant la **confusion** (aucune relation algébrique simple entre l'octet d'entrée et l'octet de sortie).
+2. **ShiftRows** : décalage cyclique des lignes de la matrice d'état représentant le bloc, contribuant à la **diffusion** en déplaçant les octets les uns par rapport aux autres.
+3. **MixColumns** : combinaison linéaire des octets de chaque colonne de l'état (opération absente au tout dernier tour), qui renforce fortement la diffusion en mélangeant les octets d'une même colonne entre eux.
+4. **AddRoundKey** : XOR de l'état courant avec une sous-clé de tour, dérivée de la clé principale par un algorithme d'expansion de clé (*key schedule*) — c'est la seule étape qui introduit réellement le secret dans le calcul.
+
+La répétition de ce cycle sur plusieurs tours garantit qu'un changement d'un seul bit de la clé ou du clair affecte, en sortie, la quasi-totalité des bits du bloc chiffré (effet avalanche).
 
 ---
 
 ## 3. Modes opératoires : pourquoi ils sont indispensables
 
-Un chiffrement par bloc ne traite que des blocs de taille fixe : un **mode opératoire** définit comment enchaîner le chiffrement de plusieurs blocs pour traiter un message de longueur arbitraire.
+Un chiffrement par bloc, pris isolément, ne sait traiter qu'un seul bloc de taille fixe : il faut donc un **mode opératoire** pour définir comment enchaîner le chiffrement d'une succession de blocs afin de traiter un message de longueur arbitraire, généralement supérieure à 128 bits. Le choix du mode a un impact de sécurité au moins aussi important que le choix de l'algorithme sous-jacent lui-même.
 
 | Mode | Principe | Points clés |
 |---|---|---|
-| **ECB** (Electronic Codebook) | chaque bloc chiffré indépendamment | **à proscrire** : des blocs clairs identiques donnent des blocs chiffrés identiques (motifs visibles, cf. TP3 du module Cryptanalyse) |
-| **CBC** (Cipher Block Chaining) | chaque bloc clair est XORé avec le bloc chiffré précédent avant chiffrement ; nécessite un IV aléatoire | vulnérable aux attaques de padding oracle si le padding n'est pas vérifié de façon sûre |
-| **CTR** (Counter) | transforme un chiffrement par bloc en chiffrement par flux, en chiffrant un compteur incrémental | parallélisable, mais un nonce réutilisé est aussi dangereux qu'en chiffrement par flux |
-| **GCM** (Galois/Counter Mode) | mode CTR combiné à une authentification intégrée (AEAD) | **recommandé par défaut** : fournit confidentialité ET intégrité/authenticité en une seule primitive |
+| **ECB** (Electronic Codebook) | chaque bloc clair est chiffré indépendamment des autres, avec la même clé | **à proscrire absolument** : deux blocs clairs identiques produisent deux blocs chiffrés identiques, ce qui laisse apparaître des motifs (structure d'une image, répétitions d'un fichier) directement dans le texte chiffré, sans même avoir besoin de casser l'algorithme |
+| **CBC** (Cipher Block Chaining) | chaque bloc clair est XORé avec le bloc chiffré précédent avant d'être chiffré ; nécessite un vecteur d'initialisation (IV) aléatoire et imprévisible pour le premier bloc | corrige le défaut de motifs de l'ECB, mais vulnérable aux attaques de padding oracle si l'application signale (par un code d'erreur distinct ou un délai de réponse différent) que le padding du message déchiffré est invalide |
+| **CTR** (Counter) | transforme un chiffrement par bloc en un chiffrement par flux, en chiffrant un compteur incrémental (souvent nonce + numéro de bloc) puis en XORant le résultat avec le clair | **parallélisable** (chaque bloc peut être chiffré indépendamment, contrairement à CBC qui est séquentiel) et permet un accès direct à n'importe quel bloc sans déchiffrer les précédents ; mais un nonce/compteur réutilisé avec la même clé est aussi dangereux qu'en chiffrement par flux pur |
+| **GCM** (Galois/Counter Mode) | mode CTR combiné à une authentification intégrée reposant sur une multiplication dans un corps de Galois (mode AEAD) | **recommandé par défaut** dans la quasi-totalité des déploiements modernes : fournit confidentialité ET intégrité/authenticité en une seule primitive, tout en restant parallélisable comme CTR |
+
+Le choix entre ces modes n'est jamais anodin : ECB doit être systématiquement rejeté dès la conception, y compris pour des cas d'usage qui paraissent anodins, car la découverte de motifs peut suffire à un attaquant pour déduire des informations sensibles sans même effectuer de cryptanalyse au sens strict.
 
 ---
 
 ## 4. AEAD : chiffrement authentifié
 
-Un mode **AEAD** (Authenticated Encryption with Associated Data), comme AES-GCM ou ChaCha20-Poly1305, combine chiffrement et code d'authentification en une seule opération, produisant un **tag d'authentification** vérifié au déchiffrement. Si le texte chiffré a été modifié (accidentellement ou par un attaquant), le déchiffrement échoue explicitement plutôt que de produire silencieusement un texte clair corrompu ou manipulé.
+Un mode **AEAD** (*Authenticated Encryption with Associated Data*), comme AES-GCM ou ChaCha20-Poly1305, combine en une seule opération le chiffrement du message et le calcul d'un code d'authentification, produisant un **tag d'authentification** (typiquement 128 bits) qui est vérifié lors du déchiffrement. Le nom complet souligne une capacité supplémentaire utile en pratique : les données associées (*associated data* — par exemple un en-tête de paquet réseau, ou des métadonnées non chiffrées) peuvent être authentifiées sans être chiffrées, ce qui est fréquent dans les protocoles réseau où certains champs doivent rester lisibles par des équipements intermédiaires tout en étant protégés contre toute altération.
 
-**Recommandation pratique actuelle** : privilégier systématiquement un mode AEAD (AES-GCM, ChaCha20-Poly1305) plutôt que de composer soi-même un mode CBC avec un HMAC séparé — une composition manuelle est une source fréquente d'erreurs d'implémentation.
+Si le texte chiffré (ou les données associées) a été modifié — que ce soit accidentellement, par une corruption de transmission, ou délibérément par un attaquant actif — la vérification du tag échoue et le déchiffrement est **explicitement rejeté**, plutôt que de produire silencieusement un texte clair corrompu ou manipulé que l'application pourrait traiter à tort comme légitime. Cette propriété est essentielle : sans elle, un attaquant capable de modifier un texte chiffré en transit pourrait, dans certains cas, manipuler le comportement de l'application réceptrice sans jamais avoir besoin de casser le chiffrement lui-même.
+
+**Recommandation pratique actuelle** : privilégier systématiquement un mode AEAD (AES-GCM, ChaCha20-Poly1305) plutôt que de composer soi-même un mode CBC avec un HMAC calculé séparément (chapitre 3). Une composition manuelle de ce type est une source fréquente d'erreurs d'implémentation — mauvais ordre entre chiffrement et authentification, réutilisation involontaire de clé entre les deux opérations, oubli de vérifier le tag avant de traiter le clair — alors qu'un mode AEAD intégré élimine ces classes d'erreurs par construction.
 
 ---
 
 ## 5. Gestion de la clé et du vecteur d'initialisation (IV)/nonce
 
-- La **clé** doit être générée par un générateur aléatoire cryptographiquement sûr (CSPRNG) et jamais codée en dur dans le code source.
-- L'**IV/nonce** doit être unique pour chaque chiffrement avec une même clé (aléatoire pour CBC, souvent un compteur pour CTR/GCM) — sa réutilisation est l'une des erreurs d'implémentation les plus dommageables en pratique.
+La robustesse mathématique d'un algorithme comme AES ne protège en rien contre une mauvaise gestion opérationnelle de ses paramètres, qui reste l'une des causes les plus fréquentes de compromission en pratique.
+
+- La **clé** doit impérativement être générée par un générateur de nombres aléatoires cryptographiquement sûr (CSPRNG — *Cryptographically Secure Pseudo-Random Number Generator*), et jamais codée en dur dans le code source, ni dérivée d'une source prévisible (horodatage, identifiant de processus). Une clé codée en dur, retrouvée par simple lecture du code (y compris décompilé) ou fuitée via un dépôt de code source, réduit à néant toute la sécurité apportée par l'algorithme.
+- L'**IV/nonce** doit être unique pour chaque opération de chiffrement effectuée avec une même clé : aléatoire et imprévisible pour CBC, souvent un simple compteur incrémental pour CTR/GCM (l'unicité important davantage que l'imprévisibilité dans ce dernier cas). Sa réutilisation avec la même clé est l'une des erreurs d'implémentation les plus dommageables en pratique : pour CBC, elle facilite certaines analyses ; pour CTR et GCM, elle expose directement le XOR des messages clairs comme pour un chiffrement par flux, et pour GCM spécifiquement, la réutilisation d'un nonce peut permettre à un attaquant de forger des tags d'authentification valides, brisant l'intégrité en plus de la confidentialité.
 
 ---
 
 ## 6. Dérivation de clé à partir d'un mot de passe
 
-Un mot de passe humain n'a pas l'entropie suffisante pour servir directement de clé de chiffrement : on utilise une **fonction de dérivation de clé (KDF)** dédiée (PBKDF2, scrypt, Argon2), volontairement coûteuse en calcul, pour ralentir les attaques par force brute (rappel du chapitre Cryptanalyse sur le hachage de mots de passe).
+Un mot de passe choisi par un être humain — même perçu comme « fort » par son auteur — n'a généralement pas l'entropie (l'imprévisibilité mesurable) suffisante pour servir directement de clé de chiffrement de 128 ou 256 bits : l'espace des mots de passe réellement utilisés par les humains est très inférieur à l'espace théorique des clés de cette taille, et un attaquant peut exploiter cet écart par une attaque par dictionnaire ou par force brute ciblée.
+
+C'est pourquoi on ne dérive jamais une clé de chiffrement directement d'un mot de passe par une simple fonction de hachage générique : on utilise une **fonction de dérivation de clé** (KDF — *Key Derivation Function*) dédiée à cet usage, comme **PBKDF2**, **scrypt** ou **Argon2**. Ces fonctions sont conçues pour être volontairement coûteuses en temps de calcul et, pour scrypt et Argon2, également coûteuses en mémoire — un choix délibéré qui ralentit fortement un attaquant tentant de tester un grand nombre de mots de passe candidats (attaque hors ligne sur une base de mots de passe volée, par exemple), sans pour autant pénaliser de façon perceptible un utilisateur légitime qui ne dérive une clé qu'une seule fois. Ce mécanisme rejoint directement le hachage sécurisé des mots de passe abordé au chapitre 3 et approfondi dans le module *Cryptanalyse*.
 
 ---
 
 ## À retenir
 
-- AES est le standard de chiffrement par bloc de référence ; sa sécurité dépend fortement du mode opératoire choisi.
-- ECB est à proscrire ; les modes AEAD (GCM) sont recommandés par défaut car ils apportent confidentialité et intégrité simultanément.
-- La réutilisation d'un nonce/IV avec la même clé est l'une des erreurs d'implémentation les plus graves en cryptographie symétrique.
+- AES est le standard de chiffrement par bloc de référence (128 bits de bloc, clés de 128/192/256 bits) ; sa sécurité effective dépend fortement du mode opératoire choisi, pas seulement de l'algorithme lui-même.
+- ECB est à proscrire en toute circonstance car il laisse transparaître des motifs du clair ; les modes AEAD (GCM, ChaCha20-Poly1305) sont recommandés par défaut car ils apportent confidentialité et intégrité simultanément et éliminent les erreurs de composition manuelle.
+- La réutilisation d'un nonce/IV avec la même clé est l'une des erreurs d'implémentation les plus graves en cryptographie symétrique, pouvant exposer le clair et, pour GCM, permettre la forge de tags d'authentification.
+- Un mot de passe humain ne doit jamais servir directement de clé : une fonction de dérivation dédiée (PBKDF2, scrypt, Argon2), volontairement coûteuse, doit s'interposer.

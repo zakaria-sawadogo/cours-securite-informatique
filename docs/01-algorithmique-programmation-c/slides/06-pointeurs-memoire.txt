@@ -8,7 +8,7 @@
 
 ## 1. Qu'est-ce qu'un pointeur ?
 
-Un pointeur est une variable dont la valeur est une adresse mémoire.
+Un **pointeur** est une variable comme une autre, à une différence près : au lieu de stocker directement une donnée (un entier, un caractère…), elle stocke une **adresse mémoire** — c'est-à-dire l'emplacement où se trouve une autre donnée. Cette indirection est l'un des concepts les plus structurants du langage C, et probablement le plus déroutant au premier abord : comprendre les pointeurs, c'est comprendre que toute variable, quelle qu'elle soit, occupe une adresse précise en mémoire, et qu'on peut manipuler cette adresse elle-même comme une valeur à part entière.
 
 ```c
 int x = 10;
@@ -17,25 +17,35 @@ printf("%d\n", *p); // déréférencement : affiche 10
 *p = 20;            // modifie x via le pointeur : x vaut 20
 ```
 
-- `&x` : opérateur « adresse de ».
-- `*p` : opérateur de déréférencement (« valeur pointée par »).
+Deux opérateurs, symétriques l'un de l'autre, permettent de passer d'une variable à son adresse et inversement :
+
+- **`&x`** : l'opérateur « adresse de » (*address-of*) renvoie l'adresse mémoire où est stockée la variable `x`. C'est cette adresse qui est ensuite stockée dans le pointeur `p`.
+- **`*p`** : l'opérateur de **déréférencement** (*dereference*) part de l'adresse contenue dans `p` et accède à la valeur qui s'y trouve réellement — c'est-à-dire, dans cet exemple, la valeur de `x`. Utilisé à gauche d'une affectation (`*p = 20;`), il permet non seulement de lire mais aussi de **modifier** la variable pointée, exactement comme si on écrivait `x = 20;` directement.
+
+Le type du pointeur (`int *p`) importe : il indique au compilateur combien d'octets lire ou écrire à l'adresse pointée à chaque déréférencement, et permet de détecter à la compilation des erreurs de type (par exemple assigner par erreur l'adresse d'un `double` à un pointeur de type `int *`). Un pointeur non initialisé, ou initialisé à une adresse invalide, est extrêmement dangereux : le déréférencer accède à une zone mémoire arbitraire, avec un comportement totalement imprévisible.
 
 ---
 
 ## 2. Les quatre zones de la mémoire d'un programme
 
+Pour comprendre pleinement ce que fait un pointeur et où vivent réellement les données qu'il désigne, il faut avoir une vue d'ensemble de la façon dont un programme en cours d'exécution organise sa mémoire. Cette organisation se décompose classiquement en quatre grandes zones :
+
 | Zone | Contenu | Durée de vie |
 |---|---|---|
-| Code (text) | instructions du programme | statique |
-| Données statiques | variables globales / `static` | toute l'exécution |
-| Tas (heap) | allocation dynamique (`malloc`) | jusqu'à `free` explicite |
-| Pile (stack) | variables locales, appels de fonction | durée du bloc/de l'appel |
+| Code (text) | instructions du programme, compilées en langage machine | statique, en lecture seule pendant toute l'exécution |
+| Données statiques | variables globales et variables `static` | toute l'exécution du programme |
+| Tas (heap) | allocation dynamique (`malloc`, `calloc`, `realloc`) | depuis l'allocation jusqu'à l'appel explicite de `free` |
+| Pile (stack) | variables locales, paramètres de fonctions, adresses de retour | durée du bloc ou de l'appel de fonction correspondant |
 
-Comprendre cette organisation est indispensable pour analyser un débordement de pile, un *use-after-free*, ou une fuite mémoire.
+La zone **code** contient les instructions machine du programme lui-même, généralement protégée en écriture — un programme ne peut normalement pas modifier ses propres instructions pendant son exécution, ce qui constitue d'ailleurs une protection de sécurité de base contre certaines classes d'attaques. La zone des **données statiques** héberge les variables dont la durée de vie couvre toute l'exécution du programme, qu'il s'agisse de variables globales ou de variables locales déclarées `static` (chapitre 4). Le **tas** est une zone de mémoire gérée explicitement par le programmeur via les fonctions d'allocation dynamique : sa taille n'est pas fixée à la compilation et peut croître ou diminuer pendant l'exécution, selon les besoins. La **pile**, enfin, croît et diminue automatiquement à chaque appel et retour de fonction, selon une logique dernier entré/premier sorti (LIFO) : c'est là que vivent les variables locales « ordinaires » et les paramètres de chaque fonction en cours d'exécution.
+
+Comprendre précisément dans quelle zone se trouve une donnée donnée est indispensable pour analyser les grandes classes de vulnérabilités mémoire : un **débordement de pile** (*stack overflow*, au sens d'écriture hors limites d'un buffer local, à ne pas confondre avec le débordement par récursivité vu au chapitre 4) écrit au-delà d'un tableau local et corrompt la pile, potentiellement jusqu'à l'adresse de retour de la fonction ; un **use-after-free** ou une **fuite mémoire** concernent spécifiquement le tas et sa gestion manuelle ; un accès à une variable dont la portée est terminée (un **dangling pointer**, voir section 4) concerne typiquement une variable qui vivait sur la pile.
 
 ---
 
 ## 3. Allocation dynamique
+
+Contrairement aux variables locales (dont la taille doit être connue à la compilation et dont la durée de vie est automatiquement liée à leur bloc) ou aux variables globales (dont la taille est également fixée à la compilation), l'**allocation dynamique** permet de réserver, pendant l'exécution du programme, un bloc de mémoire dont la taille peut dépendre de données connues seulement à ce moment-là (par exemple une taille saisie par l'utilisateur), et dont la durée de vie est entièrement contrôlée par le programmeur, indépendamment de la structure des blocs de code.
 
 ```c
 #include <stdlib.h>
@@ -51,10 +61,14 @@ free(tableau);
 tableau = NULL;  // évite un « dangling pointer »
 ```
 
-- `malloc(taille)` : alloue `taille` octets sur le tas, non initialisés.
-- `calloc(n, taille)` : alloue et initialise à zéro.
-- `realloc(ptr, nouvelle_taille)` : redimensionne un bloc existant.
-- `free(ptr)` : libère la mémoire ; **ne pas l'utiliser deux fois** (double free) ni après (*use-after-free*).
+Quatre fonctions de la bibliothèque standard, déclarées dans `stdlib.h`, gèrent l'allocation dynamique sur le tas :
+
+- **`malloc(taille)`** alloue un bloc de `taille` octets sur le tas et renvoie un pointeur vers son premier octet, ou `NULL` si l'allocation échoue (mémoire insuffisante, par exemple). Le contenu du bloc alloué n'est **pas initialisé** : il contient des valeurs indéterminées, exactement comme une variable locale non initialisée (chapitre 2) — l'utiliser sans l'initialiser au préalable expose aux mêmes risques de lecture de données imprévisibles.
+- **`calloc(n, taille)`** alloue un bloc capable de contenir `n` éléments de `taille` octets chacun, et l'initialise explicitement à zéro, contrairement à `malloc`. Ce comportement en fait un choix plus sûr par défaut lorsque l'initialisation à zéro est acceptable, au prix d'un coût légèrement supérieur.
+- **`realloc(ptr, nouvelle_taille)`** redimensionne un bloc précédemment alloué (par `malloc`, `calloc` ou un `realloc` antérieur), en conservant autant que possible son contenu existant. Le bloc peut être déplacé en mémoire si nécessaire : la valeur de retour de `realloc` doit donc systématiquement remplacer l'ancien pointeur — ne jamais réutiliser l'ancien pointeur après un `realloc`, et prendre garde à ne pas l'écraser directement (`ptr = realloc(ptr, ...)` perd l'ancien pointeur si l'appel échoue et renvoie `NULL`, provoquant une fuite mémoire ; il est donc plus sûr d'utiliser une variable temporaire).
+- **`free(ptr)`** libère un bloc précédemment alloué, rendant la mémoire correspondante disponible pour de futures allocations. Deux règles absolues encadrent son usage : ne **jamais** appeler `free` deux fois sur le même pointeur (**double free**), et ne **jamais** utiliser un pointeur après l'avoir libéré (**use-after-free**) — ces deux erreurs sont détaillées à la section suivante.
+
+Vérifier systématiquement la valeur de retour de `malloc` (ou `calloc`/`realloc`) avant de l'utiliser n'est pas une précaution optionnelle : sur un système avec peu de mémoire disponible, ou pour une taille demandée démesurément grande (par exemple calculée à partir d'une entrée utilisateur non validée), l'allocation peut échouer et renvoyer `NULL` ; déréférencer ce pointeur `NULL` sans l'avoir vérifié provoque immédiatement un plantage du programme.
 
 ---
 
@@ -62,14 +76,16 @@ tableau = NULL;  // évite un « dangling pointer »
 
 | Vulnérabilité | Cause |
 |---|---|
-| Déréférencement de pointeur nul | oubli de vérifier le retour de `malloc` ou une valeur non initialisée |
-| Fuite mémoire (*memory leak*) | `malloc` sans `free` correspondant |
-| Use-after-free | utilisation d'un pointeur après `free` |
-| Double free | `free` appelé deux fois sur le même pointeur |
-| Dangling pointer | pointeur vers une variable locale dont la portée est terminée |
-| Buffer overflow | écriture au-delà de la mémoire allouée |
+| Déréférencement de pointeur nul | oubli de vérifier le retour de `malloc`, ou déréférencement d'une variable pointeur non initialisée |
+| Fuite mémoire (*memory leak*) | `malloc` (ou équivalent) sans `free` correspondant : la mémoire reste réservée alors qu'elle n'est plus utilisée |
+| Use-after-free | utilisation (lecture, écriture, ou nouveau `free`) d'un pointeur après que la mémoire qu'il désignait a été libérée |
+| Double free | `free` appelé deux fois sur le même pointeur, corrompant les structures internes de gestion du tas |
+| Dangling pointer | pointeur qui continue de désigner l'adresse d'une variable locale dont la portée (et donc la durée de vie sur la pile) est déjà terminée |
+| Buffer overflow | écriture au-delà de la mémoire réellement allouée à un tableau ou un bloc dynamique |
 
-Ces classes de vulnérabilités constituent le socle du cours *Sécurité des applications* (exploitation) et sont directement liées aux outils d'audit statique/dynamique vus en *Audit organisation et technique*.
+Ces six classes de vulnérabilités ne sont pas des curiosités académiques : elles figurent, année après année, parmi les catégories de failles logicielles les plus fréquemment exploitées dans des logiciels réels écrits en C ou C++, précisément parce que ce sont des langages qui laissent au programmeur l'entière responsabilité de la gestion de la mémoire, sans filet de sécurité automatique. Une **fuite mémoire**, prise isolément, dégrade progressivement les performances d'un programme de longue durée (un serveur, par exemple) jusqu'à épuiser la mémoire disponible ; un **use-after-free** ou un **double free**, en revanche, corrompent des structures internes de gestion du tas d'une manière qui peut, dans certaines conditions, être détournée par un attaquant pour exécuter du code arbitraire — c'est l'une des techniques d'exploitation les plus étudiées en analyse de vulnérabilités. Un **dangling pointer** typique survient lorsqu'une fonction renvoie l'adresse d'une de ses variables locales : cette variable n'existe plus une fois la fonction terminée, mais le pointeur renvoyé continue pourtant de pointer vers cette adresse désormais invalide.
+
+Cet ensemble de classes de vulnérabilités constitue le socle indispensable du cours *Sécurité des applications* (où elles seront exploitées de façon contrôlée en environnement pédagogique) et sont directement liées aux outils d'audit statique et dynamique (analyseurs de code, détecteurs de fuites mémoire tels qu'AddressSanitizer ou Valgrind) présentés dans le cours *Audit organisation et technique*.
 
 ---
 
@@ -82,7 +98,7 @@ printf("%d\n", *(p + 2)); // 30, équivalent à tab[2]
 p++;                // p pointe maintenant sur tab[1]
 ```
 
-L'arithmétique de pointeur se fait en unités de la taille du type pointé, pas en octets bruts.
+Un pointeur peut être combiné avec des opérateurs arithmétiques (`+`, `-`, `++`, `--`) pour se déplacer d'une adresse à une autre — c'est précisément ce mécanisme qui, comme vu au chapitre 5, rend équivalentes les écritures `tab[i]` et `*(tab + i)`. Un point essentiel, et fréquemment source de confusion, est que cette arithmétique ne s'effectue **pas** en octets bruts, mais en **unités de la taille du type pointé** : sur un pointeur `int *` (généralement 4 octets par élément), l'expression `p + 1` avance l'adresse contenue dans `p` de `sizeof(int)` octets, et non d'un seul octet, de façon à toujours pointer sur l'élément suivant du tableau, quel que soit le type manipulé. Cette conversion automatique est effectuée par le compilateur en fonction du type déclaré du pointeur ; c'est aussi pourquoi il n'existe, en C standard, aucune arithmétique valide sur un pointeur `void *` (dont le type pointé, et donc la taille, est indéterminé) sans conversion préalable explicite vers un type concret.
 
 ---
 
@@ -94,12 +110,16 @@ int (*operation)(int, int) = addition;
 printf("%d\n", operation(2, 3)); // 5
 ```
 
-Utilisés pour construire des callbacks et des tables de dispatch — mécanisme aussi exploité par certaines techniques d'attaque (détournement de flot de contrôle).
+Au-delà de pointer vers des données, un pointeur peut également désigner l'**adresse d'une fonction** : le nom d'une fonction, dans une expression, se comporte comme un pointeur vers son code exécutable, exactement comme le nom d'un tableau se comporte comme un pointeur vers son premier élément. La déclaration `int (*operation)(int, int)` définit une variable `operation` capable de stocker l'adresse de n'importe quelle fonction prenant deux `int` en paramètres et renvoyant un `int` — ici, on lui affecte l'adresse de `addition`, ce qui permet ensuite d'appeler cette fonction indirectement, via `operation(2, 3)`, exactement comme un appel direct.
+
+Ce mécanisme est largement utilisé pour construire des **callbacks** (passer une fonction en paramètre d'une autre, pour qu'elle soit appelée à un moment précis — par exemple une fonction de comparaison passée à un algorithme de tri générique) et des **tables de dispatch** (un tableau de pointeurs de fonctions, indexé pour sélectionner dynamiquement le traitement à exécuter selon un code ou un type de message). C'est un mécanisme puissant et légitime, mais qui, mal protégé, constitue également la cible de certaines techniques d'attaque avancées visant à **détourner le flux d'exécution** d'un programme : si un attaquant parvient, via une autre vulnérabilité mémoire (par exemple un débordement de tampon adjacent), à corrompre la valeur stockée dans un pointeur de fonction avant qu'il ne soit appelé, il peut rediriger l'exécution du programme vers du code de son choix. Ce point sera repris dans le cadre de l'étude des techniques d'exploitation en *Sécurité des applications*.
 
 ---
 
 ## À retenir
 
-- Toujours vérifier le retour de `malloc`/`calloc`/`realloc`.
-- Toute allocation dynamique doit avoir une libération correspondante, une seule fois.
-- Mettre un pointeur à `NULL` après `free` limite les risques de use-after-free.
+- Un pointeur stocke une adresse mémoire ; `&` obtient l'adresse d'une variable, `*` déréférence un pointeur pour lire ou modifier la valeur pointée.
+- La mémoire d'un programme s'organise en quatre zones (code, données statiques, tas, pile), chacune avec sa propre durée de vie ; comprendre cette organisation est indispensable pour analyser les vulnérabilités mémoire.
+- Toujours vérifier le retour de `malloc`/`calloc`/`realloc` avant utilisation, et toujours réaffecter le résultat de `realloc` avec prudence pour ne pas perdre le pointeur d'origine en cas d'échec.
+- Toute allocation dynamique doit avoir exactement une libération correspondante ; mettre un pointeur à `NULL` après `free` limite les risques de use-after-free et de double free.
+- L'arithmétique de pointeurs s'exprime en unités de la taille du type pointé, jamais en octets bruts.

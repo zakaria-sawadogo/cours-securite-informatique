@@ -8,50 +8,69 @@
 
 ## 1. L'IA comme nouvelle surface d'attaque
 
-À mesure que des systèmes d'IA sont déployés dans des fonctions sensibles (détection de fraude, contrôle d'accès biométrique, filtrage de contenu, systèmes autonomes), ils deviennent eux-mêmes des cibles. Le référentiel **OWASP Machine Learning Security Top 10** et le cadre **MITRE ATLAS** recensent ces menaces spécifiques.
+À mesure que des systèmes d'IA sont déployés dans des fonctions de plus en plus sensibles — détection de fraude bancaire, contrôle d'accès biométrique, filtrage automatique de contenu, systèmes autonomes — ils cessent d'être uniquement des outils de défense pour devenir eux-mêmes des **cibles** à part entière. Un système d'IA est, après tout, un logiciel qui reçoit des entrées et produit des sorties ; il hérite à ce titre de nouvelles catégories de vulnérabilités, distinctes des vulnérabilités logicielles classiques (débordement de mémoire, injection SQL, etc.) déjà étudiées ailleurs dans le programme.
+
+Cette classe émergente de menaces est aujourd'hui recensée et structurée par des référentiels dédiés, au même titre que l'OWASP Top 10 structure les vulnérabilités web classiques : le **OWASP Machine Learning Security Top 10** répertorie les dix catégories de risques les plus critiques spécifiques au ML, tandis que le cadre **MITRE ATLAS** (*Adversarial Threat Landscape for Artificial-Intelligence Systems*) documente, sur le modèle de MITRE ATT&CK, les tactiques et techniques employées par des attaquants ciblant spécifiquement des systèmes d'IA. Ce chapitre reprend les grandes catégories de menaces qu'ils recensent.
 
 ---
 
 ## 2. Attaques adversariales (evasion attacks)
 
-Principe : modifier légèrement une entrée, de façon souvent imperceptible pour un humain, pour tromper un modèle et lui faire produire une prédiction erronée, sans modifier le comportement réel de l'objet analysé.
+Le principe d'une attaque adversariale est de modifier légèrement une entrée soumise à un modèle déjà entraîné — une modification souvent imperceptible ou peu remarquable pour un observateur humain — dans le seul but de tromper le modèle et de lui faire produire une prédiction erronée, **sans modifier le comportement réel de l'objet analysé**. C'est cette dissociation entre l'apparence perçue par un humain et la prédiction produite par le modèle qui rend ces attaques particulièrement préoccupantes.
 
-- **Sur des images** : ajouter un bruit calculé, invisible à l'œil nu, qui fait classer une image de panneau stop comme un panneau de limitation de vitesse par un modèle de vision.
-- **Sur des malwares** : ajouter des octets inoffensifs à un binaire malveillant pour franchir la frontière de décision d'un classifieur, sans changer le comportement malveillant réel (évoqué au chapitre 4).
-- **Sur du texte (phishing, spam)** : introduire des variations orthographiques, des caractères invisibles ou des synonymes pour échapper à un filtre NLP tout en restant compréhensible par un humain.
+- **Sur des images** : un exemple classique, largement documenté dans la littérature académique sur l'apprentissage adversarial, consiste à ajouter à une image un bruit numérique calculé avec précision, invisible ou quasiment invisible à l'œil nu, qui suffit à faire classer par un modèle de vision une image de panneau stop comme un panneau de limitation de vitesse — un cas d'école qui illustre bien les conséquences potentielles pour des systèmes de vision embarqués dans des contextes critiques.
+- **Sur des malwares** : comme évoqué au chapitre 4, ajouter des octets inoffensifs à un binaire malveillant, ou en réorganiser légèrement certaines sections, peut suffire à franchir la frontière de décision d'un classifieur de malwares, sans changer en rien le comportement malveillant réel du fichier une fois exécuté.
+- **Sur du texte (phishing, spam)** : de la même façon, introduire des variations orthographiques ciblées, des caractères invisibles (par exemple des caractères Unicode sans effet visuel), ou remplacer certains mots par des synonymes suffit souvent à échapper à un filtre NLP, tout en laissant le message parfaitement compréhensible — et donc tout aussi efficace — pour un destinataire humain.
 
 ### Modèles d'attaque
+
+La faisabilité pratique d'une attaque adversariale dépend fortement de ce que l'attaquant sait du modèle ciblé — une distinction structurante dans la littérature sur le sujet :
 
 | Modèle | Connaissance de l'attaquant |
 |---|---|
 | **Boîte blanche (white-box)** | accès complet au modèle (architecture, paramètres) — permet de calculer des perturbations optimales |
 | **Boîte noire (black-box)** | accès uniquement aux prédictions du modèle (requêtes successives) — attaques par substitution (entraîner un modèle de substitution pour approximer les frontières de décision) |
 
+En **boîte blanche**, l'attaquant dispose d'un accès complet à l'architecture et aux paramètres internes du modèle ciblé, ce qui lui permet de calculer mathématiquement, par des méthodes d'optimisation, la perturbation minimale nécessaire pour franchir sa frontière de décision — le scénario le plus favorable à l'attaquant, mais aussi le moins réaliste dans un contexte où le modèle n'est en principe pas exposé publiquement.
+
+En **boîte noire**, situation nettement plus représentative des conditions réelles d'exploitation d'une API de modèle exposée à des tiers, l'attaquant n'observe que les prédictions produites en réponse à ses propres requêtes, sans jamais accéder aux paramètres internes. Une stratégie courante consiste alors à mener des **attaques par substitution** : entraîner son propre modèle de substitution à partir des couples entrée/sortie observés, dans le but d'en approximer suffisamment fidèlement les frontières de décision, puis à construire des attaques adversariales en boîte blanche sur ce modèle de substitution — des perturbations qui, en pratique, se transfèrent souvent avec succès au modèle original.
+
 ---
 
 ## 3. Empoisonnement de données (data poisoning)
 
-Attaque visant la **phase d'entraînement** plutôt que l'inférence : un attaquant capable d'injecter des données malveillantes dans le jeu d'entraînement (ex. un système qui se ré-entraîne en continu sur des données utilisateurs) peut dégrader la performance générale du modèle ou y insérer une **porte dérobée (backdoor)** : le modèle se comporte normalement sauf en présence d'un déclencheur spécifique connu de l'attaquant, qui provoque alors une prédiction choisie.
+Contrairement aux attaques adversariales, qui ciblent un modèle déjà entraîné au moment de l'inférence, l'**empoisonnement de données** vise directement la **phase d'entraînement** elle-même. Un attaquant capable d'injecter des données malveillantes dans le jeu d'entraînement d'un modèle — un scénario réaliste notamment pour tout système qui se ré-entraîne en continu sur des données fournies ou influencées par des utilisateurs — peut poursuivre deux objectifs distincts :
+
+- **dégrader la performance générale** du modèle, en y introduisant suffisamment de données bruitées ou mal étiquetées pour altérer sa capacité de généralisation sur l'ensemble de sa mission ;
+- ou, de façon plus ciblée et plus insidieuse, y insérer une **porte dérobée (backdoor)** : le modèle continue alors à se comporter parfaitement normalement sur la quasi-totalité des entrées, mais produit une prédiction spécifiquement choisie par l'attaquant lorsqu'un déclencheur particulier — connu de lui seul — est présent dans l'entrée, un déclencheur qui peut être aussi discret qu'un motif visuel précis ou une combinaison de caractéristiques rares.
+
+Ce second scénario est particulièrement redoutable précisément parce qu'il est difficile à détecter par une simple évaluation globale du modèle : un modèle « backdooré » peut afficher une excellente performance sur l'ensemble des métriques standards (précision, rappel, F1-score) tout en restant compromis pour le petit sous-ensemble d'entrées porteuses du déclencheur choisi par l'attaquant.
 
 ---
 
 ## 4. Extraction et inversion de modèle
 
-- **Extraction de modèle (model extraction)** : reconstruire une approximation d'un modèle propriétaire à partir de requêtes successives à son API, permettant de le voler ou de préparer une attaque adversariale en boîte blanche sur la copie.
-- **Inversion de modèle / attaque par appartenance (membership inference)** : déterminer si une donnée spécifique a été utilisée dans l'entraînement d'un modèle, ou reconstruire partiellement des données d'entraînement sensibles — un enjeu direct de confidentialité (RGPD) lorsque le modèle a été entraîné sur des données personnelles.
+Au-delà de la tromperie du modèle (evasion) et de la corruption de son entraînement (poisoning), une troisième famille de menaces concerne directement la **confidentialité** du modèle et des données ayant servi à l'entraîner.
+
+- **Extraction de modèle (model extraction)** : en interrogeant massivement l'API d'un modèle propriétaire et en observant systématiquement ses réponses, un attaquant peut progressivement reconstruire une approximation fonctionnelle du modèle original — une opération qui permet à la fois de contourner les coûts de développement engagés par le propriétaire légitime (vol de propriété intellectuelle) et de préparer, comme évoqué en section 2, une attaque adversariale en boîte blanche sur cette copie reconstituée, transférable ensuite au modèle original.
+- **Inversion de modèle / attaque par appartenance (membership inference)** : cette famille d'attaques cherche à déterminer si une donnée spécifique donnée a été utilisée dans le jeu d'entraînement d'un modèle (attaque par appartenance), ou, plus radicalement, à reconstruire partiellement des données d'entraînement sensibles à partir du seul comportement du modèle entraîné. Ces attaques constituent un enjeu direct de confidentialité, en particulier au regard de réglementations comme le RGPD, dès lors qu'un modèle a été entraîné sur des données à caractère personnel : savoir qu'une personne donnée figurait dans le jeu d'entraînement peut en soi révéler une information sensible sur elle (par exemple son appartenance à une cohorte médicale spécifique).
 
 ---
 
 ## 5. IA offensive : usage par les attaquants
 
-- Génération automatisée de contenus de phishing personnalisés et sans fautes, à grande échelle.
-- Assistance à l'écriture de code malveillant ou à l'automatisation de tâches de reconnaissance.
-- Génération de deepfakes (voix, image, vidéo) utilisés dans des fraudes ciblées (ex. usurpation de la voix d'un dirigeant pour autoriser un virement frauduleux).
-- Automatisation partielle de certaines phases de reconnaissance ou de rédaction de rapports par des attaquants.
+Au-delà des attaques qui ciblent directement des systèmes d'IA, les attaquants utilisent également l'IA comme un **outil** au service de leurs propres opérations offensives, ce qui modifie sensiblement l'équilibre traditionnel entre attaquants et défenseurs :
+
+- **génération automatisée de contenus de phishing** personnalisés et rédigés sans fautes, produits à grande échelle et adaptés au contexte de chaque cible, réduisant l'efficacité des indicateurs textuels classiques déjà évoqués au chapitre 5 ;
+- **assistance à l'écriture de code malveillant** ou à l'automatisation de certaines tâches de reconnaissance préalables à une attaque, réduisant le niveau de compétence technique nécessaire pour mener certaines opérations ;
+- **génération de deepfakes** (voix, image, vidéo synthétiques) utilisés dans des fraudes ciblées — par exemple l'usurpation de la voix d'un dirigeant d'entreprise pour tenter d'autoriser frauduleusement un virement bancaire, une technique d'ingénierie sociale qui exploite la confiance naturellement accordée à une voix reconnue ;
+- **automatisation partielle** de certaines phases de reconnaissance ou de la rédaction de rapports d'attaque par les attaquants eux-mêmes, accélérant le rythme global de leurs opérations.
 
 ---
 
 ## 6. Contre-mesures et bonnes pratiques
+
+Face à ces menaces spécifiques, plusieurs familles de contre-mesures ont émergé, résumées dans le tableau suivant. Aucune n'est infaillible prise isolément : une défense robuste combine généralement plusieurs de ces mesures.
 
 | Menace | Contre-mesure |
 |---|---|
@@ -59,6 +78,8 @@ Attaque visant la **phase d'entraînement** plutôt que l'inférence : un attaqu
 | Empoisonnement de données | validation et traçabilité des sources de données d'entraînement, détection d'anomalies dans les données avant réentraînement |
 | Extraction/inversion de modèle | limitation et surveillance des requêtes API, techniques de confidentialité différentielle |
 | IA offensive (phishing, deepfakes) | sensibilisation renforcée, vérification hors bande des demandes sensibles (procédures « callback » avant tout virement), défenses multi-signaux ne reposant pas uniquement sur des indices textuels |
+
+L'**entraînement adversarial** consiste à intégrer volontairement des exemples adversariaux dans le jeu d'entraînement du modèle, afin qu'il apprenne à rester robuste face à ce type de perturbation — une forme de vaccination du modèle contre les attaques qu'il est susceptible de rencontrer en production. La **validation et la traçabilité des sources de données d'entraînement** limitent la surface d'exposition à l'empoisonnement, en s'assurant qu'on peut identifier et écarter une source de données compromise. La **confidentialité différentielle** (*differential privacy*), une technique qui introduit un bruit statistique contrôlé lors de l'entraînement, réduit la capacité d'un attaquant à inférer des informations précises sur des données d'entraînement individuelles. Enfin, face à l'IA offensive, les contre-mesures les plus efficaces restent souvent organisationnelles autant que techniques : une procédure de vérification hors bande (un appel téléphonique de confirmation avant tout virement sensible, par exemple) neutralise l'essentiel de la menace des deepfakes vocaux, quelle que soit la sophistication technique de l'attaque.
 
 ---
 

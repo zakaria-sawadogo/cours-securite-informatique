@@ -8,63 +8,90 @@
 
 ## 1. Définition et origine
 
-Le *privacy by design* (protection de la vie privée dès la conception) est un cadre formalisé par Ann Cavoukian, articulé autour de sept principes fondateurs, visant à intégrer la protection des données personnelles comme caractéristique intrinsèque d'un système, dès sa conception, plutôt que comme un ajout réglementaire tardif.
+Le *privacy by design* (protection de la vie privée dès la conception) est un cadre formalisé par Ann Cavoukian, alors commissaire à l'information et à la protection de la vie privée de la province canadienne de l'Ontario, articulé autour de sept principes fondateurs. Son objectif est d'intégrer la protection des données personnelles comme une **caractéristique intrinsèque** d'un système, présente dès sa conception, plutôt que comme un ajout réglementaire tardif plaqué sur une architecture déjà figée pour répondre a posteriori à une exigence de conformité.
+
+Ce cadre partage avec *security by design* (chapitre 1) la même logique fondamentale — anticiper plutôt que corriger — mais l'applique spécifiquement au traitement des données personnelles, avec ses propres enjeux : consentement, finalité de la collecte, droits des personnes concernées, et conséquences potentiellement graves d'une fuite de données identifiantes pour les individus concernés, au-delà du seul préjudice pour l'organisation elle-même.
 
 ---
 
 ## 2. Les sept principes fondateurs
 
-1. **Proactif, non réactif ; préventif, non correctif** : anticiper les risques pour la vie privée avant qu'un incident ne survienne.
-2. **Protection de la vie privée par défaut** : les paramètres les plus protecteurs doivent être activés sans action requise de l'utilisateur.
-3. **Protection intégrée à la conception** : composante structurelle du système, pas une fonctionnalité ajoutée après coup.
-4. **Fonctionnalité intégrale (« somme positive », pas somme nulle)** : rechercher des solutions où sécurité/fonctionnalité et vie privée coexistent, plutôt que de présenter systématiquement un arbitrage l'un contre l'autre.
-5. **Sécurité de bout en bout** : protection tout au long du cycle de vie de la donnée, de la collecte à la suppression.
-6. **Visibilité et transparence** : les pratiques réelles doivent être vérifiables, pas seulement déclarées.
-7. **Respect de la vie privée des utilisateurs** : conception centrée sur l'intérêt de la personne concernée, avec des interfaces et paramètres clairs et accessibles.
+1. **Proactif, non réactif ; préventif, non correctif** : anticiper les risques pour la vie privée avant qu'un incident ne survienne, plutôt que de réagir après une violation de données déjà constatée. Cela implique d'évaluer les risques dès la phase de conception d'un traitement, pas seulement après son déploiement.
+2. **Protection de la vie privée par défaut** : les paramètres les plus protecteurs doivent être activés sans action requise de l'utilisateur — un utilisateur qui ne modifie aucun réglage doit bénéficier du niveau de protection le plus élevé possible, et non du plus faible faute d'avoir explicitement renforcé ses paramètres.
+3. **Protection intégrée à la conception** : la protection de la vie privée doit être une composante structurelle du système — présente dans le modèle de données, l'architecture et les flux de traitement — et non une fonctionnalité ajoutée après coup sous forme de module optionnel.
+4. **Fonctionnalité intégrale (« somme positive », pas somme nulle)** : rechercher des solutions où fonctionnalité du système et protection de la vie privée coexistent pleinement, plutôt que de présenter systématiquement un arbitrage où l'une ne progresserait qu'au détriment de l'autre — un faux dilemme fréquent mais évitable dans la plupart des cas avec une conception soignée.
+5. **Sécurité de bout en bout** : la protection doit être assurée tout au long du cycle de vie de la donnée, de sa collecte initiale jusqu'à sa suppression définitive, en passant par son stockage, son traitement et son éventuel partage — une protection qui s'arrêterait à l'une de ces étapes laisserait une fenêtre d'exposition.
+6. **Visibilité et transparence** : les pratiques réelles de traitement des données doivent être vérifiables par des tiers de confiance ou par les personnes concernées elles-mêmes, et pas seulement déclarées dans une politique de confidentialité qui ne refléterait pas fidèlement le traitement effectif.
+7. **Respect de la vie privée des utilisateurs** : la conception doit rester centrée sur l'intérêt de la personne concernée, avec des interfaces et des paramètres de confidentialité clairs et facilement accessibles, plutôt que délibérément complexes ou dissuasifs pour décourager leur usage effectif.
 
 ---
 
 ## 3. Traduction juridique : article 25 du RGPD
 
-Le RGPD (Règlement Général sur la Protection des Données, Union européenne, largement pris en référence au-delà de sa portée juridique directe) reprend ce principe dans son article 25 : « protection des données dès la conception et par défaut » (*privacy by design and by default*), imposant concrètement au responsable de traitement de mettre en œuvre des mesures techniques et organisationnelles appropriées dès la conception d'un traitement de données personnelles.
+Le **RGPD** (Règlement Général sur la Protection des Données, adopté par l'Union européenne, mais largement pris en référence dans le monde au-delà de sa portée juridique territoriale directe) reprend explicitement ce principe dans son **article 25**, intitulé « protection des données dès la conception et par défaut » (*privacy by design and by default*). Cet article transforme une bonne pratique auparavant volontaire en **obligation légale** : il impose concrètement au responsable de traitement de mettre en œuvre des mesures techniques et organisationnelles appropriées dès la conception d'un traitement de données personnelles, et non uniquement au moment de sa mise en service.
+
+Cette exigence juridique a une conséquence directe sur les pratiques de conception logicielle : la démonstration de conformité ne peut plus se limiter à une politique de confidentialité rédigée après coup, elle doit s'appuyer sur des choix de conception effectivement documentés et traçables — ce qui rejoint directement les pratiques d'analyse d'impact décrites à la section 6 ci-dessous.
 
 ---
 
 ## 4. Principes de minimisation
 
-- **Minimisation de la collecte** : ne collecter que les données strictement nécessaires à la finalité poursuivie, pas « au cas où » elles seraient utiles plus tard.
-- **Minimisation de la conservation** : définir une durée de conservation limitée et justifiée, avec suppression ou anonymisation effective au-delà.
-- **Minimisation de l'accès** : appliquer le principe du moindre privilège (chapitre 3) spécifiquement aux données personnelles.
-- **Minimisation de l'identifiabilité** : privilégier, quand la finalité le permet, des données pseudonymisées ou anonymisées plutôt que directement identifiantes.
+La minimisation est le principe opérationnel le plus directement actionnable en conception : à chaque décision de conception impliquant des données personnelles, la question à se poser est « en avons-nous réellement besoin, sous cette forme, pour cette durée, et pour qui ? »
+
+- **Minimisation de la collecte** : ne collecter que les données strictement nécessaires à la finalité poursuivie, jamais des données collectées « au cas où » elles seraient utiles plus tard pour un usage non encore défini au moment de la collecte. Un formulaire d'inscription qui demande une date de naissance sans qu'aucune fonctionnalité du système n'en ait besoin viole ce principe.
+- **Minimisation de la conservation** : définir une durée de conservation limitée et explicitement justifiée par la finalité du traitement, avec une suppression ou une anonymisation effective au-delà de cette durée — et non une conservation indéfinie par simple facilité technique.
+- **Minimisation de l'accès** : appliquer le principe du moindre privilège (chapitre 3) spécifiquement aux données personnelles, en s'assurant que seules les personnes ou les composants qui en ont réellement besoin pour une tâche donnée y ont accès.
+- **Minimisation de l'identifiabilité** : privilégier, lorsque la finalité poursuivie le permet, des données pseudonymisées ou anonymisées plutôt que des données directement identifiantes — un traitement statistique agrégé n'a par exemple généralement pas besoin de connaître l'identité précise de chaque individu concerné.
 
 ---
 
 ## 5. Techniques de protection de la vie privée
 
-| Technique | Principe |
-|---|---|
-| **Pseudonymisation** | remplacer un identifiant direct par un pseudonyme, la ré-identification restant possible avec une information additionnelle gardée séparément |
-| **Anonymisation** | rendre la ré-identification impossible, y compris par recoupement avec d'autres sources (plus difficile à garantir réellement que ce que l'on croit souvent) |
-| **Chiffrement** | protège la confidentialité des données au repos et en transit (lien direct avec le module *Cryptographie*) |
-| **Confidentialité différentielle (differential privacy)** | ajout de bruit statistique calibré à des résultats d'agrégation pour empêcher la ré-identification d'un individu tout en préservant l'utilité statistique globale |
-| **Contrôle d'accès et journalisation** | limiter et tracer qui accède à quelles données personnelles |
+Plusieurs techniques concrètes permettent de traduire les principes de minimisation en mesures effectives :
+
+| Technique | Principe | Remarque |
+|---|---|---|
+| **Pseudonymisation** | Remplacer un identifiant direct par un pseudonyme, la ré-identification restant possible avec une information additionnelle gardée séparément | Réduit le risque en cas de fuite partielle, mais la donnée reste juridiquement une donnée personnelle tant que la ré-identification reste possible |
+| **Anonymisation** | Rendre la ré-identification impossible, y compris par recoupement avec d'autres sources de données disponibles | Plus difficile à garantir réellement en pratique que ce que l'on croit souvent, en particulier sur des jeux de données riches en attributs croisables |
+| **Chiffrement** | Protéger la confidentialité des données personnelles au repos et en transit | Lien direct avec le module *Cryptographie* ; protège contre l'accès non autorisé mais ne réduit pas, à lui seul, le volume de données collecté |
+| **Confidentialité différentielle (differential privacy)** | Ajout de bruit statistique calibré à des résultats d'agrégation pour empêcher la ré-identification d'un individu tout en préservant l'utilité statistique globale du jeu de données | Technique avancée, utile notamment pour la publication de statistiques agrégées sans exposer les contributions individuelles |
+| **Contrôle d'accès et journalisation** | Limiter et tracer précisément qui accède à quelles données personnelles, et à quel moment | Complète la minimisation de l'accès en la rendant vérifiable a posteriori |
+
+Ces techniques ne s'excluent pas mutuellement : un système bien conçu combine généralement plusieurs d'entre elles selon la sensibilité et l'usage de chaque catégorie de données traitées.
 
 ---
 
 ## 6. Analyse d'impact relative à la protection des données (AIPD/DPIA)
 
-Pour un traitement de données présentant un risque élevé pour les droits des personnes, une analyse d'impact formelle est requise par de nombreuses réglementations : elle documente la finalité, la nécessité et la proportionnalité du traitement, évalue les risques pour les personnes concernées, et identifie les mesures pour les atténuer — une démarche directement apparentée à l'analyse de risque du module *Gouvernance et gestion des risques SI*, appliquée spécifiquement à la vie privée.
+Pour un traitement de données présentant un risque élevé pour les droits des personnes concernées — par exemple un traitement à grande échelle de données sensibles, ou un dispositif de surveillance systématique — une **analyse d'impact formelle** est requise par de nombreuses réglementations, dont le RGPD.
+
+Cette analyse documente plusieurs éléments de façon structurée : la **finalité** précise du traitement envisagé, sa **nécessité** et sa **proportionnalité** au regard de cette finalité, une évaluation des **risques** pour les droits et libertés des personnes concernées, et enfin l'identification des **mesures** techniques et organisationnelles destinées à atténuer ces risques identifiés.
+
+Cette démarche est directement apparentée à l'analyse de risque enseignée dans le module *Gouvernance et gestion des risques SI*, mais appliquée spécifiquement au domaine de la vie privée : elle en reprend la logique générale (identifier, évaluer, atténuer) tout en la centrant sur l'impact potentiel pour les personnes concernées, plutôt que sur le seul impact pour l'organisation qui traite les données.
 
 ---
 
 ## 7. LINDDUN : threat modeling orienté vie privée
 
-Complément du chapitre 2 : LINDDUN structure l'identification de menaces spécifiques à la vie privée (Linkability, Identifiability, Non-repudiation, Detectability, Disclosure of information, Unawareness, Non-compliance), sur le même principe que STRIDE mais orienté vers les atteintes à la vie privée plutôt que vers les propriétés de sécurité classiques.
+**LINDDUN** est un complément direct au threat modeling présenté au chapitre 2 : la méthode structure l'identification de menaces spécifiques à la vie privée, sur le même principe organisationnel que STRIDE (une classification en catégories, examinées systématiquement pour chaque composant), mais orientée vers les atteintes à la vie privée plutôt que vers les propriétés de sécurité classiques.
+
+| Lettre | Menace |
+|---|---|
+| **L** | Linkability (liaison de données entre elles, permettant de relier des informations autrement disjointes à une même personne) |
+| **I** | Identifiability (identifiabilité, possibilité d'identifier une personne à partir de données a priori anonymes) |
+| **N** | Non-repudiation (non-répudiation, ici comme menace : impossibilité pour une personne de nier de façon plausible une action, même quand cela nuirait à sa vie privée) |
+| **D** | Detectability (détectabilité de l'existence même d'une donnée ou d'un événement concernant une personne) |
+| **D** | Disclosure of information (divulgation d'information personnelle) |
+| **U** | Unawareness (méconnaissance par la personne concernée de la collecte ou de l'usage fait de ses données) |
+| **N** | Non-compliance (non-conformité aux exigences légales et réglementaires applicables) |
+
+Comme pour STRIDE, l'usage de LINDDUN consiste à examiner systématiquement chaque composant et chaque flux d'un diagramme de traitement de données au regard de ces sept catégories, afin de ne pas se limiter aux risques de vie privée les plus évidents ou les plus médiatisés.
 
 ---
 
 ## À retenir
 
-- Le privacy by design intègre la protection des données personnelles comme caractéristique par défaut d'un système, formalisé juridiquement par l'article 25 du RGPD et des dispositions équivalentes ailleurs.
-- La minimisation (collecte, conservation, accès, identifiabilité) est le principe opérationnel le plus directement actionnable en conception.
-- LINDDUN transpose la logique de threat modeling (STRIDE) spécifiquement aux risques pour la vie privée, complétant l'analyse de sécurité classique.
+- Le privacy by design intègre la protection des données personnelles comme caractéristique par défaut d'un système, via ses sept principes fondateurs (Ann Cavoukian), formalisé juridiquement par l'article 25 du RGPD et des dispositions équivalentes ailleurs.
+- La minimisation (collecte, conservation, accès, identifiabilité) est le principe opérationnel le plus directement actionnable en conception, appuyée par des techniques concrètes : pseudonymisation, anonymisation, chiffrement, confidentialité différentielle.
+- L'analyse d'impact (AIPD/DPIA) documente finalité, nécessité, proportionnalité et mesures d'atténuation pour les traitements à risque élevé, en miroir de l'analyse de risque du module Gouvernance.
+- LINDDUN transpose la logique de threat modeling (STRIDE) spécifiquement aux risques pour la vie privée, complétant l'analyse de sécurité classique du chapitre 2.

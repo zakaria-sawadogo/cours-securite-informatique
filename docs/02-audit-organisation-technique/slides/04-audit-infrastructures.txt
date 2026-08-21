@@ -8,23 +8,27 @@
 
 ## 1. Audit de l'architecture réseau
 
-- **Segmentation** : vérifier l'existence de zones réseau distinctes (DMZ, réseau interne, réseau d'administration) et que le filtrage entre zones suit le principe du moindre privilège.
-- **Flux autorisés** : revue des règles de pare-feu (une règle `ANY-ANY` en sortie ou entrée est presque toujours une non-conformité à documenter).
-- **Points d'entrée exposés** : recensement de tout ce qui est accessible depuis Internet (VPN, portails, services mal exposés par erreur).
+L'architecture réseau constitue la première ligne de défense d'un système d'information, et son audit vise à vérifier qu'elle limite effectivement la propagation d'une compromission plutôt que de simplement filtrer le trafic entrant.
+
+- **Segmentation** : il s'agit de vérifier l'existence de zones réseau distinctes (DMZ pour les services exposés à Internet, réseau interne pour les postes de travail, réseau d'administration dédié aux équipements critiques) et que le filtrage entre ces zones suit le **principe du moindre privilège** — c'est-à-dire que seuls les flux strictement nécessaires au fonctionnement du système sont autorisés à traverser une frontière de zone. Une segmentation absente ou mal conçue signifie qu'un attaquant ayant compromis une seule machine peu sensible (par exemple un poste utilisateur) peut ensuite se déplacer librement vers des systèmes bien plus critiques (serveurs de base de données, contrôleurs de domaine).
+- **Flux autorisés** : l'auditeur procède à une revue systématique des règles de pare-feu. Une règle de type `ANY-ANY` (tout autorisé, quelle que soit la source, la destination ou le port), qu'elle soit en entrée ou en sortie, est presque toujours une non-conformité à documenter : elle indique généralement que la règle a été créée par facilité pour résoudre un problème ponctuel, sans jamais avoir été resserrée par la suite.
+- **Points d'entrée exposés** : il s'agit de recenser exhaustivement tout ce qui est accessible depuis Internet — accès VPN, portails d'administration, services qui devaient rester internes mais ont été exposés par erreur de configuration. Ce recensement s'appuie souvent sur des outils de cartographie externe (scan depuis l'extérieur du réseau) car la documentation interne de l'organisation ne reflète pas toujours fidèlement la réalité de ce qui est réellement exposé.
 
 ---
 
 ## 2. Audit des équipements réseau
 
-- Mots de passe par défaut non changés (routeurs, switchs, imprimantes réseau, caméras IP).
-- Protocoles non chiffrés encore actifs (Telnet, HTTP d'administration, SNMP v1/v2 avec communauté `public`).
-- Firmware obsolète et absence de politique de mise à jour.
+Les équipements réseau (routeurs, commutateurs, imprimantes réseau, caméras IP et autres objets connectés) constituent une catégorie d'actifs souvent moins surveillée que les serveurs applicatifs, alors qu'ils présentent des faiblesses récurrentes et bien documentées :
+
+- **Mots de passe par défaut non changés** : de nombreux équipements sont livrés avec des identifiants d'administration standard, documentés publiquement par le fabricant ; laisser ces identifiants inchangés équivaut, en pratique, à ne pas protéger l'équipement du tout.
+- **Protocoles non chiffrés encore actifs** : Telnet pour l'administration à distance, interfaces d'administration en HTTP simple plutôt qu'en HTTPS, SNMP en version 1 ou 2 utilisant la chaîne de communauté par défaut `public` (qui donne un accès en lecture, voire en écriture selon la configuration, sans authentification réelle). Ces protocoles historiques transmettent les informations, y compris les identifiants, en clair sur le réseau.
+- **Firmware obsolète et absence de politique de mise à jour** : à la différence d'un serveur, un équipement réseau est souvent installé une fois puis oublié pendant des années, sans processus formel de mise à jour de son firmware, alors que des vulnérabilités y sont régulièrement découvertes et corrigées par les fabricants.
 
 ---
 
 ## 3. Audit des systèmes d'exploitation (hardening)
 
-Points de contrôle typiques, alignés sur les référentiels de durcissement (CIS Benchmarks) :
+Le **durcissement** (*hardening*) d'un système d'exploitation consiste à réduire sa surface d'attaque en désactivant tout ce qui n'est pas strictement nécessaire et en renforçant la configuration des éléments conservés. Les référentiels de durcissement les plus utilisés en pratique sont les **CIS Benchmarks** (*Center for Internet Security*), qui fournissent des points de contrôle précis et mesurables par famille de systèmes (Windows Server, distributions Linux, équipements réseau, conteneurs). Un audit de durcissement s'organise généralement autour des domaines suivants :
 
 | Domaine | Points de contrôle |
 |---|---|
@@ -34,37 +38,43 @@ Points de contrôle typiques, alignés sur les référentiels de durcissement (C
 | Journalisation | logs activés, centralisés, conservés une durée suffisante |
 | Droits | principe du moindre privilège, séparation des comptes admin/utilisateur |
 
+Le domaine **comptes et authentification** vise à s'assurer que les comptes livrés par défaut avec le système (souvent avec des droits élevés) sont désactivés ou renommés, qu'une politique de mots de passe robuste est appliquée techniquement (et pas seulement recommandée par écrit), et surtout que l'authentification multi-facteurs (MFA) protège les comptes disposant de privilèges d'administration — ces comptes étant la cible privilégiée de tout attaquant cherchant à étendre son contrôle. Le domaine **services** repose sur un principe simple : chaque service actif sur une machine constitue un point d'entrée potentiel supplémentaire ; désactiver ceux qui ne sont pas utilisés réduit mécaniquement la surface exposée, sans nécessiter de mesure de sécurité additionnelle. Le domaine **correctifs** ne se limite pas à vérifier l'existence d'une politique écrite : il mesure concrètement le délai moyen entre la publication d'un correctif critique et son application effective sur le parc, un indicateur souvent bien plus révélateur que la simple existence de la politique. Enfin, la **journalisation** conditionne la capacité de l'organisation à détecter une compromission et à en reconstituer le déroulement a posteriori — des journaux non centralisés ou conservés trop peu de temps rendent toute investigation ultérieure très difficile, voire impossible.
+
 ---
 
 ## 4. Cas particulier : audit d'un domaine Active Directory
 
-L'annuaire Active Directory est une cible privilégiée car il centralise l'authentification. Points d'audit fréquents :
+L'annuaire **Active Directory** est une cible privilégiée dans la quasi-totalité des environnements Windows d'entreprise, car il centralise l'authentification et l'autorisation de l'ensemble du parc : compromettre le domaine revient souvent à compromettre l'intégralité du système d'information. Les points d'audit les plus fréquemment examinés sont :
 
-- comptes avec mot de passe n'expirant jamais ou marqués `PASSWD_NOTREQD` ;
-- délégation Kerberos non contrainte mal maîtrisée (risque d'usurpation) ;
-- groupes à privilèges (`Domain Admins`) surdimensionnés ;
-- absence de séparation entre comptes d'administration et comptes utilisateurs quotidiens ;
-- outils dédiés d'audit : `BloodHound` (cartographie des chemins d'attaque), `PingCastle` (score de maturité AD).
+- **comptes avec mot de passe n'expirant jamais** ou marqués `PASSWD_NOTREQD` (mot de passe non requis), qui représentent des cibles faciles pour une attaque par force brute ou par devinette, d'autant plus dangereuses qu'elles ne sont soumises à aucune politique de renouvellement ;
+- **délégation Kerberos non contrainte mal maîtrisée**, un mécanisme technique avancé qui, mal configuré, permet à un attaquant ayant compromis un serveur disposant de cette délégation d'usurper l'identité de n'importe quel autre utilisateur du domaine qui s'y connecte, y compris des administrateurs ;
+- **groupes à privilèges surdimensionnés** (typiquement le groupe `Domain Admins`) : plus ce groupe compte de membres, plus la probabilité qu'un compte compromis en fasse partie augmente, et plus la surface d'attaque effective sur les privilèges les plus élevés du domaine s'élargit ;
+- **absence de séparation entre comptes d'administration et comptes utilisateurs quotidiens** : un administrateur qui utilise le même compte pour consulter ses e-mails et pour administrer les serveurs expose ses privilèges élevés à toute compromission de son poste de travail habituel, un vecteur d'attaque très courant ;
+- **outils dédiés d'audit** : `BloodHound` permet de cartographier automatiquement les chemins d'attaque possibles au sein d'un domaine Active Directory, en révélant des combinaisons de permissions qu'aucun administrateur n'aurait identifiées manuellement ; `PingCastle` produit un score de maturité synthétique du domaine, comparable à un tableau de bord de risque, utile pour communiquer rapidement l'état de sécurité de l'annuaire à une direction non technique.
 
 ---
 
 ## 5. Audit du Cloud et des environnements virtualisés
 
-- Vérification des configurations de stockage (buckets S3 ou équivalents en accès public non justifié).
-- Gestion des identités et accès (IAM) : clés d'API non tournées, permissions trop larges.
-- Isolation entre locataires (tenants) dans un environnement mutualisé.
-- Journalisation et alerte (CloudTrail ou équivalent) activées et supervisées.
+Le déplacement croissant des infrastructures vers le Cloud déplace également le périmètre et la nature de l'audit d'infrastructure, sans en réduire l'importance :
+
+- **Vérification des configurations de stockage** : les services de stockage objet (buckets S3 ou équivalents chez d'autres fournisseurs) sont fréquemment configurés par erreur en accès public, exposant des données parfois sensibles à quiconque en devine ou découvre l'adresse — un défaut de configuration, et non une vulnérabilité logicielle, ce qui rend ce type de contrôle particulièrement important en audit Cloud.
+- **Gestion des identités et accès (IAM)** : l'audit vérifie que les clés d'API sont régulièrement renouvelées (« tournées »), et que les permissions accordées à chaque identité (utilisateur, service, application) respectent le principe du moindre privilège plutôt que des permissions larges accordées par facilité de mise en œuvre initiale.
+- **Isolation entre locataires (tenants)** dans un environnement mutualisé : dans les environnements Cloud publics où plusieurs clients partagent la même infrastructure physique sous-jacente, l'audit s'assure que les mécanismes d'isolation logique empêchent effectivement qu'un client puisse accéder, même accidentellement, aux ressources d'un autre.
+- **Journalisation et alerte activées et supervisées** : les fournisseurs Cloud proposent généralement des services de journalisation des actions administratives (CloudTrail ou équivalent) ; leur simple activation ne suffit pas — encore faut-il que ces journaux soient effectivement supervisés et donnent lieu à des alertes exploitées, sans quoi ils ne servent qu'à une investigation a posteriori, une fois l'incident déjà survenu.
 
 ---
 
 ## 6. Restitution d'un audit d'infrastructure
 
-Chaque constat technique doit être formulé selon la structure : **observation** (fait constaté et preuve), **risque** (ce que cela permet à un attaquant), **recommandation** (action corrective priorisée), **référence** (CIS Benchmark, ISO 27002, CVE le cas échéant).
+Pour rester exploitable par des publics différents (équipes techniques et direction), chaque constat technique issu d'un audit d'infrastructure gagne à être formulé selon une structure homogène en quatre éléments : l'**observation** (le fait précisément constaté, accompagné d'une preuve reproductible), le **risque** (ce que cette observation permet concrètement à un attaquant de faire), la **recommandation** (l'action corrective à mener, si possible priorisée et estimée en effort) et la **référence** (le point du référentiel qui justifie le constat — CIS Benchmark, clause ISO 27002, identifiant CVE le cas échéant). Cette structure systématique, reprise en détail au chapitre 6, garantit qu'un constat technique reste toujours relié à un référentiel reconnu plutôt qu'à l'appréciation isolée d'un auditeur.
 
 ---
 
 ## À retenir
 
-- L'audit d'infrastructure combine architecture réseau, configuration système et, de plus en plus, environnements Cloud/AD.
-- Les référentiels de durcissement (CIS Benchmarks) fournissent des points de contrôle réutilisables et mesurables.
-- Chaque constat doit relier un fait technique à un risque métier compréhensible par la direction.
+- L'audit d'infrastructure combine architecture réseau, configuration système et, de plus en plus, environnements Cloud et Active Directory, chacun avec ses points de contrôle spécifiques.
+- Les référentiels de durcissement (CIS Benchmarks) fournissent des points de contrôle réutilisables et mesurables, plus fiables qu'une simple appréciation qualitative.
+- Active Directory reste une cible privilégiée en environnement Windows d'entreprise, avec des outils d'audit dédiés (BloodHound, PingCastle) qui automatisent la découverte de chemins d'attaque.
+- Le Cloud déplace le périmètre de l'audit (configuration, IAM, isolation, journalisation) sans en réduire l'importance ni la rigueur attendue.
+- Chaque constat doit relier un fait technique à un risque métier compréhensible par la direction, via une structure homogène : observation, risque, recommandation, référence.

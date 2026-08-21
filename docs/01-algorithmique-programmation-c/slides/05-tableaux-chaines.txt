@@ -16,7 +16,9 @@ for (i = 0; i < 5; i++) {
 }
 ```
 
-En C, un tableau `notes[5]` occupe un bloc contigu de mémoire ; `notes[i]` est strictement équivalent à `*(notes + i)`. **Le C n'effectue aucune vérification de borne** : lire ou écrire `notes[5]` ou `notes[-1]` compile et s'exécute, en accédant à de la mémoire hors du tableau. C'est la cause première des débordements de tampon (*buffer overflow*), une des vulnérabilités logicielles les plus exploitées historiquement — approfondie dans *Sécurité des applications*.
+Un tableau en C, tel que `notes[5]`, réserve un **bloc contigu** de mémoire capable de contenir exactement cinq entiers, alloué en une seule fois au moment de sa déclaration. Cette contiguïté n'est pas un détail d'implémentation anodin : elle explique directement pourquoi l'indexation `notes[i]` fonctionne, et surtout ce qu'elle fait réellement « sous le capot ». En C, `notes[i]` est **strictement équivalent**, par définition du langage, à l'expression `*(notes + i)` : le nom du tableau, utilisé dans une expression, se comporte comme un pointeur vers son premier élément (`notes[0]`), et `notes + i` calcule l'adresse de l'élément situé `i` positions plus loin (l'arithmétique de pointeurs, détaillée au chapitre 6, tient automatiquement compte de la taille du type — ici `sizeof(int)` — pour ce calcul). Accéder à `notes[i]`, c'est donc calculer une adresse mémoire puis y lire ou écrire une valeur, rien de plus.
+
+Cette équivalence a une conséquence fondamentale, à retenir dès maintenant : **le C n'effectue aucune vérification de borne à l'exécution**. Contrairement à des langages qui interrompent immédiatement le programme (en levant une exception) dès qu'un indice sort des limites valides d'un tableau, le C calcule simplement l'adresse correspondante et accède à la mémoire qui s'y trouve — que cette adresse appartienne réellement au tableau ou non. Ainsi, lire ou écrire `notes[5]` (un indice hors limites, puisque les indices valides vont de `0` à `4`) ou `notes[-1]` **compile sans erreur et s'exécute**, en accédant à de la mémoire adjacente au tableau, dont le contenu et la structure sont totalement imprévisibles du point de vue du programme. C'est la cause première d'une des vulnérabilités logicielles les plus exploitées historiquement, le **débordement de tampon** (*buffer overflow*) : lorsque l'indice ou la quantité de données écrites dans un tableau dépend, directement ou indirectement, d'une entrée fournie par un utilisateur non fiable, un attaquant peut délibérément provoquer une écriture hors limites pour corrompre des données adjacentes, voire, dans les cas les plus graves, détourner le flux d'exécution du programme. Ce sujet sera approfondi et mis en pratique dans le cours *Sécurité des applications*.
 
 ---
 
@@ -27,13 +29,13 @@ int matrice[3][4];
 matrice[1][2] = 7;
 ```
 
-Stockage en mémoire en *row-major order* : les éléments d'une même ligne sont contigus.
+Un tableau à deux dimensions, tel que `matrice[3][4]` (3 lignes, 4 colonnes), n'est en réalité, en mémoire, qu'un unique bloc contigu de 3 × 4 = 12 entiers : le C ne dispose pas d'une structure de données « tableau 2D » distincte, il s'agit simplement d'un tableau d'entiers organisé et adressé selon deux indices au lieu d'un. Le stockage se fait en **row-major order** (ordre ligne par ligne) : tous les éléments d'une même ligne sont contigus en mémoire avant que ne commence la ligne suivante. Concrètement, l'élément `matrice[1][2]` se trouve, en mémoire, à la position `1 * 4 + 2 = 6` en partant du début du bloc — un calcul que le compilateur effectue automatiquement à chaque accès, mais qu'il est utile de comprendre pour raisonner sur la performance (parcourir une matrice ligne par ligne, dans l'ordre naturel de stockage, est nettement plus efficace pour le cache processeur que de la parcourir colonne par colonne) et pour comprendre pourquoi, comme pour un tableau à une dimension, aucune vérification de borne n'est effectuée sur l'un ou l'autre des deux indices.
 
 ---
 
 ## 3. Chaînes de caractères
 
-En C, une chaîne est un tableau de `char` terminé par l'octet nul `'\0'`.
+En C, il n'existe pas de type dédié aux chaînes de caractères comme dans de nombreux autres langages : une **chaîne** est simplement une convention, un tableau de `char` dont la fin est marquée par un octet spécial de valeur zéro, appelé le **caractère nul** et noté `'\0'`. C'est cette convention, et elle seule, qui permet aux fonctions de manipulation de chaînes de savoir où une chaîne se termine — un tableau de `char` sans `'\0'` final n'est, du point de vue du C, pas une chaîne valide, même s'il contient par ailleurs des caractères lisibles.
 
 ```c
 char nom[20] = "Zakaria";
@@ -41,23 +43,31 @@ printf("%s\n", nom);
 printf("Longueur : %zu\n", strlen(nom)); // 7, sans compter '\0'
 ```
 
+Ici, `nom` est un tableau capable de contenir 20 caractères, mais seuls les 7 premiers sont occupés par `"Zakaria"`, suivis automatiquement d'un `'\0'` (ajouté implicitement par le compilateur lors de cette initialisation littérale), le reste du tableau restant simplement disponible et non initialisé. La fonction `strlen` ne renvoie **pas** la taille du tableau (qui est de 20 octets) mais le nombre de caractères **avant** le `'\0'`, qu'elle détermine en parcourant la chaîne caractère par caractère jusqu'à trouver cet octet nul — une distinction essentielle entre la **taille allouée** d'un buffer et la **longueur** de la chaîne qu'il contient actuellement.
+
 ### Fonctions de `string.h`
 
 | Fonction | Rôle | Risque |
 |---|---|---|
-| `strlen` | longueur d'une chaîne | boucle infinie si pas de `'\0'` |
-| `strcpy(dst, src)` | copie | **aucune vérification de taille** → débordement |
-| `strncpy(dst, src, n)` | copie bornée | ne garantit pas la terminaison par `'\0'` |
-| `strcat(dst, src)` | concaténation | même risque que `strcpy` |
-| `strcmp(a, b)` | comparaison lexicographique | — |
-| `snprintf` | formatage borné | alternative sûre recommandée |
+| `strlen` | longueur d'une chaîne | boucle infinie (ou lecture hors limites) si pas de `'\0'` présent dans le buffer |
+| `strcpy(dst, src)` | copie une chaîne | **aucune vérification de taille** : écrit autant d'octets que nécessaire, même si `dst` est trop petit → débordement |
+| `strncpy(dst, src, n)` | copie bornée à `n` octets | ne garantit **pas** la terminaison par `'\0'` si `src` fait `n` octets ou plus |
+| `strcat(dst, src)` | concaténation | même risque que `strcpy` : aucune vérification que `dst` a assez de place pour accueillir le résultat |
+| `strcmp(a, b)` | comparaison lexicographique (0 si égales) | — |
+| `snprintf` | formatage borné dans un buffer | alternative sûre recommandée à `sprintf`, `strcpy` et `strcat` |
+
+Ce tableau met en évidence un point essentiel : la plupart des fonctions historiques de manipulation de chaînes en C ont été conçues à une époque où la sécurité n'était pas une préoccupation de conception première, et **aucune d'entre elles ne connaît la taille réelle du buffer de destination** — c'est entièrement au programmeur de s'assurer, avant chaque appel, que ce buffer est suffisamment grand pour accueillir le résultat.
 
 ```c
 char buffer[10];
 strcpy(buffer, "Ceci dépasse dix caractères"); // comportement indéfini : écrase la mémoire adjacente
 ```
 
-**Bonne pratique** : préférer systématiquement les variantes bornées (`snprintf`, `strncat` avec vérification manuelle du `'\0'` final) et vérifier la taille des buffers avant toute copie.
+Dans cet exemple, la chaîne source fait 29 caractères (plus le `'\0'`), largement plus que les 10 octets disponibles dans `buffer`. `strcpy` ne s'en aperçoit à aucun moment : elle copie caractère par caractère jusqu'au `'\0'` de la source, sans jamais vérifier qu'elle dépasse la taille de `buffer`. Le résultat est un **comportement indéfini** : les octets excédentaires sont écrits dans la mémoire qui suit immédiatement `buffer`, corrompant potentiellement d'autres variables, des structures de contrôle internes, voire — dans le cas d'un tableau déclaré sur la pile — l'adresse de retour de la fonction elle-même, ce qui constitue la base du détournement de flux d'exécution classique (*stack smashing*) largement étudié en exploitation de vulnérabilités.
+
+Même `strncpy`, présentée comme la version « sûre » de `strcpy`, comporte un piège fréquent : si la chaîne source fait exactement `n` caractères ou plus, `strncpy` copie `n` octets **sans jamais écrire de `'\0'` final** — le buffer de destination n'est alors pas correctement terminé, et toute fonction qui le traite ensuite comme une chaîne (par exemple `strlen` ou `printf("%s", ...)`) continuera de lire au-delà de sa fin jusqu'à trouver, par hasard, un octet nul ailleurs en mémoire.
+
+**Bonne pratique** : préférer systématiquement les variantes bornées et explicites — `snprintf(dst, taille_dst, "%s", src)` pour une copie sûre, en vérifiant toujours manuellement la terminaison par `'\0'` lorsqu'on utilise `strncpy` ou une fonction de concaténation bornée — et vérifier la taille réelle des buffers avant toute opération de copie ou de concaténation, sans jamais supposer qu'une source est « raisonnablement courte ».
 
 ---
 
@@ -68,18 +78,36 @@ const char *jours[] = {"Lundi", "Mardi", "Mercredi"};
 printf("%s\n", jours[1]); // Mardi
 ```
 
+Ici, `jours` n'est pas un tableau de caractères mais un **tableau de pointeurs vers des chaînes de caractères** : chaque élément `jours[i]` est un `const char *`, c'est-à-dire l'adresse du premier caractère d'une chaîne littérale stockée ailleurs en mémoire (typiquement dans une zone en lecture seule du programme). Le mot-clé `const` indique que ces chaînes ne doivent pas être modifiées par le programme — tenter de le faire (par exemple `jours[0][0] = 'X';`) est un comportement indéfini, car les littéraux de chaîne en C sont généralement placés dans une région mémoire protégée en écriture. Cette structure — un tableau de pointeurs, chacun désignant une chaîne indépendante, potentiellement de longueurs différentes — est très répandue en C, notamment pour représenter des listes de mots-clés, de messages, ou encore les arguments de la ligne de commande (`argv`, vu en TP).
+
 ---
 
 ## 5. Parcours et algorithmes classiques
 
-- **Recherche** d'un élément (séquentielle, dichotomique sur tableau trié).
-- **Tri** : sélection, insertion, bulle (introduction aux algorithmes de tri, complétés par des algorithmes plus efficaces — tri rapide, tri fusion — en exercice de TP).
-- **Inversion** d'un tableau en place (technique des deux pointeurs, réutilisée en cryptographie pour l'endianness et le padding).
+L'étude des tableaux est indissociable de quelques algorithmes fondamentaux qui les parcourent et les manipulent, et qui reviendront constamment tout au long du cursus, y compris dans des contextes de sécurité :
+
+- **Recherche** d'un élément : la **recherche séquentielle**, qui compare l'élément recherché à chaque case du tableau dans l'ordre, fonctionne sur n'importe quel tableau mais a une complexité O(n) (chapitre 3) ; la **recherche dichotomique**, applicable uniquement sur un tableau préalablement **trié**, élimine la moitié des candidats restants à chaque comparaison et atteint une complexité O(log n), bien plus efficace pour de grands volumes de données.
+- **Tri** : les algorithmes de tri par **sélection**, par **insertion** et à **bulles** constituent une introduction pédagogique aux algorithmes de tri — simples à comprendre et à implémenter, mais de complexité O(n²), donc peu adaptés à de très grands tableaux. Ils seront complétés en travaux pratiques par des algorithmes de tri plus efficaces, comme le **tri rapide** (*quicksort*) ou le **tri fusion** (*merge sort*), tous deux de complexité moyenne O(n log n).
+- **Inversion d'un tableau en place** : technique dite « des deux pointeurs » (ou deux indices), qui échange l'élément situé au début du tableau avec celui situé à la fin, puis progresse simultanément vers le centre jusqu'à ce que les deux indices se croisent — sans nécessiter de tableau auxiliaire. Cette même technique de parcours par deux extrémités convergentes se retrouve, sous une forme différente, en cryptographie lors de la manipulation de l'ordre des octets (*endianness*, l'ordre dans lequel les octets d'une valeur multi-octets sont stockés en mémoire) et du *padding* (ajout d'octets de remplissage pour atteindre une taille de bloc requise), deux notions reprises dans le chapitre *Cryptographie*.
+
+```c
+void inverser(int tab[], int taille) {
+    int debut = 0, fin = taille - 1;
+    while (debut < fin) {
+        int temp = tab[debut];
+        tab[debut] = tab[fin];
+        tab[fin] = temp;
+        debut++;
+        fin--;
+    }
+}
+```
 
 ---
 
 ## À retenir
 
-- Un tableau C ne connaît pas sa propre taille à l'exécution : il faut la transmettre séparément.
-- Aucune vérification de borne : la responsabilité de la validité des indices incombe entièrement au programmeur.
-- Une chaîne C est un tableau de `char` + `'\0'` ; toute fonction qui manipule des chaînes sans vérifier les tailles est un point d'attention sécurité.
+- Un tableau C ne connaît pas sa propre taille à l'exécution : il faut systématiquement la transmettre séparément à toute fonction qui le manipule.
+- Le C n'effectue aucune vérification de borne : `notes[i]` n'est qu'un calcul d'adresse (`*(notes + i)`), et la responsabilité de la validité des indices incombe entièrement au programmeur.
+- Une chaîne C est un tableau de `char` terminé par `'\0'` ; toute fonction qui manipule des chaînes sans vérifier explicitement les tailles de buffer (`strcpy`, `strcat`, `scanf("%s", ...)`) est un point d'attention sécurité majeur.
+- Préférer systématiquement les alternatives bornées (`snprintf`, vérification manuelle des tailles) aux fonctions historiques non sécurisées.

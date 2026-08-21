@@ -8,74 +8,85 @@
 
 ## 1. Principe de la signature numérique
 
-La signature numérique fournit **authenticité**, **intégrité** et **non-répudiation** : le signataire utilise sa clé privée pour produire une signature liée à un message, que quiconque peut vérifier avec la clé publique correspondante, sans pouvoir produire lui-même une signature valide.
+La signature numérique fournit simultanément trois propriétés que ni le chiffrement symétrique ni un simple MAC (chapitre 3) ne peuvent apporter ensemble : **authenticité** (le signataire est identifié), **intégrité** (le message n'a pas été altéré depuis la signature) et surtout **non-répudiation** (le signataire ne peut pas nier ultérieurement, y compris devant un tiers, être l'auteur de la signature). Le signataire utilise sa clé **privée** pour produire une signature liée de façon unique au message ; quiconque possède la clé **publique** correspondante peut vérifier cette signature, sans jamais pouvoir en produire une valide lui-même, puisqu'il ne détient pas la clé privée.
 
 ### Schéma général
 
-1. Calculer l'empreinte du message : `h = H(message)` (fonction de hachage, chapitre 3).
+1. Calculer l'empreinte du message : `h = H(message)`, à l'aide d'une fonction de hachage cryptographique (chapitre 3), typiquement SHA-256 ou SHA-512.
 2. Signer l'empreinte avec la clé privée : `signature = Sign(clé privée, h)`.
-3. Vérification : recalculer `H(message)` et vérifier la signature avec la clé publique.
+3. Vérification : le vérificateur recalcule indépendamment `H(message)` à partir du message reçu, puis vérifie la signature reçue avec la clé publique du signataire présumé (via `Verify(clé publique, h, signature)`).
 
-Signer l'empreinte plutôt que le message entier permet de traiter des messages de taille arbitraire avec des opérations cryptographiques de taille fixe, et rend toute modification du message détectable (l'empreinte changerait).
+Signer l'empreinte du message plutôt que le message entier apporte deux avantages pratiques essentiels. D'une part, cela permet de traiter des messages de taille totalement arbitraire (un document de quelques octets ou un fichier de plusieurs gigaoctets) avec des opérations cryptographiques de taille fixe, puisque l'empreinte a toujours la même longueur quelle que soit la taille du message d'origine. D'autre part, cela rend toute modification, même minime, du message détectable : la moindre altération change complètement l'empreinte calculée (effet avalanche du hachage), ce qui invalide immédiatement la signature lors de la vérification.
 
 ---
 
 ## 2. RSA-PSS
 
-Schéma de signature basé sur RSA avec un padding probabiliste (PSS — Probabilistic Signature Scheme), aujourd'hui recommandé pour la signature (par opposition à un ancien schéma déterministe PKCS#1 v1.5, encore présent mais moins recommandé pour de nouveaux déploiements).
+**RSA-PSS** est un schéma de signature basé sur RSA, utilisant un padding **probabiliste** (PSS — *Probabilistic Signature Scheme*), aujourd'hui recommandé pour toute nouvelle mise en œuvre de signature RSA. Le caractère probabiliste signifie qu'un même message signé deux fois avec la même clé privée produit deux signatures différentes (grâce à un sel aléatoire intégré au calcul), contrairement à un schéma déterministe.
+
+Ce schéma est aujourd'hui privilégié par rapport à l'ancien standard **PKCS#1 v1.5**, un padding déterministe pour la signature, encore largement présent dans des systèmes existants pour des raisons de compatibilité mais moins recommandé pour de nouveaux déploiements en raison de propriétés de sécurité plus fragiles face à certaines analyses formelles, même si aucune attaque pratique généralisée ne le rend inutilisable dans tous les contextes. La recommandation générale reste néanmoins de préférer PSS dès que la compatibilité le permet.
 
 ---
 
 ## 3. ECDSA et Ed25519
 
-- **ECDSA** : signature sur courbe elliptique, largement déployée (certificats TLS, Bitcoin). Point de vigilance : la sécurité d'ECDSA dépend crucialement d'un nombre aléatoire (« nonce ») unique et non prévisible à chaque signature — un nonce réutilisé ou prévisible permet de retrouver directement la clé privée (illustré par des compromissions réelles, notamment sur certaines consoles de jeu et portefeuilles Bitcoin mal implémentés).
-- **Ed25519** : schéma de signature moderne basé sur la courbe Curve25519, déterministe (ne dépend pas d'un aléa externe à chaque signature, éliminant le risque de nonce faible), rapide et largement recommandé pour les nouveaux déploiements (SSH, protocoles modernes).
+Deux schémas de signature fondés sur la cryptographie sur courbes elliptiques (chapitre 4) dominent les déploiements modernes, avec des propriétés de robustesse sensiblement différentes :
+
+- **ECDSA** (*Elliptic Curve Digital Signature Algorithm*) : largement déployée (certificats TLS, Bitcoin et de nombreuses blockchains, cartes à puce). Point de vigilance majeur : la sécurité d'ECDSA dépend crucialement de la génération, à **chaque** signature, d'un nombre aléatoire (le « nonce ») qui doit être à la fois unique et totalement imprévisible. Un nonce réutilisé entre deux signatures différentes, ou même simplement prévisible (généré par un générateur aléatoire de mauvaise qualité), permet à un attaquant de retrouver directement la clé privée du signataire par un calcul algébrique simple — une classe de faille qui a été illustrée par des compromissions réelles documentées, notamment sur certaines consoles de jeu et des portefeuilles Bitcoin dont l'implémentation générait des nonces de façon défaillante.
+- **Ed25519** : schéma de signature moderne fondé sur la courbe Curve25519 (chapitre 4), conçu pour éliminer structurellement le risque décrit ci-dessus : il est **déterministe**, c'est-à-dire que le nonce nécessaire au calcul est dérivé de façon reproductible de la clé privée et du message lui-même, plutôt que tiré d'un générateur aléatoire externe à chaque signature. Cette conception élimine par construction le risque de nonce faible ou réutilisé. Ed25519 est en outre notablement plus rapide qu'ECDSA à niveau de sécurité comparable, et largement recommandé pour les nouveaux déploiements (SSH, de nombreux protocoles et bibliothèques cryptographiques modernes).
 
 ---
 
 ## 4. Certificats numériques
 
-Un certificat numérique lie une identité (personne, serveur, organisation) à une clé publique, la liaison étant elle-même garantie par la signature numérique d'une **autorité de certification (AC/CA)** de confiance. Format standard le plus répandu : **X.509**.
+Un certificat numérique établit un lien vérifiable entre une **identité** (une personne, un serveur, une organisation) et une **clé publique** donnée, ce lien étant lui-même garanti par la signature numérique d'une **autorité de certification** (AC, ou *CA* — *Certificate Authority*) reconnue et de confiance. Le format standard le plus répandu pour structurer ces certificats est **X.509**.
 
 ### Contenu typique d'un certificat X.509
 
-- Identité du sujet (ex. nom de domaine pour un certificat de serveur).
-- Clé publique du sujet.
-- Identité de l'autorité de certification émettrice.
-- Période de validité.
-- Signature numérique de l'AC sur l'ensemble de ces informations.
+- L'identité du sujet (par exemple le nom de domaine complet pour un certificat de serveur web, ou le nom d'une organisation).
+- La clé publique appartenant au sujet.
+- L'identité de l'autorité de certification qui a émis et signé le certificat.
+- La période de validité du certificat (date de début et date d'expiration).
+- La signature numérique de l'AC, calculée sur l'ensemble des informations précédentes, qui garantit que ces informations n'ont pas été modifiées depuis l'émission.
+
+Un certificat n'est donc, dans son essence, qu'une déclaration signée : « l'AC atteste que cette clé publique appartient bien à cette identité ». Toute la confiance accordée au certificat repose in fine sur la confiance accordée à l'AC émettrice.
 
 ---
 
 ## 5. Infrastructure à clés publiques (PKI)
 
-Ensemble des composants et procédures permettant de créer, distribuer, vérifier et révoquer des certificats :
+Une PKI (*Public Key Infrastructure*) désigne l'ensemble des composants techniques et des procédures organisationnelles permettant de créer, distribuer, vérifier et révoquer des certificats à grande échelle :
 
-- **Autorité de certification (AC/CA)** : émet et signe les certificats.
-- **Autorité d'enregistrement (RA)** : vérifie l'identité du demandeur avant émission.
-- **Chaîne de confiance** : un certificat intermédiaire est lui-même signé par une AC racine, dont la clé publique est préinstallée (« ancre de confiance ») dans les navigateurs et systèmes d'exploitation.
-- **Révocation** : mécanismes de liste de révocation (CRL) ou de vérification en ligne (OCSP), permettant d'invalider un certificat compromis avant sa date d'expiration normale.
+- **Autorité de certification (AC/CA)** : l'entité qui émet et signe effectivement les certificats, engageant sa réputation (et souvent sa responsabilité contractuelle) sur la validité des identités qu'elle certifie.
+- **Autorité d'enregistrement (RA — *Registration Authority*)** : l'entité chargée de vérifier l'identité du demandeur avant l'émission d'un certificat par l'AC — une étape souvent déléguée, distincte de l'AC elle-même, dont la rigueur conditionne directement la fiabilité de tous les certificats émis en aval.
+- **Chaîne de confiance** : dans la plupart des déploiements, un certificat de serveur est signé non pas directement par une AC racine, mais par un certificat **intermédiaire**, lui-même signé par l'AC racine. Cette hiérarchie permet de limiter l'exposition de la clé privée de l'AC racine (conservée hors ligne dans des conditions de sécurité renforcées) tout en permettant l'émission courante de certificats via les intermédiaires. La clé publique de l'AC racine constitue l'**ancre de confiance** (*trust anchor*), préinstallée dans les navigateurs et les systèmes d'exploitation, à partir de laquelle toute la chaîne est vérifiée.
+- **Révocation** : un certificat peut devoir être invalidé avant sa date d'expiration normale (clé privée compromise, changement d'identité du sujet). Deux mécanismes coexistent : les **listes de révocation de certificats** (CRL — listes téléchargées périodiquement, listant les certificats révoqués) et **OCSP** (*Online Certificate Status Protocol* — vérification en ligne, en temps réel, du statut d'un certificat précis).
 
 ### Vérification d'un certificat côté client
 
-1. Le certificat est-il signé par une AC de confiance (remontée de la chaîne jusqu'à une ancre de confiance) ?
-2. Le certificat est-il dans sa période de validité ?
-3. Le certificat correspond-il bien à l'identité attendue (ex. nom de domaine) ?
-4. Le certificat a-t-il été révoqué ?
+Lorsqu'un client (navigateur, application) reçoit un certificat, il doit effectuer plusieurs vérifications indépendantes, **toutes** nécessaires pour que la protection soit effective :
 
-Une faille dans n'importe laquelle de ces vérifications (ex. accepter un certificat expiré, ou ne pas vérifier le nom de domaine) annule la protection apportée par toute la chaîne cryptographique — un point classique d'audit de sécurité applicative (module *Audit organisation et technique*, chapitre 5).
+1. Le certificat est-il signé par une AC de confiance, la chaîne de signatures remontant bien jusqu'à une ancre de confiance reconnue ?
+2. Le certificat est-il dans sa période de validité (ni pas encore valide, ni expiré) ?
+3. Le certificat correspond-il bien à l'identité attendue par le client (par exemple, le nom de domaine visité correspond-il au sujet du certificat) ?
+4. Le certificat a-t-il été révoqué depuis son émission (vérification CRL ou OCSP) ?
+
+Une faille dans **n'importe laquelle** de ces vérifications — accepter un certificat expiré, ne pas vérifier que le nom de domaine correspond effectivement, ignorer le statut de révocation — annule intégralement la protection apportée par toute la chaîne cryptographique en amont, aussi robuste soit-elle mathématiquement. C'est un point classique d'audit de sécurité applicative (module *Audit organisation et technique*, chapitre 5) : la cryptographie peut être parfaitement correcte tout en étant rendue inefficace par une vérification incomplète côté client.
 
 ---
 
 ## 6. Modèles alternatifs
 
-- **Web of Trust** (utilisé historiquement par PGP/GPG) : confiance distribuée entre pairs plutôt que hiérarchique, sans autorité centrale.
-- **Certificate Transparency** : registres publics et vérifiables des certificats émis, permettant de détecter des émissions frauduleuses par une AC compromise ou négligente.
+Le modèle hiérarchique de PKI décrit ci-dessus n'est pas le seul modèle de confiance existant en cryptographie à clé publique :
+
+- **Web of Trust** (utilisé historiquement par PGP/GPG) : modèle de confiance **distribuée** entre pairs, sans autorité centrale unique. Chaque utilisateur peut signer la clé publique d'un autre utilisateur pour attester qu'il a vérifié son identité par un moyen indépendant ; la confiance globale émerge du réseau de signatures croisées ainsi constitué, plutôt que d'une hiérarchie descendante. Ce modèle évite la dépendance à une AC unique, mais peine à s'imposer à grande échelle en dehors de communautés techniques restreintes, notamment en raison de sa complexité d'usage pour un utilisateur non spécialiste.
+- **Certificate Transparency** : registres publics, append-only et vérifiables cryptographiquement (fondés sur des arbres de Merkle, chapitre 3), dans lesquels toute AC participante doit journaliser chaque certificat qu'elle émet. Ce mécanisme permet de détecter, y compris a posteriori, l'émission frauduleuse ou négligente d'un certificat par une AC compromise ou défaillante, en rendant l'ensemble des certificats émis publiquement auditables par quiconque, y compris le titulaire légitime d'un domaine qui souhaite vérifier qu'aucun certificat non autorisé n'a été émis en son nom.
 
 ---
 
 ## À retenir
 
-- La signature numérique apporte la non-répudiation, absente d'un simple MAC (chapitre 3).
-- ECDSA exige un nonce aléatoire de haute qualité à chaque signature ; Ed25519 élimine ce risque par construction déterministe.
-- Une PKI repose sur une chaîne de confiance hiérarchique ; sa robustesse dépend entièrement de la rigueur de vérification à chaque maillon (identité, validité, révocation).
+- La signature numérique apporte authenticité, intégrité et non-répudiation ; la non-répudiation, en particulier, est absente d'un simple MAC (chapitre 3).
+- ECDSA exige un nonce aléatoire de haute qualité, unique à chaque signature, faute de quoi la clé privée peut être retrouvée ; Ed25519 élimine ce risque par une construction déterministe.
+- Un certificat X.509 lie une identité à une clé publique via la signature d'une AC ; une PKI repose sur une chaîne de confiance hiérarchique jusqu'à une ancre de confiance préinstallée.
+- La robustesse d'une PKI dépend entièrement de la rigueur de vérification à chaque maillon (identité, période de validité, correspondance du domaine, révocation) — une seule vérification omise annule la protection de toute la chaîne.

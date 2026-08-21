@@ -8,17 +8,27 @@
 
 ## 1. Définition
 
-Une blockchain est un registre distribué, répliqué sur de nombreux nœuds d'un réseau pair-à-pair, structuré en blocs chaînés cryptographiquement, dont le contenu passé est rendu extrêmement difficile à modifier une fois validé, sans nécessiter d'autorité centrale unique de confiance.
+Une **blockchain** (chaîne de blocs) est un **registre distribué** (*distributed ledger*) : une base de données qui, au lieu d'être hébergée par une seule organisation sur un serveur central, est **répliquée intégralement** sur de nombreux nœuds indépendants d'un réseau pair-à-pair (*peer-to-peer*). Chaque nœud conserve sa propre copie complète (ou partielle, selon son rôle) du registre, et applique les mêmes règles de validation que les autres pour décider si une nouvelle donnée peut y être ajoutée.
+
+Le registre est organisé en **blocs** : des paquets de données (typiquement des transactions) regroupés et validés ensemble, puis **chaînés cryptographiquement** les uns aux autres — chaque bloc référence le bloc précédent par son empreinte de hachage (détail complet au chapitre 2). Cette construction rend le contenu déjà validé **extrêmement difficile à modifier** a posteriori, sans qu'aucune autorité centrale unique n'ait besoin d'arbitrer la validité des opérations : la confiance repose sur des mécanismes cryptographiques et algorithmiques partagés par l'ensemble du réseau, et non sur la réputation d'un intermédiaire.
+
+Il est utile de contraster cette approche avec une base de données classique : dans un système centralisé, un opérateur unique (une banque, un État, une entreprise) détient l'autorité finale sur ce qui est vrai dans le registre et peut, en théorie, modifier ou effacer un enregistrement. Une blockchain déplace cette autorité vers un **consensus collectif** entre participants qui ne se font pas nécessairement confiance individuellement, mais qui font tous confiance au protocole lui-même.
 
 ---
 
 ## 2. Genèse : Bitcoin (2008-2009)
 
-Publié sous le pseudonyme Satoshi Nakamoto en 2008, Bitcoin est la première application combinant, de façon inédite, des briques cryptographiques déjà connues (signatures numériques, fonctions de hachage) avec un mécanisme de consensus décentralisé (preuve de travail, chapitre 3) pour résoudre le **problème de la double dépense** sans tiers de confiance central : comment empêcher qu'une même unité de monnaie numérique soit dépensée deux fois, sans banque centrale ?
+En octobre 2008, un document intitulé *« Bitcoin: A Peer-to-Peer Electronic Cash System »* est publié sous le pseudonyme **Satoshi Nakamoto** (l'identité réelle de l'auteur ou du groupe d'auteurs n'a jamais été confirmée publiquement). Le réseau Bitcoin démarre effectivement en janvier 2009 avec la création du premier bloc, dit **bloc de genèse**.
+
+L'innovation de Bitcoin ne réside pas dans l'invention de nouvelles primitives cryptographiques : les **signatures numériques** et les **fonctions de hachage** qu'il utilise étaient déjà connues et étudiées (module *Cryptographie*). Sa contribution originale est d'avoir combiné ces briques existantes avec un **mécanisme de consensus décentralisé** — la preuve de travail, détaillée au chapitre 3 — pour résoudre un problème resté ouvert jusque-là : le **problème de la double dépense** (*double-spending problem*).
+
+Concrètement, ce problème peut se formuler ainsi : dans un système purement numérique, une donnée peut être copiée à l'infini sans coût. Comment empêcher qu'une même unité de monnaie numérique soit dépensée deux fois par son détenteur, en l'absence d'une banque centrale qui tiendrait les comptes et validerait chaque opération ? Les tentatives antérieures de monnaie numérique reposaient généralement sur un tiers de confiance central pour trancher ce type de conflit. Bitcoin propose à la place que ce soit **le réseau tout entier**, par le biais d'un mécanisme de consensus vérifiable par tous, qui détermine quelle transaction est valide et dans quel ordre elle a été émise.
 
 ---
 
 ## 3. Propriétés recherchées
+
+La conception d'une blockchain vise typiquement un ensemble de propriétés qui, prises ensemble, permettent de se passer d'un tiers de confiance central. Le tableau suivant résume les quatre propriétés les plus souvent citées, avec leur signification précise :
 
 | Propriété | Signification |
 |---|---|
@@ -27,11 +37,17 @@ Publié sous le pseudonyme Satoshi Nakamoto en 2008, Bitcoin est la première ap
 | **Transparence** | (pour les blockchains publiques) l'historique complet des transactions est consultable par tous |
 | **Résistance à la censure** | aucune autorité unique ne peut empêcher une transaction valide d'être incluse, dans un réseau suffisamment décentralisé |
 
-Ces propriétés sont des objectifs de conception, pas des garanties absolues : elles dépendent fortement du degré réel de décentralisation du réseau (chapitre 3) et de la sécurité des implémentations (chapitre 5).
+La **décentralisation** n'est pas une propriété binaire : elle se mesure en degré, selon le nombre de participants réellement indépendants qui contribuent à la validation, la répartition géographique et organisationnelle de ces participants, et la difficulté pour un petit groupe de coordonner une majorité. Un réseau techniquement « décentralisé » sur le papier mais dont la puissance de validation est concentrée entre quelques acteurs perd une grande partie de l'intérêt du modèle.
+
+L'**immutabilité** est qualifiée de « pratique » et non d'absolue à dessein : rien n'empêche techniquement de réécrire l'historique d'une blockchain, mais le coût de cette opération croît avec le nombre de blocs déjà ajoutés après celui que l'on souhaite modifier (voir chapitre 3, notion de confirmations). C'est un coût économique et calculatoire dissuasif, pas une impossibilité mathématique.
+
+Il est essentiel de retenir que ces quatre propriétés sont des **objectifs de conception**, pas des garanties automatiques offertes par le simple fait d'utiliser une architecture en blocs chaînés. Elles dépendent fortement du degré réel de décentralisation du réseau considéré (chapitre 3) et de la robustesse des implémentations logicielles déployées (chapitre 5) : une blockchain mal conçue ou insuffisamment décentralisée peut échouer à fournir l'une ou l'autre de ces propriétés malgré les apparences.
 
 ---
 
 ## 4. Blockchain publique, privée, à permission
+
+Toutes les blockchains ne partagent pas le même degré d'ouverture. On distingue généralement trois grandes catégories selon qui peut lire le registre et qui peut y écrire (proposer et valider de nouveaux blocs) :
 
 | Type | Accès en écriture | Accès en lecture | Exemple |
 |---|---|---|---|
@@ -39,26 +55,46 @@ Ces propriétés sont des objectifs de conception, pas des garanties absolues : 
 | **À permission (consortium)** | limité à des participants identifiés | selon règles définies | réseaux inter-bancaires, chaînes logistiques inter-entreprises |
 | **Privée** | contrôlé par une seule organisation | souvent restreint | usage interne d'entreprise, proche d'une base de données répliquée classique |
 
-Une confusion fréquente : une blockchain « privée » ou « à permission » perd une grande partie des propriétés de décentralisation et de résistance à la censure d'une blockchain publique — le choix du type doit être justifié par le besoin réel, pas par un effet de mode.
+Une **blockchain publique** (aussi dite *permissionless*) n'impose aucune condition d'accès : n'importe qui peut télécharger le logiciel client, rejoindre le réseau, envoyer des transactions et, selon le mécanisme de consensus, participer à la validation. C'est le modèle historique de Bitcoin et d'Ethereum, et celui qui offre les propriétés de décentralisation et de résistance à la censure les plus fortes.
+
+Une **blockchain à permission (consortium)** restreint le droit d'écriture — et parfois de lecture — à un ensemble de participants identifiés et approuvés à l'avance, typiquement un groupe d'organisations qui se connaissent (banques d'un même consortium, entreprises d'une même chaîne logistique). Ce modèle sacrifie une partie de l'ouverture au profit d'une gouvernance plus simple et de performances souvent meilleures, puisque le nombre de validateurs est limité et connu.
+
+Une **blockchain privée** pousse cette logique encore plus loin : une seule organisation contrôle entièrement le registre, décide qui peut y accéder et peut, en théorie, modifier les règles à sa guise. Dans ce cas, la structure en blocs chaînés apporte surtout des garanties d'intégrité et d'auditabilité interne, mais le résultat se rapproche fonctionnellement d'une base de données répliquée et journalisée classique — sans les propriétés de décentralisation qui motivent l'usage d'une blockchain publique.
+
+Une confusion fréquente mérite d'être soulignée : une blockchain « privée » ou « à permission » perd une grande partie des propriétés de décentralisation et de résistance à la censure d'une blockchain publique. Le choix du type de réseau doit donc être justifié par le besoin réel du projet (a-t-on vraiment besoin qu'un tiers non identifié puisse rejoindre le réseau et y écrire ?), et non adopté par simple effet de mode ou par méconnaissance des compromis impliqués.
 
 ---
 
 ## 5. Anatomie d'un bloc (aperçu)
 
-Chaque bloc contient typiquement : un en-tête (empreinte du bloc précédent, horodatage, racine de Merkle des transactions du bloc — chapitre 2, un nonce pour le mécanisme de consensus), et le corps (liste des transactions incluses).
+Un bloc se compose généralement de deux parties distinctes : un **en-tête** (*header*), de taille fixe et contenant les métadonnées nécessaires à la validation et au chaînage, et un **corps**, contenant la liste effective des transactions incluses dans ce bloc.
+
+L'en-tête contient typiquement :
+
+- l'**empreinte de hachage du bloc précédent**, qui matérialise le chaînage (détaillé au chapitre 2) ;
+- un **horodatage** (*timestamp*), indiquant approximativement le moment de création du bloc ;
+- la **racine de Merkle** des transactions du bloc, une empreinte unique résumant l'ensemble des transactions incluses (chapitre 2) ;
+- un **nonce**, une valeur numérique ajustée par le mécanisme de consensus (en preuve de travail, notamment) pour satisfaire une condition de difficulté (chapitre 3).
+
+Cette séparation entre en-tête compact et corps volumineux a une conséquence pratique importante, développée au chapitre suivant : un client « léger » peut se contenter de télécharger et vérifier les en-têtes des blocs, beaucoup plus légers que le corps complet, tout en conservant la capacité de prouver qu'une transaction donnée appartient bien à un bloc particulier grâce à la racine de Merkle.
 
 ---
 
 ## 6. Ce que la blockchain résout, et ce qu'elle ne résout pas
 
-- Elle résout la **cohérence d'un registre partagé sans tiers de confiance unique**, dans un contexte où les participants peuvent être mutuellement méfiants.
-- Elle ne résout pas, par elle-même, la **véracité des données saisies** (« garbage in, garbage out ») : une blockchain garantit l'intégrité de ce qui y a été inscrit, pas la véracité de l'information au moment de sa saisie (problème dit de l'« oracle », chapitre 4).
-- Elle a un coût réel : stockage répliqué, consommation énergétique pour certains mécanismes de consensus (chapitre 3), latence de confirmation, complexité opérationnelle — d'où l'importance d'évaluer si une base de données traditionnelle ne répondrait pas mieux à un besoin donné (chapitre 6).
+Il est tentant de présenter la blockchain comme une solution universelle à tout problème de confiance numérique. Un regard plus rigoureux impose de distinguer précisément ce qu'elle apporte réellement de ce qu'elle ne peut pas garantir par construction.
+
+Elle résout la **cohérence d'un registre partagé sans tiers de confiance unique**, dans un contexte où les participants peuvent être mutuellement méfiants : une fois qu'une donnée est validée et suffisamment confirmée, tous les nœuds honnêtes du réseau s'accordent sur son contenu et son ordre, sans qu'aucun d'eux n'ait eu à faire confiance individuellement à un autre.
+
+Elle ne résout en revanche pas, par elle-même, la **véracité des données saisies** — un principe souvent résumé par l'expression *« garbage in, garbage out »* (« à données d'entrée erronées, résultat erroné »). Une blockchain garantit l'**intégrité** de ce qui y a été inscrit : personne ne peut modifier discrètement une donnée après coup. Mais elle ne garantit en rien la **véracité** de cette information au moment de sa saisie initiale. Si une information fausse est inscrite sur la blockchain, elle y restera fidèlement conservée, fausse mais inaltérée. Ce point, connu sous le nom de « problème de l'oracle », sera approfondi au chapitre 4 à propos des smart contracts.
+
+Enfin, l'usage d'une blockchain a un **coût réel**, souvent sous-estimé dans les discours promotionnels : le stockage est répliqué sur de nombreux nœuds (donc multiplié, plutôt que centralisé et optimisé) ; certains mécanismes de consensus impliquent une consommation énergétique significative (chapitre 3) ; la confirmation d'une transaction prend un temps non négligeable comparé à une mise à jour de base de données classique ; et l'exploitation opérationnelle d'un tel système (gestion de clés, gouvernance du réseau, tolérance aux pannes) ajoute une complexité réelle. Ces coûts imposent d'évaluer sérieusement, pour chaque projet envisagé, si une base de données traditionnelle avec un tiers de confiance ne répondrait pas mieux et plus simplement au besoin — question qui sera reprise en détail au chapitre 6.
 
 ---
 
 ## À retenir
 
 - La blockchain combine des primitives cryptographiques connues avec un mécanisme de consensus décentralisé pour résoudre le problème de la double dépense sans autorité centrale.
-- Les propriétés de décentralisation, immutabilité et résistance à la censure sont des objectifs de conception dont le degré réel dépend de l'architecture choisie.
+- Les propriétés de décentralisation, immutabilité et résistance à la censure sont des objectifs de conception dont le degré réel dépend de l'architecture choisie, pas des garanties automatiques.
+- Les types publique, à permission et privée offrent des compromis très différents entre ouverture, gouvernance et performance.
 - Une blockchain n'est pas une solution universelle : son usage doit être justifié par un besoin réel de décentralisation, pas adopté par principe.

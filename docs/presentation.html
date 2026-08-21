@@ -14,11 +14,11 @@
 
   <style>
     :root {
-      --accent-a: #3538cd;
-      --accent-b: #6c3ce9;
-      --accent-c: #1fb6c9;
-      --ink: #1b1e3d;
-      --r-background-color: #fdfdff;
+      --accent-a: #0e7c3f;
+      --accent-b: #2fa360;
+      --accent-c: #e3a92b;
+      --ink: #122a1c;
+      --r-background-color: #fdfdfb;
       --r-main-color: var(--ink);
       --r-main-font: "Inter", system-ui, sans-serif;
       --r-heading-color: var(--ink);
@@ -26,7 +26,7 @@
       --r-code-font: "JetBrains Mono", ui-monospace, monospace;
       --r-link-color: var(--accent-a);
       --r-link-color-hover: var(--accent-c);
-      --r-selection-background-color: rgba(108, 60, 233, 0.25);
+      --r-selection-background-color: rgba(227, 169, 43, 0.3);
     }
 
     html, body { background: var(--r-background-color); }
@@ -69,7 +69,7 @@
       background:
         radial-gradient(circle at 20% 15%, rgba(255,255,255,.15), transparent 45%),
         linear-gradient(135deg, var(--accent-a) 0%, var(--accent-b) 55%, var(--accent-c) 100%);
-      box-shadow: 0 30px 60px -20px rgba(53,56,205,.5);
+      box-shadow: 0 30px 60px -20px rgba(14,124,63,.5);
       padding: 2em 2.4em;
     }
     .reveal .slides section:first-child::after {
@@ -110,7 +110,7 @@
       color: #fff;
     }
     .reveal table th, .reveal table td { border: 1px solid rgba(0,0,0,.08); padding: 0.35em 0.6em; }
-    .reveal table tr:nth-child(even) td { background: rgba(108,60,233,0.05); }
+    .reveal table tr:nth-child(even) td { background: rgba(14,124,63,0.05); }
 
     .reveal pre { border-radius: 10px; box-shadow: 0 10px 24px -10px rgba(0,0,0,.35); }
     .reveal pre code { font-size: 0.75em; max-height: 55vh; font-family: var(--r-code-font); }
@@ -128,7 +128,7 @@
     }
     #top-bar {
       position: fixed; top: 0; left: 0; right: 0; height: 38px;
-      background: linear-gradient(90deg, #14162c, #1b1e3d);
+      background: linear-gradient(90deg, #0f2117, #122a1c);
       color: #fff; font-family: "Inter", sans-serif; font-size: 13px;
       display: flex; align-items: center; padding: 0 14px; z-index: 2000; gap: 12px;
       border-bottom: 2px solid var(--accent-c);

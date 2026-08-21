@@ -8,54 +8,70 @@
 
 ## 1. Authentification : rappels et bonnes pratiques
 
+L'authentification répond à une question précise : « cet utilisateur est-il bien celui qu'il prétend être ? ». Elle se distingue de l'**autorisation**, qui répond à une question différente (« cet utilisateur a-t-il le droit d'effectuer cette action ? ») et qui intervient nécessairement après une authentification réussie. Une confusion fréquente en pratique — traiter une authentification réussie comme suffisante pour autoriser n'importe quelle action — est à l'origine d'une part importante des défaillances de contrôle d'accès rencontrées en audit.
+
 ### Stockage des mots de passe
 
-Rappel des modules *Cryptanalyse* et *Cryptographie* : un mot de passe ne doit jamais être stocké en clair, ni haché avec une fonction générique rapide seule (SHA-256 brut) ; utiliser une fonction dédiée et volontairement lente, salée (bcrypt, scrypt, Argon2).
+Rappel des modules *Cryptanalyse* et *Cryptographie* : un mot de passe ne doit jamais être stocké en clair, ni haché avec une fonction générique rapide seule (SHA-256 brut). Une fonction de hachage générique est conçue pour être rapide à calculer, une propriété recherchée pour l'intégrité de fichiers mais directement contre-productive pour le stockage de mots de passe : elle permet à un attaquant disposant d'une base de hachages dérobée de tester des milliards de mots de passe candidats par seconde sur du matériel courant. Il faut utiliser une fonction dédiée et volontairement lente, salée (**bcrypt**, **scrypt**, **Argon2**), dont le facteur de coût (nombre d'itérations, mémoire requise) peut être ajusté pour rester coûteux à mesure que la puissance de calcul disponible augmente. Le **sel** (une valeur aléatoire unique par utilisateur, combinée au mot de passe avant hachage) empêche par ailleurs qu'une même valeur de mot de passe produise le même hachage pour deux utilisateurs différents, ce qui neutralise les attaques par table précalculée (*rainbow tables*).
 
 ### Politique de mots de passe
 
-Les recommandations actuelles (NIST SP 800-63B notamment) privilégient une **longueur minimale suffisante** (12 caractères ou plus) plutôt que des règles de composition complexes peu efficaces en pratique (les utilisateurs contournent des règles trop contraignantes par des motifs prévisibles) ; vérification contre des listes de mots de passe déjà compromis (recommandée) ; suppression de l'expiration périodique forcée sans raison (mesure historiquement répandue mais aujourd'hui considérée contre-productive, car elle pousse à des variations prévisibles).
+Les recommandations actuelles (NIST SP 800-63B notamment) privilégient une **longueur minimale suffisante** (12 caractères ou plus) plutôt que des règles de composition complexes peu efficaces en pratique : les utilisateurs contournent des règles trop contraignantes (au moins une majuscule, un chiffre, un symbole) par des motifs prévisibles (`Motdepasse1!`), qui satisfont la règle sans réellement augmenter la résistance du mot de passe à une attaque par dictionnaire. Les recommandations actuelles privilégient également la **vérification contre des listes de mots de passe déjà compromis** lors de la création d'un compte (rejeter un mot de passe connu comme ayant déjà fuité ailleurs, même s'il respecte par ailleurs les critères de format), et la **suppression de l'expiration périodique forcée** sans raison particulière : une mesure historiquement répandue mais aujourd'hui considérée contre-productive, car elle pousse les utilisateurs à des variations prévisibles du même mot de passe d'un renouvellement à l'autre (`Motdepasse1`, puis `Motdepasse2`), sans gain réel de sécurité.
 
 ### Authentification multi-facteurs (MFA)
 
-Combine au moins deux catégories parmi : ce que l'utilisateur **sait** (mot de passe), ce qu'il **possède** (application d'authentification, clé de sécurité physique), ce qu'il **est** (biométrie). Réduit fortement l'impact d'un mot de passe compromis (par phishing, fuite de données, réutilisation).
+Combine au moins deux catégories parmi : ce que l'utilisateur **sait** (mot de passe, code PIN), ce qu'il **possède** (application d'authentification générant des codes temporaires, clé de sécurité physique), ce qu'il **est** (biométrie). L'intérêt de combiner plusieurs catégories plutôt qu'un seul facteur renforcé est que les catégories reposent sur des mécanismes de compromission différents : un mot de passe divulgué par phishing ne suffit plus à un attaquant qui ne possède pas également le second facteur. Le MFA réduit ainsi fortement l'impact d'un mot de passe compromis (par phishing, fuite de données, réutilisation d'un même mot de passe sur plusieurs services), sans pour autant éliminer tout risque : certaines techniques de phishing avancées (relais en temps réel de la demande de second facteur) restent documentées, ce qui justifie de privilégier, pour les comptes les plus sensibles, des facteurs résistants au phishing (clé de sécurité physique basée sur un standard cryptographique) plutôt qu'un simple code envoyé par SMS.
 
 ---
 
 ## 2. Défaillances d'authentification fréquentes
 
+Au-delà du choix du mécanisme d'authentification lui-même, de nombreuses défaillances proviennent de la façon dont ce mécanisme est mis en œuvre autour du processus de connexion :
+
 | Défaillance | Risque |
 |---|---|
-| Absence de limitation du nombre de tentatives | attaque par force brute ou par dictionnaire praticable |
-| Messages d'erreur distinguant « utilisateur inconnu » de « mot de passe incorrect » | permet à un attaquant d'énumérer les comptes existants |
-| Absence de MFA sur les comptes à privilèges | un mot de passe compromis suffit à compromettre un compte critique |
-| Réinitialisation de mot de passe mal sécurisée | jeton de réinitialisation prévisible ou sans expiration, permettant une prise de contrôle de compte |
-| **Credential stuffing** non contré | réutilisation automatisée de couples identifiant/mot de passe issus de fuites de données antérieures sur d'autres services |
+| Absence de limitation du nombre de tentatives | attaque par force brute ou par dictionnaire praticable, un attaquant pouvant tester un grand nombre de mots de passe sans être bloqué |
+| Messages d'erreur distinguant « utilisateur inconnu » de « mot de passe incorrect » | permet à un attaquant d'énumérer les comptes existants, information utile pour cibler ensuite une attaque par dictionnaire ou du phishing |
+| Absence de MFA sur les comptes à privilèges | un mot de passe compromis suffit à compromettre un compte critique (administration, accès à des données sensibles) |
+| Réinitialisation de mot de passe mal sécurisée | jeton de réinitialisation prévisible, réutilisable ou sans expiration, permettant une prise de contrôle de compte sans connaître le mot de passe d'origine |
+| **Credential stuffing** non contré | réutilisation automatisée de couples identifiant/mot de passe issus de fuites de données antérieures sur d'autres services, exploitant la réutilisation fréquente d'un même mot de passe par un utilisateur |
+
+Ces défaillances partagent un point commun : elles concernent rarement l'algorithme cryptographique lui-même (correctement traité au module *Cryptographie*), mais plutôt la logique applicative qui l'entoure — ce qui explique pourquoi elles restent fréquentes même dans des applications utilisant par ailleurs des mécanismes cryptographiques solides. Une limitation de tentatives (*rate limiting*, approfondie au chapitre 6) combinée à une journalisation des échecs d'authentification répétés permet de détecter et de freiner la plupart de ces attaques automatisées.
 
 ---
 
 ## 3. Gestion de sessions
 
-Après authentification, un **identifiant de session** (généralement transmis via un cookie) permet à l'application de reconnaître l'utilisateur sur les requêtes suivantes sans redemander ses identifiants à chaque fois.
+Après authentification, un **identifiant de session** (généralement transmis via un cookie) permet à l'application de reconnaître l'utilisateur sur les requêtes suivantes sans redemander ses identifiants à chaque fois. Le principe général reste le même que pour un mot de passe : cet identifiant devient, le temps de sa validité, l'équivalent fonctionnel des identifiants de connexion — sa compromission équivaut à une usurpation complète de l'identité de l'utilisateur pour la durée de la session, sans même que l'attaquant ait besoin de connaître le mot de passe.
 
 ### Exigences de sécurité d'un identifiant de session
 
-- **Imprévisibilité** : généré par un générateur aléatoire cryptographiquement sûr, suffisamment long pour résister à une attaque par force brute.
-- **Régénération après authentification** : un identifiant de session attribué avant authentification ne doit jamais rester valide après (prévention de la **fixation de session**, où un attaquant impose à sa victime un identifiant de session qu'il connaît à l'avance).
-- **Expiration** : durée de vie limitée, avec expiration après une période d'inactivité et invalidation explicite à la déconnexion.
-- **Attributs de cookie sécurisés** : `Secure` (transmission uniquement en HTTPS), `HttpOnly` (inaccessible au JavaScript côté client, limitant l'impact d'un XSS — chapitre 4), `SameSite` (limite l'envoi automatique du cookie lors de requêtes intersites, contre-mesure au CSRF — chapitre 4).
+- **Imprévisibilité** : généré par un générateur aléatoire cryptographiquement sûr, suffisamment long pour résister à une attaque par force brute cherchant à deviner un identifiant valide parmi l'espace des valeurs possibles.
+- **Régénération après authentification** : un identifiant de session attribué avant authentification ne doit jamais rester valide après (prévention de la **fixation de session**, où un attaquant impose à sa victime un identifiant de session qu'il connaît à l'avance — par exemple via un lien contenant cet identifiant — puis attend que la victime s'authentifie pour réutiliser ce même identifiant, désormais associé à une session authentifiée).
+- **Expiration** : durée de vie limitée, avec expiration après une période d'inactivité et invalidation explicite côté serveur à la déconnexion (une simple suppression du cookie côté client, sans invalidation côté serveur, laisse l'identifiant de session encore valide s'il a été intercepté par ailleurs).
+- **Attributs de cookie sécurisés** : `Secure` (transmission uniquement en HTTPS, empêchant l'interception en clair sur un réseau non chiffré), `HttpOnly` (inaccessible au JavaScript côté client, limitant l'impact d'un XSS — chapitre 4, puisqu'un script injecté ne peut alors pas lire directement la valeur du cookie), `SameSite` (limite l'envoi automatique du cookie lors de requêtes intersites, contre-mesure au CSRF — chapitre 4).
+
+| Attribut de cookie | Protège contre |
+|---|---|
+| `Secure` | Interception réseau en clair |
+| `HttpOnly` | Lecture du cookie par un script injecté (XSS) |
+| `SameSite` | Envoi automatique du cookie lors d'une requête intersite forgée (CSRF) |
+
+Ces trois attributs sont complémentaires : chacun neutralise un vecteur d'attaque différent, et leur combinaison illustre une nouvelle fois la logique de défense en profondeur — un identifiant de session bien généré mais dépourvu de ces attributs reste exposé aux vulnérabilités traitées au chapitre suivant.
 
 ---
 
 ## 4. Authentification fédérée et jetons (aperçu)
 
-De nombreuses applications modernes délèguent l'authentification à un fournisseur d'identité tiers (OAuth 2.0, OpenID Connect) plutôt que de gérer elles-mêmes des mots de passe. Ces protocoles introduisent leurs propres risques (mauvaise validation d'un jeton, absence de vérification de la signature d'un JWT, confusion entre autorisation et authentification) qui nécessitent une compréhension précise du protocole utilisé plutôt qu'une implémentation ad hoc.
+De nombreuses applications modernes délèguent l'authentification à un fournisseur d'identité tiers (**OAuth 2.0**, **OpenID Connect**) plutôt que de gérer elles-mêmes des mots de passe, ce qui présente un intérêt de sécurité réel : l'application n'a plus à stocker ni à protéger elle-même des identifiants, cette responsabilité étant concentrée chez un fournisseur spécialisé dont c'est le métier principal. Ces protocoles introduisent néanmoins leurs propres risques (mauvaise validation d'un jeton, absence de vérification de la signature d'un JWT, confusion entre autorisation et authentification — OAuth 2.0 est à l'origine un protocole d'autorisation, détourné en pratique pour de l'authentification via OpenID Connect qui le complète explicitement à cet effet) qui nécessitent une compréhension précise du protocole utilisé plutôt qu'une implémentation ad hoc.
 
 ### JWT (JSON Web Token) : points de vigilance
 
-- Toujours vérifier la **signature** du jeton reçu, avec l'algorithme attendu explicitement fixé côté serveur (ne jamais faire confiance à l'algorithme annoncé dans l'en-tête du jeton lui-même — une classe de vulnérabilité réelle où un attaquant modifie l'algorithme annoncé en `none` ou substitue une clé publique en clé symétrique).
-- Vérifier systématiquement l'expiration (`exp`) et l'émetteur attendu.
-- Ne jamais stocker d'informations sensibles non chiffrées dans le contenu d'un JWT, qui n'est qu'encodé (Base64), pas chiffré, et donc lisible par quiconque intercepte le jeton.
+Un JWT se compose de trois parties encodées et séparées par un point (en-tête, charge utile, signature). Sa vérification correcte est une source fréquente d'erreurs :
+
+- Toujours vérifier la **signature** du jeton reçu, avec l'algorithme attendu explicitement fixé côté serveur (ne jamais faire confiance à l'algorithme annoncé dans l'en-tête du jeton lui-même — une classe de vulnérabilité réelle où un attaquant modifie l'algorithme annoncé en `none` ou substitue une clé publique en clé symétrique pour forger une signature valide sans connaître la clé secrète du serveur).
+- Vérifier systématiquement l'expiration (`exp`) et l'émetteur attendu (`iss`), pour éviter qu'un jeton expiré ou émis par un fournisseur d'identité différent de celui attendu ne soit accepté à tort.
+- Ne jamais stocker d'informations sensibles non chiffrées dans le contenu d'un JWT, qui n'est qu'**encodé** (Base64), pas chiffré, et donc lisible en clair par quiconque intercepte le jeton — une erreur fréquente consiste à confondre encodage (réversible sans clé) et chiffrement (nécessitant une clé pour être inversé).
 
 ---
 

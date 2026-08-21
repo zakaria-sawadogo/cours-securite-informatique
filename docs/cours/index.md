@@ -62,7 +62,7 @@ Support de cours, présentations (diapositives) et travaux pratiques des matièr
 
     [:octicons-arrow-right-24: Accéder au cours](../02-audit-organisation-technique/index.md){ .md-button .md-button--primary }
 
--   :material-lock-search:{ .lg .middle } **Cryptanalyse**
+-   :material-shield-search:{ .lg .middle } **Cryptanalyse**
 
     ---
 

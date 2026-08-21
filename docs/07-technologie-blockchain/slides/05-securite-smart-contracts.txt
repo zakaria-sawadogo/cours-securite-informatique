@@ -8,13 +8,19 @@
 
 ## 1. Pourquoi la sécurité des smart contracts est particulièrement critique
 
-Un smart contract déployé sur une blockchain publique est, par construction, **immuable et son code est public** : contrairement à une application classique, il n'est généralement pas possible de corriger une faille par un simple correctif déployé discrètement — le code vulnérable reste actif et visible de tous jusqu'à une migration complexe. De plus, les contrats manipulent souvent directement des fonds réels, ce qui en fait des cibles à forte valeur immédiate pour un attaquant.
+La sécurité applicative classique repose largement sur la possibilité de **corriger une faille après coup** : un correctif est développé, testé, puis déployé discrètement en production, souvent sans que les utilisateurs n'en aient même conscience. Ce modèle ne s'applique pas, ou très difficilement, aux smart contracts déployés sur une blockchain publique.
+
+Un smart contract déployé est, par construction, **immuable** (chapitre 4) et son **code est public** : n'importe qui, y compris un attaquant potentiel, peut lire le code exact déployé sur la blockchain et l'analyser à loisir, hors ligne et sans limite de temps, pour y chercher une faille. Contrairement à une application web classique, il n'est généralement pas possible de corriger discrètement une faille découverte après déploiement : le code vulnérable reste actif, exécutable et visible de tous, jusqu'à ce qu'une migration complexe vers un nouveau contrat soit organisée — ce qui suppose souvent de convaincre l'ensemble des utilisateurs de migrer volontairement leurs fonds ou leurs interactions vers la nouvelle version, une opération loin d'être triviale ni instantanée.
+
+À cette difficulté structurelle s'ajoute un facteur aggravant : de nombreux smart contracts, en particulier dans le domaine de la finance décentralisée (chapitre 4), manipulent **directement des fonds réels**, parfois des montants considérables agrégés dans un seul contrat. Cela en fait des cibles à **forte valeur immédiate** pour un attaquant : contrairement à une fuite de données qui doit ensuite être monétisée, l'exploitation réussie d'une faille dans un smart contract financier peut se traduire en gain immédiat et directement transférable. Cette combinaison — immutabilité, transparence du code, et valeur financière directement en jeu — explique pourquoi l'audit préalable au déploiement occupe une place centrale dans le développement de smart contracts, bien plus que dans le développement logiciel classique.
 
 ---
 
 ## 2. Réentrance (reentrancy)
 
-Vulnérabilité historique majeure (à l'origine du piratage « The DAO » en 2016, environ 60 millions de dollars de l'époque). Principe : un contrat appelle un contrat externe (ex. pour transférer des fonds) **avant** d'avoir mis à jour son propre état interne ; le contrat externe malveillant peut alors rappeler la fonction d'origine de façon récursive, exploitant le fait que l'état (le solde) n'a pas encore été mis à jour.
+La **réentrance** est une vulnérabilité historique majeure du développement de smart contracts, largement étudiée dans la littérature de sécurité depuis l'incident public dit « The DAO », survenu en 2016 sur le réseau Ethereum et qui a marqué durablement la prise de conscience de la communauté quant à l'importance de l'audit des smart contracts.
+
+Le principe de cette vulnérabilité repose sur un décalage temporel dangereux entre deux opérations : un contrat appelle un **contrat externe** (par exemple pour transférer des fonds à un bénéficiaire) **avant** d'avoir mis à jour son propre état interne (par exemple, avant d'avoir décrémenté le solde correspondant). Si le contrat externe appelé est malveillant, il peut alors **rappeler la fonction d'origine de façon récursive**, depuis l'intérieur même de l'appel externe en cours, exploitant précisément le fait que l'état interne (le solde) n'a pas encore été mis à jour au moment de ce rappel — le contrat vulnérable « croit » donc, à chaque appel récursif, que le solde est toujours disponible.
 
 ```solidity
 // Version vulnérable
@@ -25,46 +31,55 @@ function retirer(uint256 montant) external {
 }
 ```
 
-**Contre-mesure** : appliquer le patron **checks-effects-interactions** (vérifications, puis mise à jour de l'état interne, puis seulement interaction externe) — c'est exactement l'ordre correct déjà utilisé dans l'exemple du chapitre 4.
+**Contre-mesure** : la défense de référence contre cette classe de vulnérabilité est le patron de conception dit **checks-effects-interactions** (« vérifications, puis effets, puis interactions ») : on effectue d'abord toutes les **vérifications** nécessaires (`require`), puis on met à jour l'**état interne** du contrat, et ce n'est **qu'ensuite** que l'on procède à l'**interaction externe** (appel à un autre contrat, transfert de fonds). C'est exactement l'ordre correct déjà appliqué dans l'exemple de la fonction `retirer` présenté au chapitre 4 — un ordre qui, à première vue, peut sembler un simple détail stylistique, mais qui constitue en réalité une décision de sécurité déterminante.
 
 ---
 
 ## 3. Débordement/soupassement d'entier (overflow/underflow)
 
-Historiquement, un compteur non signé en Solidity pouvait « déborder » silencieusement (revenir à zéro après le maximum, ou à une valeur maximale après une soustraction sous zéro), exploité pour créer des soldes ou des quantités de jetons artificiellement énormes. Depuis Solidity 0.8, ces vérifications sont effectuées automatiquement par défaut (le compilateur annule la transaction en cas de dépassement), mais le risque reste réel pour du code utilisant des versions antérieures ou des blocs `unchecked` mal justifiés.
+Historiquement, une variable numérique non signée en Solidity (par exemple de type `uint256`) pouvait « déborder » silencieusement lorsqu'une opération arithmétique dépassait ses bornes représentables : une addition dépassant la valeur maximale représentable **revenait à zéro** (*overflow*), et une soustraction produisant un résultat négatif à partir d'un type non signé revenait à la **valeur maximale représentable** (*underflow*), sans qu'aucune erreur ne soit levée par défaut. Cette absence de vérification automatique a été exploitée pour créer artificiellement des soldes ou des quantités de jetons énormes à partir d'opérations arithmétiques détournées de leur usage prévu.
+
+Depuis la version 0.8 de Solidity, ces vérifications sont effectuées **automatiquement par défaut** : le compilateur insère des contrôles qui **annulent la transaction** dès qu'un débordement ou un soupassement se produirait, éliminant la classe de vulnérabilité pour tout contrat compilé avec une version récente utilisant le comportement par défaut. Le risque reste cependant réel dans deux cas : du code écrit et déployé avec des **versions antérieures** du compilateur, encore en circulation sur certains réseaux, et l'usage explicite de blocs `unchecked` — une fonctionnalité permettant de désactiver volontairement ces vérifications automatiques pour des raisons d'optimisation de gas — lorsque cette désactivation n'est pas soigneusement justifiée et bornée par ailleurs.
 
 ---
 
 ## 4. Contrôle d'accès défaillant
 
-Une fonction sensible (ex. modification du propriétaire du contrat, retrait de fonds réservés à l'administrateur) sans vérification appropriée des droits de l'appelant (`require(msg.sender == proprietaire)`) permet à n'importe quel utilisateur de l'exécuter. C'est l'équivalent, dans le monde des smart contracts, du contrôle d'accès défaillant classé numéro un de l'OWASP Top 10 (module *Audit organisation et technique*).
+Une fonction sensible d'un smart contract — par exemple, une fonction permettant de modifier le propriétaire du contrat, de retirer des fonds réservés à un administrateur, ou de mettre à jour un paramètre critique du système — doit systématiquement vérifier que l'appelant dispose bien des **droits appropriés** avant d'exécuter l'opération, typiquement via une condition telle que `require(msg.sender == proprietaire)`. L'absence ou l'insuffisance de cette vérification permet à **n'importe quel utilisateur** du réseau, y compris un attaquant n'ayant aucun droit légitime, d'appeler directement cette fonction sensible et d'en déclencher les effets.
+
+Cette classe de vulnérabilité est l'équivalent, dans le monde des smart contracts, du **contrôle d'accès défaillant**, classé en tête du classement OWASP Top 10 des risques applicatifs les plus critiques (module *Audit organisation et technique*) : il s'agit d'un problème transversal, présent dans de nombreuses catégories de logiciels, dont les smart contracts ne sont qu'une déclinaison particulière — avec la circonstance aggravante, propre à ce contexte, que l'immutabilité du contrat déployé empêche une correction rapide une fois la faille découverte.
 
 ---
 
 ## 5. Attaques par manipulation d'oracle de prix
 
-Un contrat DeFi qui détermine un prix d'actif à partir d'une source manipulable (ex. la liquidité instantanée d'un seul échange décentralisé) peut être trompé par un attaquant qui manipule temporairement ce prix (souvent via un **prêt flash**, un emprunt sans garantie remboursé dans la même transaction) pour déclencher des conditions favorables artificielles dans le contrat cible.
+Cette vulnérabilité prolonge directement le **problème de l'oracle** introduit au chapitre 4. Un contrat de finance décentralisée qui détermine le prix d'un actif en s'appuyant sur une source de données **manipulable** — par exemple la liquidité instantanée disponible sur un seul échange décentralisé, à un instant précis — peut être trompé par un attaquant capable de faire varier temporairement ce prix perçu par le contrat.
+
+Une technique fréquemment associée à ce type d'attaque est le **prêt flash** (*flash loan*) : un emprunt de fonds sans garantie préalable, autorisé à condition d'être intégralement remboursé — capital et frais éventuels — **au sein de la même transaction blockchain** qui l'a initié. En combinant un prêt flash avec une manipulation ciblée d'un marché de faible liquidité, un attaquant peut faire temporairement varier le prix observé par l'oracle du contrat visé, le temps d'une seule transaction, afin de déclencher des conditions artificiellement favorables dans ce contrat (emprunt sous-garanti, échange à un taux anormal), avant de rembourser le prêt flash et de repartir avec le gain ainsi obtenu. La contre-mesure de conception la plus robuste consiste à s'appuyer sur des **oracles décentralisés et résistants à la manipulation** (agrégeant plusieurs sources indépendantes, avec des mécanismes de lissage temporel), plutôt que sur une source de prix unique et instantanée.
 
 ---
 
 ## 6. Attaques par déni de service et boucles coûteuses en gas
 
-Une fonction itérant sur une structure de données dont la taille peut être manipulée par un attaquant (ex. une liste d'utilisateurs qu'il peut faire croître) peut consommer plus de gas que le maximum autorisé par bloc, rendant la fonction définitivement inexécutable — un déni de service permanent et non corrigible sans migration du contrat.
+Une fonction d'un smart contract qui **itère** (parcourt en boucle) une structure de données dont la **taille peut être influencée par un attaquant** — par exemple une liste d'utilisateurs inscrits, que n'importe qui peut faire croître en s'y ajoutant — présente un risque structurel : si cette liste devient suffisamment grande, l'exécution complète de la boucle peut consommer **plus de gas que le maximum autorisé par bloc** (chapitre 4). La fonction devient alors **définitivement inexécutable** : chaque tentative d'appel échoue systématiquement par épuisement du gas disponible, avant même d'atteindre la fin de la boucle. C'est un **déni de service permanent**, non corrigible sans une migration complète du contrat vers une nouvelle version conçue pour éviter ce type de dépendance entre la taille d'une structure de données et le coût d'exécution d'une fonction.
 
 ---
 
 ## 7. Démarche d'audit d'un smart contract
 
-1. Revue manuelle du code, en confrontant systématiquement chaque fonction sensible aux classes de vulnérabilités ci-dessus.
-2. Analyse statique automatisée (outils dédiés type Slither, MythX).
-3. Tests unitaires et de fuzzing (génération automatique d'entrées pour détecter des comportements inattendus).
-4. Vérification formelle pour les contrats à très haute valeur (preuve mathématique de propriétés de sécurité).
-5. Programme de récompense pour la découverte de vulnérabilités (*bug bounty*) avant et après déploiement.
+Compte tenu de l'immutabilité des contrats déployés et de l'enjeu financier souvent direct, la sécurisation d'un smart contract repose sur une démarche d'audit **préalable au déploiement**, structurée en plusieurs étapes complémentaires plutôt que sur une seule technique isolée :
+
+1. **Revue manuelle du code**, en confrontant systématiquement chaque fonction sensible aux classes de vulnérabilités présentées dans ce chapitre — une lecture ligne par ligne, guidée par une check-list de risques connus.
+2. **Analyse statique automatisée**, à l'aide d'outils dédiés (par exemple Slither ou MythX) capables de détecter automatiquement des motifs de code correspondant à des vulnérabilités connues, sans avoir besoin d'exécuter réellement le contrat.
+3. **Tests unitaires et de fuzzing** : les tests unitaires vérifient le comportement attendu du contrat sur des scénarios précis définis par le développeur, tandis que le fuzzing génère automatiquement un grand nombre d'entrées, y compris des cas limites inattendus, afin de détecter des comportements anormaux non anticipés par l'équipe de développement.
+4. **Vérification formelle**, pour les contrats à très haute valeur financière ou à criticité particulièrement élevée : une démarche consistant à établir une **preuve mathématique** que le contrat respecte certaines propriétés de sécurité définies formellement, une garantie bien plus forte que le simple test, mais aussi bien plus coûteuse à mettre en œuvre.
+5. **Programme de récompense pour la découverte de vulnérabilités** (*bug bounty*), avant et après déploiement : inviter des chercheurs en sécurité externes à rechercher activement des failles en échange d'une récompense, dans un cadre légal et éthique défini à l'avance, plutôt que de laisser cette découverte au hasard ou à un attaquant malveillant.
 
 ---
 
 ## À retenir
 
-- La réentrance, le contrôle d'accès défaillant et la manipulation d'oracle sont des classes de vulnérabilités récurrentes, à l'origine de pertes financières réelles considérables.
+- La réentrance, le contrôle d'accès défaillant et la manipulation d'oracle sont des classes de vulnérabilités récurrentes des smart contracts, ayant historiquement conduit à des pertes financières réelles considérables.
 - L'immutabilité des smart contracts déployés rend la prévention (audit avant déploiement) bien plus critique que pour une application web classique corrigible a posteriori.
 - Le patron checks-effects-interactions est la contre-mesure de référence contre la réentrance, illustrant l'importance de l'ordre des opérations dans le code.
+- Une démarche d'audit sérieuse combine revue manuelle, analyse statique, tests/fuzzing, et pour les contrats à haute valeur, vérification formelle et bug bounty.

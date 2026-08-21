@@ -8,7 +8,11 @@
 
 ## 1. Principe général de l'injection
 
-Une injection se produit lorsqu'une donnée fournie par un utilisateur est concaténée directement dans une commande, une requête ou un interpréteur, sans séparation stricte entre code et donnée, permettant à l'attaquant de modifier la structure ou la sémantique de la commande exécutée.
+Une injection se produit lorsqu'une donnée fournie par un utilisateur est concaténée directement dans une commande, une requête ou un interpréteur, sans séparation stricte entre code et donnée, permettant à l'attaquant de modifier la structure ou la sémantique de la commande exécutée. Le point commun de toutes les variantes d'injection — SQL, commande système, LDAP, XPath, NoSQL, gabarit — est ce même défaut structurel : un interpréteur reçoit un texte censé être une simple donnée, mais dans lequel une partie est réinterprétée comme faisant partie de la syntaxe de contrôle du langage cible.
+
+Ce défaut apparaît chaque fois qu'une application construit dynamiquement une commande destinée à un interpréteur (moteur de base de données, shell système, moteur de gabarit, annuaire LDAP...) en assemblant, par simple concaténation de chaînes de caractères, un texte fixe écrit par le développeur et une donnée fournie par l'utilisateur. L'interpréteur cible ne dispose d'aucun moyen de distinguer, dans le texte final qu'il reçoit, ce qui provient du développeur de ce qui provient de l'utilisateur : il applique ses propres règles de syntaxe à l'ensemble du texte, sans distinction d'origine. Un attaquant qui comprend la syntaxe de l'interpréteur visé peut alors construire une entrée qui, une fois insérée dans le texte final, modifie le sens de la commande plutôt que de se contenter d'en être un simple paramètre.
+
+L'injection reste l'une des classes de vulnérabilité les plus anciennes et les mieux documentées du domaine, précisément parce que son mécanisme — mélange non contrôlé de code et de donnée — est simple à comprendre une fois explicité, ce qui en fait un cas d'étude particulièrement pédagogique pour illustrer le principe général vu au chapitre 1 (ne jamais faire confiance aux entrées).
 
 ---
 
@@ -27,15 +31,21 @@ Si `login` reçoit la valeur `admin' -- `, la requête devient :
 SELECT * FROM utilisateurs WHERE login = 'admin' -- ' AND motdepasse = '...'
 ```
 
-Le `--` commente le reste de la requête (syntaxe SQL) : la vérification du mot de passe est neutralisée, permettant une connexion en tant qu'`admin` sans en connaître le mot de passe.
+Le `--` commente le reste de la requête (syntaxe SQL) : la vérification du mot de passe est neutralisée, permettant une connexion en tant qu'`admin` sans en connaître le mot de passe. Ce cas illustre l'essence même de l'injection : le guillemet simple contenu dans l'entrée `login` referme prématurément la chaîne de caractères attendue par le développeur, et le texte qui suit (`-- `) est alors interprété par le moteur SQL comme faisant partie de la structure de la requête, et non plus comme une simple valeur.
 
 ### Injection UNION-based
 
-Une injection peut aussi être utilisée pour extraire des données d'autres tables via l'opérateur `UNION SELECT`, si le nombre et le type de colonnes sont devinés ou déduits par tâtonnement (technique pratiquée en TP1).
+Une injection peut aussi être utilisée pour extraire des données d'autres tables via l'opérateur `UNION SELECT`, si le nombre et le type de colonnes de la requête d'origine sont devinés ou déduits par tâtonnement (technique pratiquée en TP1). Le principe consiste à faire en sorte que la requête modifiée renvoie, en plus (ou à la place) du résultat attendu, les lignes d'une seconde requête choisie par l'attaquant et combinée via `UNION SELECT`, à condition que le nombre de colonnes et leurs types soient compatibles entre les deux requêtes. Cette technique est particulièrement redoutée car elle permet, dans une application qui affiche directement le résultat d'une requête, d'exfiltrer des données de tables normalement inaccessibles via l'interface prévue.
 
 ### Injection en aveugle (blind SQL injection)
 
-Lorsque l'application ne retourne pas directement le résultat de la requête mais seulement un comportement différent (page d'erreur, temps de réponse), un attaquant peut néanmoins extraire des données bit par bit en observant ces différences (injection booléenne ou temporelle).
+Lorsque l'application ne retourne pas directement le résultat de la requête mais seulement un comportement différent (page d'erreur, temps de réponse), un attaquant peut néanmoins extraire des données bit par bit en observant ces différences. On distingue deux sous-variantes : l'**injection booléenne**, où l'attaquant formule des conditions vraies ou fausses et observe une différence de comportement de la page (contenu affiché, présence ou absence d'un élément) selon que la condition est vérifiée ou non ; et l'**injection temporelle**, où l'attaquant provoque un délai de réponse mesurable (par exemple via une fonction de pause du moteur de base de données) uniquement lorsqu'une condition est vraie, permettant de déduire une information bit par bit à partir du seul temps de réponse observé, même en l'absence de toute différence visible dans le contenu de la réponse.
+
+| Variante | Signal observé par l'attaquant | Contexte typique |
+|---|---|---|
+| UNION-based | Résultat de requête directement affiché | Page listant des résultats de recherche |
+| Booléenne (blind) | Différence de contenu ou de comportement de la page | Formulaire de connexion, filtre de recherche |
+| Temporelle (blind) | Différence de temps de réponse | Application ne renvoyant aucune différence visible |
 
 ### Contre-mesure de référence : requêtes préparées (paramétrées)
 
@@ -44,7 +54,7 @@ requete = "SELECT * FROM utilisateurs WHERE login = ? AND motdepasse = ?"
 executer(requete, [login, motdepasse])
 ```
 
-La donnée est transmise séparément de la structure de la requête au moteur de base de données, qui ne l'interprète jamais comme du code SQL, quel que soit son contenu. C'est la défense structurelle recommandée en priorité, à préférer systématiquement à un simple échappement de caractères spéciaux (plus fragile et sujet à contournement).
+La donnée est transmise séparément de la structure de la requête au moteur de base de données, qui ne l'interprète jamais comme du code SQL, quel que soit son contenu — même si elle contient des guillemets ou des mots-clés SQL. C'est la défense structurelle recommandée en priorité, à préférer systématiquement à un simple échappement de caractères spéciaux, plus fragile et sujet à contournement (un caractère d'échappement oublié dans un cas particulier, un encodage différent selon l'encodage de caractères utilisé, suffisent parfois à rouvrir la vulnérabilité). L'usage d'un **ORM** (*Object-Relational Mapping*) génère généralement des requêtes paramétrées par défaut, mais ne dispense pas de vigilance : la plupart des ORM offrent également des mécanismes d'échappatoire (requêtes en texte brut, fonctions d'agrégation personnalisées) qui, s'ils sont utilisés avec des données non fiables concaténées directement, réintroduisent la vulnérabilité malgré la présence de l'ORM.
 
 ---
 
@@ -56,25 +66,35 @@ snprintf(commande, sizeof(commande), "ping -c 1 %s", entree_utilisateur);
 system(commande);
 ```
 
-Si `entree_utilisateur` vaut `8.8.8.8; rm -rf /donnees`, la commande système exécutée exécute en réalité deux commandes distinctes, la seconde étant totalement contrôlée par l'attaquant. **Contre-mesure** : éviter autant que possible d'appeler un interpréteur de commande shell avec des données utilisateur ; si indispensable, utiliser des API d'exécution de processus qui séparent explicitement la commande de ses arguments (sans passer par un shell interprétant les métacaractères), et valider strictement le format attendu (liste blanche).
+Si `entree_utilisateur` vaut `8.8.8.8; rm -rf /donnees`, la commande système exécutée exécute en réalité deux commandes distinctes, la seconde étant totalement contrôlée par l'attaquant. Le mécanisme sous-jacent est le même que pour l'injection SQL : la fonction `system()` transmet le texte reçu à un interpréteur de commande shell, qui applique ses propres règles de syntaxe (point-virgule, esperluette, tube `|`, apostrophe inversée) à l'ensemble du texte, sans distinguer ce qui provient du développeur de ce qui provient de l'utilisateur.
+
+Cette classe de vulnérabilité se retrouve, sous des formes équivalentes, dans la plupart des langages : `system()` et `popen()` en C, `os.system()` ou `subprocess` appelé avec `shell=True` en Python, `Runtime.exec()` mal utilisé en Java, `exec()` en PHP ou en Node.js. Le point commun est le passage par un interpréteur shell intermédiaire, qui interprète les métacaractères de contrôle plutôt que de traiter l'ensemble du texte comme un argument unique et inerte.
+
+**Contre-mesure** : éviter autant que possible d'appeler un interpréteur de commande shell avec des données utilisateur ; si indispensable, utiliser des API d'exécution de processus qui séparent explicitement la commande de ses arguments (par exemple en passant les arguments sous forme de liste plutôt que de chaîne unique, sans passer par un shell interprétant les métacaractères), et valider strictement le format attendu (liste blanche, ex. une adresse IP doit correspondre à un motif numérique précis). Comme pour l'injection SQL, la séparation structurelle entre commande et arguments élimine la vulnérabilité par construction, alors qu'un filtrage de caractères dangereux reste toujours susceptible d'oublier un cas.
 
 ---
 
 ## 4. Autres formes d'injection
 
+Le principe d'injection ne se limite pas au SQL et au shell système : tout interpréteur recevant un texte partiellement construit à partir de données non fiables est potentiellement vulnérable, avec des conséquences qui varient selon le rôle de l'interpréteur ciblé dans l'application.
+
 | Type | Contexte | Exemple |
 |---|---|---|
-| **LDAP injection** | annuaires d'authentification | manipulation d'un filtre de recherche LDAP |
-| **XPath injection** | requêtes sur documents XML | équivalent de l'injection SQL pour XPath |
-| **NoSQL injection** | bases de données non relationnelles | injection d'opérateurs de requête dans un objet JSON mal validé |
-| **Injection de gabarit côté serveur (SSTI)** | moteurs de templates web | exécution de code via une syntaxe de template non neutralisée |
-| **Injection de code (command/eval injection)** | fonctions d'évaluation dynamique de code | passage direct d'une entrée utilisateur à une fonction `eval()` ou équivalente |
+| **LDAP injection** | annuaires d'authentification | manipulation d'un filtre de recherche LDAP pour altérer la logique d'authentification ou de recherche |
+| **XPath injection** | requêtes sur documents XML | équivalent de l'injection SQL pour XPath, permettant de contourner une condition de sélection de nœuds |
+| **NoSQL injection** | bases de données non relationnelles | injection d'opérateurs de requête (ex. un objet au lieu d'une chaîne attendue) dans un document JSON mal validé, modifiant la logique de la requête |
+| **Injection de gabarit côté serveur (SSTI)** | moteurs de templates web | exécution de code via une syntaxe de template non neutralisée, lorsqu'une donnée utilisateur est interprétée comme faisant partie du gabarit plutôt que comme une simple valeur à afficher |
+| **Injection de code (command/eval injection)** | fonctions d'évaluation dynamique de code | passage direct d'une entrée utilisateur à une fonction `eval()` ou équivalente, qui interprète la chaîne reçue comme du code exécutable dans le langage de l'application elle-même |
+
+Ces variantes partagent une propriété importante : leur découverte nécessite de comprendre la syntaxe précise de l'interpréteur ciblé (LDAP, XPath, un langage de gabarit spécifique), ce qui explique pourquoi elles sont souvent moins bien couvertes par les outils de détection automatisée génériques que l'injection SQL, plus universellement connue et outillée.
 
 ---
 
 ## 5. Principe de défense commun
 
-Quelle que soit la variante, la défense structurelle privilégiée est la **séparation stricte entre code et donnée** (requêtes paramétrées, API d'exécution sans interprétation shell, désactivation des fonctionnalités dynamiques dangereuses des moteurs de template), complétée par une validation stricte des entrées en liste blanche et le principe du moindre privilège pour le compte utilisé par l'application (un compte de base de données en lecture seule limite l'impact même en cas d'injection réussie).
+Quelle que soit la variante, la défense structurelle privilégiée est la **séparation stricte entre code et donnée** (requêtes paramétrées, API d'exécution sans interprétation shell, désactivation des fonctionnalités dynamiques dangereuses des moteurs de template), complétée par une validation stricte des entrées en liste blanche et le principe du **moindre privilège** pour le compte utilisé par l'application (un compte de base de données en lecture seule limite l'impact même en cas d'injection réussie).
+
+Ce principe de moindre privilège mérite d'être développé : même lorsqu'une injection SQL parvient à contourner toutes les défenses en amont, ses conséquences restent bornées par les droits effectifs accordés au compte de base de données utilisé par l'application. Un compte disposant uniquement d'un accès en lecture sur les tables strictement nécessaires ne permettra jamais, même en cas d'injection réussie, de modifier ou de supprimer des données, ni d'accéder à des tables sans rapport avec la fonctionnalité concernée. Ce raisonnement illustre concrètement la logique de défense en profondeur introduite au chapitre 1 : chaque couche de défense (validation, paramétrage, moindre privilège, journalisation) réduit l'impact d'une éventuelle défaillance des autres couches, plutôt que de reposer sur une seule mesure supposée infaillible.
 
 ---
 

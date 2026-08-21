@@ -8,57 +8,72 @@
 
 ## 1. Attaque par force brute (exhaustive key search)
 
-Pour un chiffrement par bloc à clé de *n* bits, l'attaque par force brute nécessite en moyenne 2^(n-1) essais. C'est pourquoi la taille de clé est le premier paramètre de sécurité : DES (56 bits) est aujourd'hui cassable par force brute en quelques heures avec du matériel spécialisé, ce qui l'a rendu obsolète au profit d'AES (128, 192 ou 256 bits), hors de portée de la force brute avec la technologie actuelle et prévisible.
+L'attaque la plus universelle et la plus conceptuellement simple contre tout chiffrement par bloc consiste à tester **systématiquement toutes les clés possibles** jusqu'à trouver celle qui produit un déchiffrement cohérent. Pour un chiffrement à clé de *n* bits, l'espace de clés contient 2^n valeurs possibles ; en moyenne, la bonne clé est trouvée après avoir testé la moitié de cet espace, soit une complexité attendue de **2^(n−1) essais**.
+
+Cette relation exponentielle entre la taille de clé et le coût de l'attaque fait de la **taille de clé** le tout premier paramètre de sécurité à examiner pour tout algorithme de chiffrement symétrique — avant même de s'interroger sur d'éventuelles faiblesses structurelles plus subtiles. Le cas de **DES** (*Data Encryption Standard*, standardisé en 1977) illustre parfaitement cette évolution : sa clé de seulement **56 bits**, jugée suffisante dans les années 1970, est aujourd'hui totalement inadaptée face à la puissance de calcul disponible — des architectures matérielles spécialisées (FPGA, ASIC dédiés) permettent de parcourir l'intégralité de l'espace de clés en quelques heures, rendant DES obsolète pour tout usage sécuritaire sérieux. C'est cette faiblesse d'espace de clés, bien plus que toute faille structurelle, qui a motivé le remplacement de DES par **AES** (*Advanced Encryption Standard*), dont les tailles de clé disponibles — 128, 192 ou 256 bits — placent la force brute très largement hors de portée de la technologie actuelle et raisonnablement prévisible : même en supposant une capacité de calcul colossale, épuiser un espace de 2^128 clés resterait, à l'échelle de temps humaine, une entreprise sans issue.
 
 ---
 
 ## 2. Cryptanalyse différentielle
 
-Introduite publiquement par Biham et Shamir (fin des années 1980) contre DES. Principe :
+La **cryptanalyse différentielle** a été introduite publiquement par **Eli Biham et Adi Shamir** à la fin des années 1980, initialement dirigée contre DES. Il s'agit d'une attaque à texte clair choisi qui exploite la façon dont de petites différences dans le texte clair se propagent au travers des tours successifs d'un chiffrement par blocs. Le principe général se décompose ainsi :
 
-1. Choisir une paire de textes clairs présentant une différence fixe (souvent un XOR précis).
-2. Chiffrer les deux textes et observer la différence entre les chiffrés correspondants.
-3. Certaines différences de sortie apparaissent avec une probabilité plus élevée que si le chiffrement était parfaitement aléatoire : ce biais statistique permet de déduire de l'information sur des bits de la clé (ou de sous-clés de tour).
-4. Répéter sur de nombreuses paires pour affiner la déduction.
+1. **Choisir une paire de textes clairs** présentant une différence fixe et contrôlée, généralement exprimée comme un XOR précis entre les deux textes (par exemple, deux textes ne différant que sur quelques bits déterminés).
+2. **Chiffrer les deux textes** avec la même clé secrète (inconnue de l'attaquant) et observer la différence entre les deux textes chiffrés obtenus.
+3. Dans un chiffrement idéal (aléatoire), la distribution des différences en sortie serait uniforme. Mais pour un chiffrement réel, **certaines différences de sortie apparaissent avec une probabilité statistiquement plus élevée** que ne le voudrait le hasard pur : ce biais, appelé caractéristique différentielle, dépend de la structure interne de l'algorithme (en particulier des boîtes de substitution, ou boîtes-S) et, pour certaines valeurs, de la clé ou de sous-clés de tour utilisées.
+4. En **répétant** l'observation sur un grand nombre de paires de textes clairs partageant la même différence, l'attaquant accumule des statistiques qui, une fois analysées, permettent de déduire de l'information sur des bits spécifiques de la clé (ou des sous-clés dérivées de la clé principale à chaque tour), réduisant ainsi l'espace de recherche nécessaire pour retrouver la clé complète.
 
-DES s'est révélé partiellement vulnérable à cette technique mais sa conception (notamment le choix des boîtes-S) avait déjà anticipé et limité cette attaque — la NSA connaissait apparemment la cryptanalyse différentielle avant sa publication académique.
+Un point historique notable est que **DES s'est révélé partiellement vulnérable** à cette technique lorsqu'elle a été rendue publique, mais avec une résistance meilleure que celle d'une conception aléatoire : les concepteurs de DES, au sein d'IBM, avaient déjà pris en compte et limité cette catégorie d'attaque dans le choix précis des boîtes-S de l'algorithme, plusieurs années avant que la cryptanalyse différentielle ne soit publiée académiquement. Il est aujourd'hui admis que la NSA (*National Security Agency*) avait connaissance de cette technique d'attaque avant sa découverte indépendante par la communauté académique, ce qui illustre une constante en cryptographie : une technique d'attaque peut être connue en secret par certains acteurs bien avant sa publication ouverte, d'où l'importance du principe de conception défensive et de marge de sécurité évoqué au chapitre 1.
 
 ---
 
 ## 3. Cryptanalyse linéaire
 
-Introduite par Matsui (1993). Principe : rechercher des approximations linéaires (combinaisons XOR de bits d'entrée, de sortie et de clé) vraies avec une probabilité significativement différente de 1/2. Une approximation suffisamment biaisée, combinée à un grand nombre de couples clair/chiffré connus, permet de retrouver des bits de clé par vote statistique (lemme du pilage/*piling-up lemma*).
+La **cryptanalyse linéaire**, introduite par **Mitsuru Matsui** en 1993, constitue une autre grande famille d'attaques structurelles contre les chiffrements par blocs, cette fois fondée sur une attaque à texte clair connu (moins exigeante pour l'attaquant que l'attaque à texte clair choisi requise pour la cryptanalyse différentielle).
+
+Le principe consiste à rechercher des **approximations linéaires** : des équations combinant, par un XOR, certains bits du texte clair, certains bits du texte chiffré, et certains bits de la clé, et qui se trouvent être vraies avec une probabilité sensiblement différente de 1/2 (la probabilité qu'on attendrait pour une relation purement aléatoire). Une telle approximation, même faiblement biaisée, révèle une corrélation exploitable entre des bits d'entrée, de sortie et de clé.
+
+En combinant une approximation linéaire suffisamment biaisée avec un très grand nombre de couples (texte clair, texte chiffré) connus, un attaquant peut retrouver des bits spécifiques de la clé par un mécanisme de **vote statistique** : pour chaque hypothèse possible sur les bits de clé recherchés, on compte combien de couples observés vérifient l'approximation linéaire, et l'hypothèse qui s'écarte le plus de la probabilité 1/2 attendue est retenue comme la plus probable. La combinaison de plusieurs approximations linéaires à travers les différents tours de l'algorithme repose sur le **lemme du pilage** (*piling-up lemma*), qui permet de calculer le biais résultant d'une chaîne d'approximations élémentaires combinées.
 
 ---
 
 ## 4. Pourquoi AES résiste-t-il mieux ?
 
-AES a été conçu (concours public NIST, choix de Rijndael en 2001) en intégrant explicitement des critères de résistance à la cryptanalyse différentielle et linéaire dès sa conception (structure des boîtes-S optimisée, nombre de tours dimensionné avec marge de sécurité). Aucune attaque académique connue à ce jour ne casse AES pleine puissance plus rapidement qu'une recherche exhaustive proche de l'optimum théorique.
+**AES** (choisi en 2001 à l'issue d'un concours public international organisé par le NIST américain, sous le nom original de *Rijndael*, proposé par les cryptographes belges Joan Daemen et Vincent Rijmen) a été conçu, dès l'origine, en intégrant explicitement des **critères de résistance** aux attaques différentielles et linéaires — contrairement à DES, dont la résistance à ces attaques n'a été qu'une conséquence partielle et empirique de choix de conception antérieurs à la découverte publique de ces techniques.
+
+Concrètement, la conception d'AES repose sur :
+
+- une **structure des boîtes-S** mathématiquement optimisée (fondée sur l'inverse dans un corps fini, GF(2⁸)) pour minimiser les biais différentiels et linéaires exploitables ;
+- un **nombre de tours** (10, 12 ou 14 selon la taille de clé) dimensionné avec une **marge de sécurité** volontairement confortable au-delà du minimum théoriquement nécessaire pour résister aux attaques connues au moment de sa conception, anticipant ainsi de futures améliorations éventuelles des techniques cryptanalytiques.
+
+Cette démarche de conception, fondée sur des **preuves de résistance** (bornes démontrables sur la probabilité maximale des caractéristiques différentielles et linéaires) plutôt que sur une simple absence d'attaque connue au moment de la publication, explique pourquoi, à ce jour, **aucune attaque académique publiée ne casse AES pleine puissance** plus rapidement qu'une recherche exhaustive proche de l'optimum théorique de 2^(n−1) — un résultat remarquable pour un algorithme utilisé à si grande échelle depuis plus de vingt ans.
 
 ---
 
 ## 5. Attaques structurelles sur les modes opératoires
 
-Un algorithme de bloc robuste (AES) peut néanmoins être compromis par un **mode opératoire** mal choisi ou mal utilisé :
+Un algorithme de chiffrement par blocs intrinsèquement robuste comme AES peut néanmoins être compromis en pratique par un **mode opératoire** mal choisi ou mal utilisé — un mode opératoire définissant la façon dont l'algorithme de bloc, qui ne chiffre qu'un bloc de taille fixe (128 bits pour AES), est appliqué à un message de longueur arbitraire.
 
 | Mode | Faiblesse exploitable |
 |---|---|
-| **ECB** (Electronic Codebook) | des blocs de clair identiques produisent des blocs chiffrés identiques → motifs visibles (voir TP3) |
-| **CBC sans authentification** | vulnérable aux attaques par *padding oracle* si un serveur révèle si le padding est valide (voir TP3) |
-| **Réutilisation de nonce/IV** (CTR, GCM) | annule la sécurité du chiffrement en flux résultant, permet de retrouver le XOR de deux messages clairs |
+| **ECB** (Electronic Codebook) | chaque bloc de texte clair est chiffré indépendamment avec la même clé, sans aucun élément aléatoire ; des blocs de texte clair identiques produisent donc systématiquement des blocs chiffrés identiques, ce qui laisse transparaître des motifs structurels du message d'origine (illustré classiquement par le chiffrement ECB d'une image, où les zones uniformes restent visuellement reconnaissables — voir TP3) |
+| **CBC sans authentification** | chaque bloc de texte clair est combiné par XOR avec le bloc chiffré précédent avant chiffrement, ce qui élimine la faiblesse d'ECB, mais un système qui révèle si le padding (remplissage, souvent PKCS#7) du texte déchiffré est valide ou non ouvre la voie à une attaque par **oracle de padding**, permettant de déchiffrer progressivement un message entier sans connaître la clé (détaillée au chapitre 6 et en TP3) |
+| **Réutilisation de nonce/IV** (modes CTR, GCM) | ces modes transforment un chiffrement par blocs en un chiffrement de flux, en combinant par XOR le texte clair avec un flux de clé généré à partir d'un nonce ou vecteur d'initialisation (IV) unique ; si ce nonce est accidentellement réutilisé avec la même clé pour deux messages différents, un attaquant qui intercepte les deux textes chiffrés peut calculer le XOR des deux textes clairs correspondants (car le flux de clé identique s'annule), ce qui annule une grande partie de la sécurité recherchée et peut, combiné à des techniques d'analyse de langage naturel, permettre de retrouver les deux messages |
 
-Ces attaques ne cassent pas l'algorithme de bloc lui-même : elles exploitent un mauvais usage, ce qui souligne l'importance, en cryptographie appliquée, de suivre des schémas éprouvés (AES-GCM, ChaCha20-Poly1305) plutôt que de composer soi-même bloc + mode.
+Il est essentiel de souligner que ces trois faiblesses **ne remettent aucunement en cause la sécurité de l'algorithme de bloc lui-même** (AES reste, dans les trois cas, parfaitement robuste) : elles résultent exclusivement d'un mauvais usage du mode opératoire qui l'entoure. Cette distinction souligne un principe central de la cryptographie appliquée : il est très fortement déconseillé de composer soi-même un algorithme de bloc et un mode opératoire de façon artisanale ; il est bien préférable de s'appuyer sur des **schémas authentifiés éprouvés et standardisés**, tels qu'AES-GCM ou ChaCha20-Poly1305, qui associent chiffrement et vérification d'intégrité/authenticité de façon à prévenir nativement ces classes de faiblesses.
 
 ---
 
 ## 6. Attaques par compromis temps-mémoire
 
-Les **tables arc-en-ciel (rainbow tables)** illustrent un compromis entre temps de calcul et espace de stockage pour inverser une fonction à sens unique (utilisées historiquement contre des hachages de mots de passe non salés — approfondi au chapitre 4).
+Une autre famille de techniques cryptanalytiques, transversale à plusieurs contextes, repose sur l'idée d'un **compromis entre temps de calcul et espace de stockage** pour inverser une fonction à sens unique. Les **tables arc-en-ciel** (*rainbow tables*) en sont l'illustration la plus connue : au lieu de recalculer, pour chaque tentative, l'application complète de la fonction à inverser (ce qui coûterait beaucoup de temps de calcul mais peu de mémoire), ou de précalculer et stocker l'intégralité de toutes les correspondances possibles (ce qui coûterait beaucoup de mémoire mais permettrait une recherche instantanée), une table arc-en-ciel construit une structure intermédiaire, fondée sur des chaînes de réduction et de calcul alternées, qui réduit considérablement l'espace de stockage nécessaire au prix d'un temps de recherche légèrement accru par rapport à une table de correspondance complète.
+
+Ces tables ont été utilisées historiquement, avec un succès notable, contre des **hachages de mots de passe non salés** — un sujet approfondi au chapitre 4, où l'on verra que le **salage** (l'ajout d'une valeur aléatoire unique à chaque mot de passe avant hachage) neutralise précisément ce type d'attaque en rendant impossible la réutilisation d'une table précalculée d'un utilisateur à l'autre.
 
 ---
 
 ## À retenir
 
-- La taille de clé fixe la borne théorique de résistance à la force brute ; DES est aujourd'hui cassable, AES ne l'est pas avec la technologie actuelle.
-- Cryptanalyse différentielle et linéaire exploitent des biais statistiques internes à la structure de l'algorithme et ont directement influencé la conception d'AES.
-- La grande majorité des compromissions pratiques de chiffrements symétriques modernes viennent d'un mauvais mode opératoire ou d'une mauvaise gestion des nonces/IV, pas d'une faille dans l'algorithme de bloc lui-même.
+- La taille de clé fixe la borne théorique de résistance à la force brute (2^(n−1) essais en moyenne) ; DES (56 bits) est aujourd'hui cassable en pratique, AES (128 bits ou plus) ne l'est pas avec la technologie actuelle et prévisible.
+- Cryptanalyse différentielle (Biham-Shamir) et cryptanalyse linéaire (Matsui) exploitent des biais statistiques internes à la structure de l'algorithme et ont directement influencé la conception défensive d'AES.
+- La grande majorité des compromissions pratiques de chiffrements symétriques modernes viennent d'un mauvais mode opératoire ou d'une mauvaise gestion des nonces/IV, pas d'une faille dans l'algorithme de bloc lui-même — d'où l'importance de privilégier des schémas authentifiés standardisés (AES-GCM, ChaCha20-Poly1305).

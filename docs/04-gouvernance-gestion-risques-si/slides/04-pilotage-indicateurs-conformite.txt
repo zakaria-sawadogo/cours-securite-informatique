@@ -8,61 +8,96 @@
 
 ## 1. Pourquoi piloter par les indicateurs
 
-Une gouvernance SSI mature ne se limite pas à produire des documents (PSSI, analyses de risque) : elle démontre, dans la durée, une amélioration mesurable. Les indicateurs permettent de communiquer objectivement avec la direction, de détecter une dérive avant qu'elle ne devienne un incident, et de justifier les investissements.
+Une gouvernance SSI mature ne se limite pas à produire des documents — une PSSI rédigée, des analyses de risque menées une fois, un plan de continuité archivé : elle démontre, dans la durée, une **amélioration mesurable et continue**. C'est précisément le rôle des indicateurs que de rendre visible, objectivement, ce qui autrement resterait une impression subjective (« nous sommes plutôt bien protégés », « la situation s'améliore »).
+
+Les indicateurs remplissent trois fonctions essentielles dans le dispositif de gouvernance :
+
+- **Communiquer objectivement avec la direction** : des indicateurs chiffrés et suivis dans le temps permettent au RSSI de rendre compte de façon crédible et argumentée, plutôt que par des affirmations générales difficiles à vérifier.
+- **Détecter une dérive avant qu'elle ne devienne un incident** : un indicateur qui se dégrade progressivement (par exemple un allongement du délai d'application des correctifs de sécurité) est souvent un signal d'alerte précoce, permettant d'agir avant que la dégradation ne se traduise par un incident effectif.
+- **Justifier les investissements** : face à des arbitrages budgétaires concurrents (cf. chapitre 1), des indicateurs solides permettent d'argumenter objectivement en faveur d'un investissement de sécurité, en montrant par exemple qu'un indicateur reste durablement dégradé faute de moyens suffisants.
+
+Sans dispositif de pilotage, la gouvernance SSI risque de rester une démarche essentiellement déclarative, difficile à distinguer d'une simple accumulation de bonnes intentions non vérifiées.
 
 ---
 
 ## 2. Caractéristiques d'un bon indicateur
 
-Un indicateur utile est généralement décrit par les critères **SMART** : Spécifique, Mesurable, Atteignable, Réaliste, Temporellement défini. Il doit surtout être **actionnable** : un indicateur qui ne débouche sur aucune décision possible n'a pas d'intérêt opérationnel.
+Tous les indicateurs ne se valent pas. Un indicateur mal conçu peut même s'avérer contre-productif, en mobilisant du temps de collecte sans apporter d'information exploitable. La pratique de gestion recommande généralement de vérifier qu'un indicateur respecte les critères **SMART** :
+
+- **Spécifique** : porte sur un aspect précis et clairement délimité, sans ambiguïté d'interprétation.
+- **Mesurable** : peut être quantifié de façon fiable et reproductible, à partir de données réellement disponibles.
+- **Atteignable** : la cible fixée doit être réaliste au regard des moyens dont dispose l'organisation.
+- **Réaliste** (ou *pertinent*) : doit correspondre à un enjeu réellement significatif pour l'organisation, et non à une donnée facile à collecter mais peu utile.
+- **Temporellement défini** : associé à une fréquence de mesure et, si nécessaire, à une échéance cible.
+
+Au-delà de ces critères classiques, un indicateur utile doit surtout être **actionnable** : c'est-à-dire qu'il doit exister une décision concrète que l'organisation pourrait prendre en réaction à son évolution. Un indicateur qui ne débouche sur aucune décision possible — parce qu'il n'est rattaché à aucun responsable, à aucun processus de décision, ou parce qu'il ne dit rien sur ce qu'il faudrait faire s'il se dégradait — n'a en réalité aucun intérêt opérationnel, même s'il paraît sophistiqué sur le papier. Cette exigence d'actionnabilité doit systématiquement primer sur la tentation de multiplier les indicateurs pour donner une impression de rigueur.
 
 ---
 
 ## 3. Exemples d'indicateurs SSI
 
+Le tableau suivant présente des exemples d'indicateurs couramment utilisés en gouvernance SSI, répartis par catégorie :
+
 | Catégorie | Exemple d'indicateur |
 |---|---|
-| Vulnérabilités | délai moyen d'application des correctifs critiques (patch management) |
-| Incidents | nombre d'incidents de sécurité déclarés par mois, temps moyen de détection (MTTD), temps moyen de résolution (MTTR) |
-| Sensibilisation | taux de clics sur des campagnes de simulation de phishing |
-| Conformité | pourcentage d'exigences ISO 27001 couvertes, nombre de non-conformités ouvertes |
-| Continuité | résultat des derniers tests de PCA/PRA (RTO/RPO atteints ou non) |
-| Accès | nombre de comptes à privilèges, délai de révocation des accès après départ d'un collaborateur |
+| Vulnérabilités | délai moyen d'application des correctifs critiques (*patch management*), nombre de vulnérabilités critiques ouvertes depuis plus d'un délai cible donné |
+| Incidents | nombre d'incidents de sécurité déclarés par mois, temps moyen de détection (MTTD — *Mean Time To Detect*), temps moyen de résolution (MTTR — *Mean Time To Resolve*) |
+| Sensibilisation | taux de clics sur des campagnes de simulation de phishing, taux de complétion des formations obligatoires de sensibilisation |
+| Conformité | pourcentage d'exigences ISO 27001 couvertes par des mesures effectivement mises en œuvre, nombre de non-conformités ouvertes lors du dernier audit |
+| Continuité | résultat des derniers tests de PCA/PRA (RTO/RPO atteints ou non lors de l'exercice) |
+| Accès | nombre de comptes à privilèges actifs, délai moyen de révocation des accès après le départ d'un collaborateur |
+
+Chaque catégorie répond à une préoccupation de gouvernance distincte : les indicateurs de vulnérabilités et d'incidents mesurent l'exposition technique réelle, les indicateurs de sensibilisation mesurent le facteur humain (souvent identifié comme un vecteur d'attaque important dans les scénarios EBIOS RM — cf. chapitre 2), les indicateurs de conformité mesurent l'écart par rapport aux référentiels normatifs, les indicateurs de continuité mesurent la préparation aux crises (cf. chapitre 3), et les indicateurs d'accès mesurent l'application effective du principe de moindre privilège.
+
+Il est préférable de retenir un nombre restreint d'indicateurs réellement suivis et exploités, plutôt qu'une liste exhaustive mais rarement mise à jour : la valeur d'un tableau de bord tient davantage à la régularité et à la fiabilité de son suivi qu'à l'exhaustivité de son contenu.
 
 ---
 
 ## 4. Tableau de bord SSI
 
-Un tableau de bord synthétise ces indicateurs pour différents publics :
+Un tableau de bord SSI synthétise ces indicateurs pour des publics différents, dont les besoins d'information ne sont pas les mêmes :
 
-- **Vision direction** : quelques indicateurs agrégés, tendance (amélioration/dégradation), niveau de risque global.
-- **Vision RSSI/opérationnelle** : indicateurs détaillés par domaine, permettant d'identifier les points d'action prioritaires.
+- **Vision direction** : un nombre volontairement restreint d'indicateurs agrégés, présentés avec leur tendance (amélioration ou dégradation par rapport à la période précédente) et un niveau de risque global synthétique. L'objectif est de permettre une lecture rapide, en quelques minutes, sans nécessiter d'expertise technique.
+- **Vision RSSI / opérationnelle** : des indicateurs beaucoup plus détaillés, ventilés par domaine (vulnérabilités, incidents, conformité, etc.), permettant d'identifier précisément les points d'action prioritaires et de piloter le travail des équipes au quotidien.
 
-La fréquence de mise à jour (mensuelle, trimestrielle) et le format (comité de pilotage, revue de direction) doivent être définis dans la gouvernance elle-même.
+Cette différenciation par public est essentielle : présenter à la direction générale le même niveau de détail qu'aux équipes opérationnelles risquerait de noyer l'information réellement stratégique dans un volume de données difficile à interpréter rapidement, tandis qu'un tableau de bord trop agrégé serait, à l'inverse, inutilisable pour piloter le travail quotidien des équipes techniques.
+
+La **fréquence de mise à jour** (mensuelle pour un suivi opérationnel rapproché, trimestrielle pour une vision plus stratégique) et le **format de restitution** (comité de pilotage sécurité, revue de direction périodique) ne doivent pas être laissés à l'improvisation : ils doivent être définis explicitement dans le dispositif de gouvernance lui-même, au même titre que les rôles et responsabilités présentés au chapitre 1.
 
 ---
 
 ## 5. Conformité réglementaire : panorama non exhaustif
 
+La conformité réglementaire constitue un pan important — mais non exclusif — de la gouvernance SSI. Le tableau suivant dresse un panorama, volontairement non exhaustif, des grandes catégories d'obligations auxquelles une organisation peut être soumise :
+
 | Cadre réglementaire | Portée | Point clé |
 |---|---|---|
-| **RGPD** (et lois nationales équivalentes de protection des données) | données à caractère personnel | notification des violations, analyse d'impact (AIPD) pour les traitements à risque |
-| **Réglementations sectorielles** (banque, assurance, santé, télécoms) | secteurs régulés | exigences souvent renforcées (ex. résilience opérationnelle dans le secteur financier) |
-| **Réglementations nationales de cybersécurité** (souvent inspirées de directives régionales) | opérateurs d'importance vitale ou essentiels | obligations de déclaration d'incident, exigences techniques minimales |
-| **Exigences contractuelles** | relations clients/fournisseurs | souvent alignées sur ISO 27001 ou des questionnaires de sécurité spécifiques |
+| **RGPD** (et lois nationales équivalentes de protection des données) | données à caractère personnel | notification des violations de données aux autorités compétentes, analyse d'impact relative à la protection des données (AIPD) exigée pour les traitements à risque élevé |
+| **Réglementations sectorielles** (banque, assurance, santé, télécommunications) | secteurs régulés | exigences souvent renforcées par rapport au droit commun, par exemple en matière de résilience opérationnelle dans le secteur financier |
+| **Réglementations nationales de cybersécurité** (souvent inspirées de directives régionales) | opérateurs d'importance vitale ou d'entités jugées essentielles | obligations de déclaration d'incident dans des délais contraints, exigences techniques minimales imposées |
+| **Exigences contractuelles** | relations clients / fournisseurs | souvent alignées sur la certification ISO 27001 ou formalisées via des questionnaires de sécurité spécifiques imposés par les clients |
 
-La conformité n'est pas un objectif en soi mais un sous-ensemble de la gestion des risques : une organisation conforme n'est pas nécessairement sécurisée, et inversement une organisation bien sécurisée doit néanmoins documenter sa conformité pour ses obligations légales et contractuelles.
+Un point conceptuel important à retenir : la **conformité n'est pas un objectif en soi**, mais un sous-ensemble de la gestion des risques au sens large. Une organisation peut être formellement conforme à un référentiel réglementaire tout en restant, dans les faits, insuffisamment sécurisée — la conformité fixe souvent un plancher d'exigences minimales, pas un plafond de sécurité optimale. Inversement, une organisation peut être réellement bien sécurisée sur le plan opérationnel tout en devant néanmoins documenter et démontrer formellement sa conformité, ne serait-ce que pour répondre à ses obligations légales et contractuelles vis-à-vis de ses clients, partenaires ou régulateurs. La conformité et la sécurité effective doivent donc être pilotées conjointement, sans que l'une se substitue à l'autre.
 
 ---
 
 ## 6. Revue de direction et amélioration continue
 
-L'ISO 27001 impose une revue de direction périodique du SMSI, qui doit examiner : les résultats des audits internes/externes, l'état d'avancement du traitement des risques, les indicateurs de performance, les retours des parties intéressées, et déboucher sur des décisions (allocation de ressources, ajustement des priorités). C'est le point de bouclage du cycle PDCA introduit au chapitre 1.
+La norme **ISO/IEC 27001** impose une **revue de direction** périodique du SMSI (Système de Management de la Sécurité de l'Information), qui constitue le point de bouclage formel du cycle PDCA (*Plan, Do, Check, Act*) introduit au chapitre 1. Cette revue doit examiner un ensemble d'éléments précis, afin que la direction dispose d'une vision complète pour prendre des décisions éclairées :
+
+- Les résultats des **audits internes et externes** menés depuis la revue précédente.
+- L'**état d'avancement du traitement des risques** identifiés (cf. chapitre 2 et chapitre 3), y compris les risques dont le traitement a pris du retard.
+- Les **indicateurs de performance** du dispositif de sécurité, tels que présentés dans ce chapitre.
+- Les **retours des parties intéressées** (clients, partenaires, régulateurs, personnel), qui peuvent révéler des attentes ou des préoccupations non captées par les seuls indicateurs internes.
+
+Cette revue de direction ne doit pas rester un exercice formel sans conséquence : elle doit systématiquement déboucher sur des **décisions concrètes** — allocation ou réallocation de ressources, ajustement des priorités de traitement des risques, révision de la politique de sécurité si nécessaire. C'est cette exigence de décision effective qui referme réellement la boucle du cycle d'amélioration continue, et qui distingue une gouvernance SSI vivante d'une gouvernance purement documentaire : les constats et les indicateurs présentés lors de la revue n'ont de valeur que s'ils nourrissent, en retour, les orientations et les priorités du cycle suivant.
 
 ---
 
 ## À retenir
 
-- Un indicateur SSI doit être actionnable, pas seulement descriptif.
-- Le tableau de bord se décline selon le public (direction vs opérationnel) pour rester pertinent à chaque niveau.
-- La conformité réglementaire est une composante de la gestion des risques, pas un objectif indépendant ; elle se pilote au même titre que les autres indicateurs.
+- Un indicateur SSI doit être actionnable, pas seulement descriptif : il doit exister une décision concrète que l'organisation pourrait prendre en fonction de son évolution.
+- Les indicateurs se répartissent en plusieurs catégories complémentaires (vulnérabilités, incidents, sensibilisation, conformité, continuité, accès), chacune éclairant une dimension différente de la sécurité.
+- Le tableau de bord se décline selon le public visé (direction vs opérationnel), avec des niveaux de détail et des fréquences de mise à jour adaptés à chacun.
+- La conformité réglementaire est une composante de la gestion des risques, pas un objectif indépendant ; être conforme ne garantit pas d'être sécurisé, et inversement.
+- La revue de direction ISO 27001 referme le cycle PDCA en examinant audits, risques, indicateurs et retours des parties intéressées, et doit déboucher sur des décisions concrètes.

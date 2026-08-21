@@ -8,29 +8,39 @@
 
 ## 1. Qu'est-ce qu'un smart contract ?
 
-Un smart contract (« contrat intelligent ») est un programme informatique déployé sur une blockchain, dont le code et l'état s'exécutent de façon déterministe et vérifiable par l'ensemble des nœuds du réseau, sans possibilité de modification unilatérale une fois déployé (sauf mécanisme d'évolutivité explicitement prévu). Le terme « contrat » est trompeur au sens juridique : il s'agit avant tout d'un **programme auto-exécutable**, dont la portée juridique effective dépend du contexte réglementaire.
+Un **smart contract** (« contrat intelligent ») est un programme informatique **déployé directement sur une blockchain**, dont le code et l'état s'exécutent de façon **déterministe** — c'est-à-dire que, pour une même entrée et un même état de départ, tous les nœuds du réseau qui exécutent ce programme obtiennent exactement le même résultat — et **vérifiable** par l'ensemble de ces nœuds, chacun réexécutant indépendamment le même calcul pour s'assurer de sa validité.
+
+Une fois déployé, le code d'un smart contract ne peut en principe plus être modifié unilatéralement par son auteur d'origine, sauf si un mécanisme d'évolutivité (*upgradeability*) a été explicitement prévu dès la conception du contrat — un choix de conception qui a lui-même des implications de sécurité importantes, discutées au chapitre suivant.
+
+Le terme « contrat » est trompeur si on l'entend au sens juridique classique : un smart contract n'est pas, par lui-même, un contrat légalement contraignant reconnu par un système judiciaire. Il s'agit avant tout d'un **programme auto-exécutable** : une fois les conditions codées dans le programme réunies, l'action correspondante (transfert de fonds, mise à jour d'un état) s'exécute automatiquement, sans intervention humaine ni possibilité de négociation a posteriori. La portée juridique effective d'un smart contract — sa reconnaissance comme preuve d'un accord entre parties, son opposabilité devant un tribunal — dépend entièrement du contexte réglementaire de la juridiction concernée, qui varie considérablement d'un pays à l'autre et continue d'évoluer.
 
 ---
 
 ## 2. Ethereum : une blockchain programmable
 
-Ethereum (2015) a étendu le modèle de Bitcoin en introduisant une **machine virtuelle Turing-complète** (l'EVM — Ethereum Virtual Machine), permettant d'exécuter des programmes arbitrairement complexes sur la blockchain, et non plus seulement des transactions de transfert de valeur.
+Bitcoin a été conçu essentiellement pour transférer une unité de valeur d'une adresse à une autre, avec un langage de script volontairement limité pour des raisons de sécurité et de prévisibilité. **Ethereum**, lancé en 2015, a étendu ce modèle de façon décisive en introduisant une **machine virtuelle Turing-complète** : l'**EVM** (*Ethereum Virtual Machine*). Une machine Turing-complète peut, en principe, exécuter n'importe quel programme calculable — boucles, conditions, appels de fonctions imbriqués — ce qui permet d'exécuter sur la blockchain des programmes arbitrairement complexes, et non plus seulement de simples transactions de transfert de valeur.
 
 ### Notion de « gas »
 
-Chaque opération exécutée par l'EVM consomme du « gas », payé par l'émetteur de la transaction dans la cryptomonnaie native (Ether). Ce mécanisme a un double rôle : rémunérer les validateurs pour les ressources de calcul consommées, et **empêcher les boucles infinies ou les attaques par déni de service** (un programme épuise son budget de gas avant de pouvoir consommer des ressources indéfiniment — solution pratique au problème de l'arrêt appliqué à un contexte adversarial).
+Donner à une blockchain publique la capacité d'exécuter des programmes Turing-complets pose un problème classique en informatique théorique : le **problème de l'arrêt** — il n'existe pas, en général, de méthode permettant de prédire à l'avance si un programme donné se terminera ou tournera indéfiniment. Dans un contexte adversarial, où n'importe qui peut soumettre un programme à exécuter par l'ensemble du réseau, cela ouvrirait la porte à des boucles infinies délibérément malveillantes, capables de paralyser le réseau tout entier.
+
+Ethereum répond à ce problème par le mécanisme du **gas** : chaque opération élémentaire exécutée par l'EVM (une addition, un accès en mémoire, un appel à un autre contrat, etc.) a un coût fixé en unités de gas. L'émetteur d'une transaction doit payer ce gas, dans la cryptomonnaie native du réseau (l'**Ether**), et doit fixer à l'avance une limite maximale de gas qu'il accepte de dépenser pour cette transaction. Ce mécanisme remplit un double rôle : il **rémunère les validateurs** pour les ressources de calcul et de stockage effectivement consommées par l'exécution du contrat, et il **empêche les boucles infinies ou les attaques par déni de service**, puisqu'un programme épuise inévitablement son budget de gas avant de pouvoir consommer des ressources indéfiniment — une transaction dont le gas s'épuise est simplement annulée (avec perte du gas déjà consommé), sans que le réseau n'ait à décider si le programme se serait un jour arrêté. C'est une solution pratique et élégante, propre au contexte adversarial d'une blockchain publique, au problème théorique de l'arrêt.
 
 ---
 
 ## 3. Langages et environnement de développement
 
-- **Solidity** : langage le plus utilisé pour écrire des smart contracts sur Ethereum, syntaxe proche du JavaScript/C++.
-- **Environnements de développement/test** : Remix (IDE en ligne), Hardhat, Foundry, permettant de développer, tester et déployer sur des réseaux de test avant tout déploiement sur le réseau principal.
-- **Réseaux de test (testnets)** : répliques du réseau principal utilisant une monnaie sans valeur réelle, indispensables pour tester un contrat avant déploiement (utilisés en TP3/TP4).
+L'écriture, le test et le déploiement de smart contracts s'appuient aujourd'hui sur un écosystème d'outils relativement mature :
+
+- **Solidity** est le langage le plus utilisé pour écrire des smart contracts sur Ethereum et sur les nombreuses blockchains compatibles avec l'EVM. Sa syntaxe, volontairement proche de celle du JavaScript et du C++, facilite sa prise en main par des développeurs déjà familiers avec ces langages, tout en intégrant des concepts propres au contexte blockchain (gestion explicite du gas, types adaptés aux montants de cryptomonnaie, mécanismes de contrôle d'accès).
+- Plusieurs **environnements de développement et de test** facilitent le cycle de développement complet : **Remix** est un environnement de développement intégré (IDE) accessible directement dans un navigateur web, particulièrement adapté à l'apprentissage et au prototypage rapide ; **Hardhat** et **Foundry** sont des environnements plus complets, orientés vers des projets de plus grande envergure, offrant des fonctionnalités avancées de test automatisé, de simulation et de déploiement scriptable.
+- Les **réseaux de test** (*testnets*) sont des répliques du réseau principal (*mainnet*) fonctionnant selon les mêmes règles de protocole, mais utilisant une cryptomonnaie sans valeur financière réelle. Ils sont indispensables pour tester un contrat en conditions réalistes — y compris son interaction avec d'autres contrats déjà déployés — avant tout déploiement sur le réseau principal, où une erreur peut avoir des conséquences financières irréversibles une fois le contrat déployé. C'est sur ce type de réseau que se dérouleront les travaux pratiques de ce module (TP3/TP4).
 
 ---
 
 ## 4. Exemple simplifié de structure d'un smart contract (Solidity)
+
+L'exemple suivant illustre un contrat volontairement minimal, permettant à n'importe quel utilisateur de déposer et de retirer de l'Ether auprès du contrat, un peu à la manière d'un coffre-fort numérique individuel :
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -51,27 +61,34 @@ contract CompteSimple {
 }
 ```
 
-Ce court exemple illustre déjà des notions clés : état persistant sur la blockchain (`mapping`), vérifications explicites (`require`), et manipulation de valeur (Ether) — et prépare directement le chapitre suivant sur la sécurité (l'ordre des opérations dans `retirer` a une importance de sécurité directe).
+Ce court exemple illustre déjà plusieurs notions clés propres à la programmation de smart contracts : un **état persistant** sur la blockchain, stocké ici dans un `mapping` associant chaque adresse à son solde et conservé de façon durable entre les appels ; des **vérifications explicites** effectuées avec `require`, qui annule intégralement la transaction (et restitue le gas non consommé) si la condition n'est pas satisfaite ; et la **manipulation directe de valeur** (Ether), via les mots-clés `payable` qui autorisent une fonction à recevoir ou envoyer des fonds.
+
+Cet exemple prépare directement le chapitre suivant sur la sécurité : l'**ordre des opérations** dans la fonction `retirer` — vérifier le solde, puis le décrémenter, puis seulement transférer les fonds — n'est pas un détail de style, mais une décision de sécurité déterminante, comme le montrera l'étude de la vulnérabilité de réentrance.
 
 ---
 
 ## 5. Cas d'usage des smart contracts
 
-- **Jetons (tokens)** : représentation d'actifs numériques selon des standards (ERC-20 pour des jetons fongibles, ERC-721 pour des jetons non fongibles/NFT).
-- **Finance décentralisée (DeFi)** : prêts, échanges décentralisés (DEX), sans intermédiaire financier traditionnel.
-- **Gouvernance décentralisée (DAO)** : votes et décisions automatisées selon des règles codées.
-- **Traçabilité** : suivi de chaîne logistique, certification de provenance.
+Au-delà de l'exemple pédagogique ci-dessus, les smart contracts servent de fondation à un ensemble de cas d'usage désormais bien établis dans l'écosystème Ethereum et les blockchains compatibles :
+
+- **Jetons (tokens)** : les smart contracts permettent de représenter des actifs numériques selon des **standards** largement adoptés par l'écosystème, ce qui garantit leur interopérabilité entre applications. Le standard **ERC-20** définit une interface commune pour des jetons **fongibles** (interchangeables entre eux, comme une monnaie), tandis que le standard **ERC-721** définit une interface pour des jetons **non fongibles** (NFT), chacun étant unique et distinct des autres.
+- **Finance décentralisée (DeFi)** : des applications de prêt, d'échange décentralisé (*DEX — Decentralized Exchange*) et d'autres produits financiers fonctionnent entièrement via des smart contracts, sans intermédiaire financier traditionnel (banque, courtier) — les règles du service (taux d'intérêt, conditions d'échange) sont directement codées dans le contrat.
+- **Gouvernance décentralisée (DAO)** : une *Decentralized Autonomous Organization* utilise des smart contracts pour organiser des votes entre membres et exécuter automatiquement les décisions adoptées selon des règles définies à l'avance dans le code, sans organe de direction centralisé au sens classique.
+- **Traçabilité** : des smart contracts peuvent enregistrer et faire respecter des étapes de suivi d'une chaîne logistique ou de certification de provenance d'un produit, en s'appuyant sur l'intégrité garantie par la blockchain sous-jacente (avec, ici encore, la limite du problème de l'oracle décrite ci-dessous).
 
 ---
 
 ## 6. Le problème de l'oracle
 
-Un smart contract, par conception, ne peut accéder qu'aux données déjà présentes sur la blockchain : il ne peut pas consulter directement une donnée du monde extérieur (cours d'une action, résultat sportif, météo). Un **oracle** est un service tiers chargé d'apporter cette donnée externe sur la blockchain. Ce point est une source de risque majeure : la sécurité de tout le smart contract dépend alors de la fiabilité de l'oracle utilisé, qui redevient un point de confiance centralisé, en tension avec l'objectif initial de décentralisation.
+Un smart contract, par conception, ne peut accéder qu'aux **données déjà présentes sur la blockchain** au moment de son exécution : il n'a aucun moyen direct de consulter une donnée du monde extérieur — le cours actuel d'une action en bourse, le résultat d'un match sportif, la température relevée par un capteur météo, ou tout autre fait du monde réel. Cette limitation découle directement de l'exigence de **déterminisme** évoquée en début de chapitre : si un contrat pouvait interroger librement une source externe, deux nœuds exécutant le même contrat au même moment pourraient obtenir des réponses différentes (la donnée externe ayant pu changer entre les deux requêtes), brisant l'accord de l'ensemble du réseau sur le résultat de l'exécution.
+
+Un **oracle** est un service tiers chargé d'apporter cette donnée externe sur la blockchain, généralement en la publiant lui-même dans une transaction que le smart contract pourra ensuite lire comme n'importe quelle autre donnée déjà présente sur la chaîne. Ce mécanisme, s'il résout le problème d'accès pratique, introduit un **point de risque majeur** : la sécurité et la correction du smart contract tout entier dépendent désormais de la **fiabilité de l'oracle** utilisé. Si l'oracle transmet une donnée erronée — par erreur ou par manipulation délibérée — le smart contract l'exécutera fidèlement comme s'il s'agissait d'une vérité incontestable, puisqu'il n'a aucun moyen de la questionner. L'oracle redevient ainsi, de fait, un **point de confiance centralisé**, en tension directe avec l'objectif initial de décentralisation qui motive l'usage même d'une blockchain. Cette tension sera reprise au chapitre 5 (manipulation d'oracle de prix) et au chapitre 6 (limites pratiques des applications blockchain).
 
 ---
 
 ## À retenir
 
-- Un smart contract est un programme auto-exécutable, pas nécessairement un contrat juridique au sens classique.
-- Le mécanisme de gas rémunère l'exécution et empêche les boucles infinies, brique essentielle de la sécurité opérationnelle d'Ethereum.
+- Un smart contract est un programme auto-exécutable, déterministe et vérifiable par tous les nœuds, pas nécessairement un contrat juridique au sens classique.
+- Le mécanisme de gas rémunère l'exécution et empêche les boucles infinies en apportant une solution pratique au problème théorique de l'arrêt, brique essentielle de la sécurité opérationnelle d'Ethereum.
+- Solidity, associé à des environnements comme Remix, Hardhat ou Foundry et à des réseaux de test, constitue l'écosystème standard de développement de smart contracts.
 - Le problème de l'oracle rappelle qu'un smart contract ne résout la confiance que pour les données déjà présentes sur la chaîne, pas pour les données du monde réel qui y sont importées.

@@ -8,24 +8,23 @@ use_directory_urls: false
 theme:
   name: material
   language: fr
-  icon:
-    logo: material/shield-lock-outline
-  favicon: assets/favicon.svg
+  logo: assets/img/epo-emblem.png
+  favicon: assets/img/epo-favicon.png
   font:
     text: Inter
     code: JetBrains Mono
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
+      primary: green
+      accent: amber
       toggle:
         icon: material/weather-night
         name: "Passer en mode sombre"
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: green
+      accent: amber
       toggle:
         icon: material/weather-sunny
         name: "Passer en mode clair"

@@ -1,5 +1,7 @@
 <div class="hero" markdown>
 
+![École Polytechnique de Ouagadougou](assets/img/epo-logo-transparent.png){ .hero-logo }
+
 # Dr. Zakaria Sawadogo
 
 **École Polytechnique de Ouagadougou**

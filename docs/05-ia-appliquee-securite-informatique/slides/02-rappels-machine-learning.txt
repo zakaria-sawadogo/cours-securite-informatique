@@ -8,35 +8,49 @@
 
 ## 1. Apprentissage supervisé, non supervisé, par renforcement
 
+Le machine learning se répartit classiquement en trois grands paradigmes d'apprentissage, qui se distinguent par la nature des données disponibles et par ce que le modèle cherche à optimiser.
+
 | Type | Principe | Exemple en sécurité |
 |---|---|---|
 | **Supervisé** | apprend à partir d'exemples étiquetés (entrée, sortie attendue) | classifier un fichier comme malware/sain à partir d'exemples déjà étiquetés |
 | **Non supervisé** | découvre une structure dans des données non étiquetées | regrouper des connexions réseau similaires, détecter des anomalies |
 | **Par renforcement** | un agent apprend par essai-erreur en maximisant une récompense | automatisation de la réponse à incident (usage encore émergent) |
 
+L'**apprentissage supervisé** suppose que l'on dispose déjà d'un jeu de données où chaque exemple est associé à une étiquette connue à l'avance — par exemple des milliers de fichiers déjà catalogués comme « malware » ou « sain » par des analystes ou des outils de réputation. Le modèle apprend une fonction qui associe les caractéristiques d'entrée à l'étiquette de sortie, puis on lui soumet de nouveaux exemples jamais vus pour qu'il prédise leur étiquette. C'est le paradigme le plus utilisé en sécurité pour les tâches de classification (détection de malwares, de phishing), précisément parce que ses performances sont généralement supérieures à celles des approches non supervisées, lorsque des données étiquetées de qualité existent.
+
+L'**apprentissage non supervisé** ne dispose d'aucune étiquette : le modèle doit découvrir seul une structure dans les données (des groupes d'observations similaires, ou des observations atypiques). Ce paradigme est particulièrement utile en sécurité précisément parce que les attaques nouvelles ne sont, par définition, jamais étiquetées à l'avance : on ne peut pas entraîner un modèle supervisé à reconnaître une attaque qu'on n'a encore jamais observée.
+
+L'**apprentissage par renforcement** repose sur un agent qui interagit avec un environnement, reçoit une récompense (positive ou négative) en fonction de ses actions, et ajuste sa stratégie pour maximiser la récompense cumulée dans le temps. Son usage en cybersécurité reste aujourd'hui plus expérimental que les deux paradigmes précédents, mais il commence à apparaître dans des scénarios d'automatisation de la réponse à incident, où un agent doit choisir la meilleure action (isoler une machine, bloquer une adresse IP, escalader vers un humain) en fonction du contexte observé.
+
 ---
 
 ## 2. Classification vs régression
 
-- **Classification** : prédire une catégorie (ex. « malveillant » / « bénin »).
-- **Régression** : prédire une valeur continue (ex. score de risque entre 0 et 100).
+Au sein de l'apprentissage supervisé, on distingue deux grandes familles de tâches selon la nature de la sortie prédite :
 
-La plupart des cas d'usage en détection de sécurité relèvent de la classification (binaire ou multi-classe).
+- **Classification** : prédire une catégorie parmi un ensemble fini de classes possibles (ex. « malveillant » / « bénin » pour une classification binaire, ou plusieurs familles de malwares pour une classification multi-classe).
+- **Régression** : prédire une valeur numérique continue (ex. un score de risque compris entre 0 et 100, ou une estimation du temps avant qu'une vulnérabilité ne soit exploitée).
+
+La distinction n'est pas seulement académique : elle détermine le choix de l'algorithme, la fonction de coût utilisée pendant l'entraînement, et surtout les métriques d'évaluation pertinentes (voir section 5). La plupart des cas d'usage en détection de sécurité relèvent de la classification, le plus souvent binaire (attaque/normal) ou multi-classe (type d'attaque parmi plusieurs catégories connues) ; la régression est en revanche plus fréquente pour des tâches de scoring, où l'on cherche à ordonner des éléments par degré de risque plutôt qu'à les ranger dans des catégories strictes.
 
 ---
 
 ## 3. Cycle de vie d'un projet de machine learning
 
-1. **Collecte et préparation des données** : nettoyage, gestion des valeurs manquantes, normalisation.
-2. **Ingénierie des caractéristiques (feature engineering)** : transformer des données brutes (paquets réseau, texte) en variables numériques exploitables par un modèle.
-3. **Séparation des données** : ensemble d'entraînement, de validation, de test — pour éviter le surapprentissage (*overfitting*).
-4. **Entraînement du modèle**.
-5. **Évaluation** sur des données jamais vues par le modèle.
-6. **Déploiement et supervision continue** (un modèle en production doit être réévalué régulièrement : concept drift).
+Un projet de ML appliqué à la sécurité ne se résume jamais à « entraîner un modèle » : c'est un cycle complet, dont chaque étape conditionne la qualité du résultat final.
+
+1. **Collecte et préparation des données** : rassembler les données brutes pertinentes (journaux, captures réseau, échantillons de fichiers), puis les nettoyer — corriger ou supprimer les valeurs aberrantes, gérer les valeurs manquantes, normaliser les échelles numériques pour que des variables de magnitudes très différentes (ex. un nombre d'octets en millions et un indicateur binaire) ne biaisent pas l'apprentissage.
+2. **Ingénierie des caractéristiques (feature engineering)** : transformer des données brutes, souvent non structurées (paquets réseau, texte libre, séquences d'appels système), en variables numériques exploitables par un modèle. Cette étape est fréquemment celle qui demande le plus d'expertise métier : un ingénieur en sécurité sait quelles propriétés d'un fichier ou d'une connexion sont susceptibles d'être discriminantes.
+3. **Séparation des données** : diviser le jeu de données disponible en un ensemble d'**entraînement** (utilisé pour ajuster les paramètres du modèle), un ensemble de **validation** (utilisé pour ajuster les hyperparamètres et comparer plusieurs modèles) et un ensemble de **test** (utilisé une seule fois, à la toute fin, pour estimer la performance réelle du modèle final). Cette séparation stricte est indispensable pour éviter le surapprentissage (*overfitting*, voir section 6) et pour obtenir une estimation honnête de la performance attendue en production.
+4. **Entraînement du modèle** : ajuster les paramètres internes du modèle choisi de manière à minimiser l'écart entre ses prédictions et les étiquettes réelles sur l'ensemble d'entraînement.
+5. **Évaluation** sur des données jamais vues par le modèle (l'ensemble de test), en utilisant des métriques adaptées au contexte — un point crucial développé à la section 5, car en sécurité une métrique mal choisie peut donner une fausse impression de succès.
+6. **Déploiement et supervision continue** : un modèle en production n'est jamais une œuvre définitive. Il doit être réévalué régulièrement, car les données rencontrées en production dérivent souvent progressivement des données d'entraînement d'origine (concept drift) ; un modèle qui n'est plus supervisé se dégrade silencieusement dans le temps.
 
 ---
 
 ## 4. Quelques algorithmes classiques
+
+Le tableau ci-dessous présente les familles d'algorithmes les plus couramment rencontrées dans les cas d'usage de sécurité abordés dans ce module. Aucun de ces algorithmes n'est universellement « meilleur » que les autres : le choix dépend de la nature des données, du volume disponible, du besoin d'interprétabilité et des contraintes de latence en production.
 
 | Algorithme | Type | Caractéristique |
 |---|---|---|
@@ -47,32 +61,46 @@ La plupart des cas d'usage en détection de sécurité relèvent de la classific
 | Isolation Forest | non supervisé, détection d'anomalies | isole les observations atypiques efficacement, utilisé en TP2 |
 | Réseaux de neurones / Deep Learning | supervisé ou non supervisé | performant sur données complexes (texte, image, séquences) mais moins interprétable |
 
+La **régression logistique** reste, malgré sa simplicité, un choix pertinent comme point de départ de tout projet : rapide à entraîner, ses coefficients s'interprètent directement (l'influence de chaque caractéristique sur la prédiction est explicite), ce qui en fait une excellente ligne de base à laquelle comparer des modèles plus complexes.
+
+Les **forêts aléatoires** (*Random Forest*) combinent un grand nombre d'arbres de décision entraînés sur des sous-échantillons légèrement différents des données, puis agrègent leurs votes. Cette approche d'ensemble les rend généralement robustes au bruit et aux données hétérogènes (mélange de variables numériques et catégorielles), tout en conservant une interprétabilité raisonnable via l'importance des caractéristiques.
+
+Les **SVM** cherchent la frontière de séparation qui maximise la marge entre les classes, ce qui les rend particulièrement efficaces lorsque le nombre de caractéristiques (dimensions) est élevé par rapport au nombre d'exemples disponibles — une situation fréquente en analyse de texte ou de binaires.
+
+**K-means** et **Isolation Forest** sont deux algorithmes non supervisés aux usages différents mais complémentaires en sécurité : K-means regroupe des observations en un nombre fixé de groupes homogènes (utile pour identifier des profils de trafic typiques), tandis qu'Isolation Forest cherche spécifiquement les observations qui se démarquent du reste — une approche naturellement adaptée à la détection d'anomalies, reprise en pratique au TP2 de ce module.
+
+Les **réseaux de neurones**, et plus largement le *deep learning*, excellent sur des données à structure complexe (texte, image, séquences temporelles) où l'ingénierie manuelle des caractéristiques serait difficile ou insuffisante, le modèle apprenant lui-même des représentations pertinentes à partir des données brutes. Cette performance a toutefois un coût : ces modèles sont plus gourmands en données et en puissance de calcul, et nettement moins interprétables que les approches précédentes — un compromis à garder à l'esprit, en écho aux limites évoquées au chapitre 1.
+
 ---
 
 ## 5. Métriques d'évaluation, essentielles en sécurité
 
-Pour une classification binaire, la matrice de confusion distingue :
+Pour une classification binaire, la **matrice de confusion** est l'outil de base pour analyser les erreurs d'un modèle : elle distingue quatre cas possibles selon la valeur réelle et la valeur prédite.
 
 |  | Prédit positif | Prédit négatif |
 |---|---|---|
 | **Réel positif** | Vrai Positif (VP) | Faux Négatif (FN) |
 | **Réel négatif** | Faux Positif (FP) | Vrai Négatif (VN) |
 
-- **Précision** = VP / (VP + FP) : parmi les alertes levées, quelle proportion est réellement une menace ?
-- **Rappel (recall)** = VP / (VP + FN) : parmi les menaces réelles, quelle proportion a été détectée ?
-- **F1-score** : moyenne harmonique de précision et rappel.
-- **Taux de faux positifs** = FP / (FP + VN) : critique en sécurité, car un taux élevé provoque la « fatigue d'alerte » des analystes, qui finissent par ignorer les alertes.
+À partir de ces quatre quantités, on construit les métriques réellement utilisées pour évaluer un modèle de détection :
 
-**En sécurité, la simple exactitude globale (accuracy) est souvent trompeuse** : sur un jeu de données très déséquilibré (ex. 0,1 % de trafic réellement malveillant), un modèle qui prédit toujours « bénin » atteint 99,9 % d'exactitude tout en étant totalement inutile. D'où l'importance du rappel et de la précision, en particulier sur la classe minoritaire (l'attaque).
+- **Précision** = VP / (VP + FP) : parmi toutes les alertes levées par le modèle, quelle proportion correspond réellement à une menace ? Une précision faible signifie beaucoup de fausses alertes.
+- **Rappel (recall)** = VP / (VP + FN) : parmi toutes les menaces réellement présentes, quelle proportion a été détectée par le modèle ? Un rappel faible signifie que des menaces réelles passent inaperçues.
+- **F1-score** : moyenne harmonique de la précision et du rappel, utile pour résumer les deux en une seule valeur lorsqu'on souhaite comparer plusieurs modèles sans privilégier a priori l'un des deux critères.
+- **Taux de faux positifs** = FP / (FP + VN) : la proportion d'éléments réellement bénins qui déclenchent, à tort, une alerte. Cette métrique est particulièrement critique en sécurité, car un taux élevé de faux positifs entraîne rapidement la « fatigue d'alerte » des analystes, qui finissent par traiter les alertes de façon superficielle, voire par les ignorer complètement — ce qui, paradoxalement, dégrade la sécurité globale plutôt que de l'améliorer.
+
+**En sécurité, la simple exactitude globale (accuracy) — c'est-à-dire la proportion totale de prédictions correctes — est souvent trompeuse.** Il faut ici garder à l'esprit un exemple illustratif classique : sur un jeu de données très déséquilibré, où par exemple seule une infime fraction du trafic est réellement malveillante, un modèle qui prédirait systématiquement « bénin », sans jamais rien détecter, obtiendrait malgré tout une exactitude globale très proche de 100 %, tout en étant totalement inutile puisqu'il ne détecte aucune attaque. C'est précisément parce que les classes sont déséquilibrées en sécurité (les attaques sont rares comparées au trafic légitime) que le rappel et la précision, calculés en particulier sur la classe minoritaire (l'attaque, la classe positive), sont les métriques réellement informatives — et non l'exactitude globale, qui peut masquer un modèle totalement défaillant.
 
 ---
 
 ## 6. Surapprentissage et sous-apprentissage
 
-- **Surapprentissage (overfitting)** : le modèle « apprend par cœur » les données d'entraînement et généralise mal à de nouvelles données.
-- **Sous-apprentissage (underfitting)** : le modèle est trop simple pour capturer la structure des données.
+Deux écueils opposés guettent l'entraînement d'un modèle, et il est essentiel de savoir les diagnostiquer avant tout déploiement :
 
-La validation croisée (cross-validation) et un ensemble de test totalement indépendant permettent de détecter ces situations avant tout déploiement.
+- **Surapprentissage (overfitting)** : le modèle « apprend par cœur » les particularités — y compris le bruit — des données d'entraînement, au point de perdre sa capacité à généraliser à de nouvelles données. Un modèle en surapprentissage affiche une excellente performance sur les données d'entraînement mais une performance nettement plus faible sur des données jamais vues, symptôme caractéristique d'un modèle trop complexe pour la quantité de données disponible, ou entraîné trop longtemps.
+- **Sous-apprentissage (underfitting)** : à l'inverse, le modèle est trop simple pour capturer la structure réelle des données, et ses performances restent médiocres même sur les données d'entraînement elles-mêmes — signe qu'il faut soit enrichir les caractéristiques utilisées, soit choisir un modèle plus expressif.
+
+La **validation croisée** (*cross-validation*), qui consiste à entraîner et évaluer le modèle sur plusieurs découpages différents des données d'entraînement, et un **ensemble de test totalement indépendant**, jamais utilisé pendant l'entraînement ni le réglage des hyperparamètres, permettent de détecter ces deux situations de façon fiable avant tout déploiement en production. Un modèle qui n'a jamais été évalué sur des données réellement indépendantes ne devrait jamais être déployé tel quel dans un système de sécurité opérationnel.
 
 ---
 
